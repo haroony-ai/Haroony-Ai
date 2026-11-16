@@ -148,10 +148,28 @@ def run_all_tests() -> None:
         tv_bad = client.post("/api/teacher/verify", data={"pin": "9999"})
         assert tv_bad.status_code == 401
 
-        # 12. YouTube Video Solutions Finder in Chat + Deterministic Repeat Grading + Revision Notes
+        # 12. YouTube Video Solutions Finder + Topic/Unit-Locked Chat & Video Accuracy (Zero Cross-Unit Leaks!)
         vid_q = client.post("/api/chat", data={"message": "Give me YouTube videos for solving density"}).json()
         assert vid_q["ok"] is True and len(vid_q.get("video_links", [])) >= 5
         assert "https://youtu.be/" in vid_q["reply"]
+
+        topic_video_cases = [
+            ("Explain convection in fluids", "Unit 2: Thermal Physics", "Unit 2: Thermal Physics"),
+            ("How does a step-up transformer work?", "Unit 4: Electromagnetism", "Unit 4: Electromagnetism"),
+            ("What is Ohm law?", "Unit 3: Electricity", "Unit 3: Electricity"),
+            ("What is redshift and Big Bang?", "Unit 7: Astronomy", "Unit 7: Astronomy"),
+            ("Explain longitudinal vs transverse waves", "Unit 6: Waves", "Unit 6: Waves"),
+            ("Give me YouTube videos for waves", "Unit 6: Waves", "Unit 6: Waves"),
+        ]
+        for q_txt, exp_note_unit, exp_vid_unit in topic_video_cases:
+            res_t = client.post("/api/chat", data={"message": q_txt}).json()
+            assert res_t["ok"] is True and res_t["refused"] is False, f"Failed: {q_txt}"
+            for card in res_t.get("notes_cards", []):
+                assert card["unit"] == exp_note_unit, f"Wrong card unit for {q_txt}: {card}"
+            vids = res_t.get("video_links", [])
+            assert len(vids) >= 1, f"Expected videos for: {q_txt}"
+            for v in vids:
+                assert v["unit"] == exp_vid_unit, f"Wrong video unit for {q_txt}: {v}"
 
         auto_q = "Question: Explain why a steel ship floats on water. Answer: The ship is not solid steel and has air spaces so its overall density is less than water."
         ag1 = client.post("/api/grade", data={"student_text": auto_q}).json()

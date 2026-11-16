@@ -9,8 +9,8 @@
   let kbData = null;
 
   const REFUSAL_MSG =
-    "I'm **Haroony AI**, and I specialize exclusively in **Physics** (IGCSE & A-Level Physics tutoring and exam answer correction).\n\n" +
-    "Ask me any question on *Mechanics, Thermal Physics, Waves, Light, Electricity, Electromagnetism, Nuclear Physics, or Space Physics*, or open **Check Answer** to grade your Physics work.";
+    "I'm **Haroony AI**, and I specialize exclusively in **Physics** (IGCSE & A-Level Physics tutoring).\n\n" +
+    "Ask me any question on *Mechanics, Thermal Physics, Waves, Light, Electricity, Electromagnetism, Nuclear Physics, or Space Physics*, or attach/paste (`Ctrl+V`) a screenshot of a Physics problem!";
 
   const JAILBREAK_RE =
     /\b(ignore\s+(?:all\s+|previous\s+|prior\s+)?instructions|disregard\s+(?:your\s+)?rules|pretend\s+you\s+are|act\s+as\s+a\s+general|bypass\s+guardrail|reveal\s+system\s+prompt)\b/i;
@@ -22,17 +22,21 @@
     /\b(recipe|bake|cake|pasta|pizza|biryani|chicken|burger|poem|poetry|haiku|sonnet|romeo|juliet|shakespeare|fifa|world\s+cup|football\s+match|basketball|oscar|netflix|movie\s+review|horoscope|zodiac|astrology|bitcoin|crypto|ethereum|stock\s+market|forex|makeup|skincare|mitosis|meiosis|photosynthesis|chloroplast|digestive\s+system|nephron|auxin|enzyme|dna\s+replication|titration|haber\s+process|alkane|alkene|polymerisation|covalent\s+bond|electrolysis\s+of\s+brine|scrape|beautifulsoup|flexbox|react\s+component|sql\s+query|discord\s+bot|roman\s+empire|french\s+revolution|world\s+war|capital\s+of)\b/i;
 
   const STRONG_PHYSICS_RE =
-    /\b(physics|force|newton|velocity|acceleration|deceleration|speed|distance|displacement|scalar|vector|free\s*fall|terminal\s+velocity|momentum|impulse|collision|kinetic|potential\s+energy|gravitational|gpe|work\s+done|power|watt|joule|efficiency|density|mass|volume|weight|gravity|moment|torque|pivot|equilibrium|centre\s+of\s+gravity|center\s+of\s+mass|hooke|spring\s+constant|extension|limit\s+of\s+proportionality|pressure|pascal|barometer|manometer|hydraulic|boyle|kelvin|absolute\s+zero|brownian|evaporation|boiling|melting|thermal|conduction|convection|infrared|radiation|emitter|absorber|specific\s+heat|latent\s+heat|wave|transverse|longitudinal|wavelength|frequency|amplitude|period|hertz|wavefront|diffraction|refraction|reflection|total\s+internal|critical\s+angle|snell|refractive\s+index|lens|focal\s+length|converging|diverging|principal\s+focus|dispersion|monochromatic|electromagnetic\s+spectrum|microwaves|ultraviolet|x-rays|gamma|ultrasound|echo|sonar|pitch|loudness|charge|coulomb|electrostatic|electric\s+field|current|ampere|amps|voltage|volt|emf|potential\s+difference|resistance|ohm|resistor|filament\s+lamp|diode|ldr|thermistor|series\s+circuit|parallel\s+circuit|potential\s+divider|kilowatt|kwh|fuse|earth\s+wire|circuit\s+breaker|magnet|magnetic|solenoid|electromagnet|fleming|motor\s+effect|commutator|electromagnetic\s+induction|lenz|faraday|generator|slip\s+ring|transformer|step-up|step-down|national\s+grid|atom|nucleus|proton|neutron|electron|isotope|nuclide|alpha|beta|radioactive|ionising|ionizing|background\s+radiation|geiger|half-life|decay|fission|fusion|rutherford|gold\s+foil|solar\s+system|orbit|orbital\s+speed|planet|comet|satellite|geostationary|protostar|main\s+sequence|red\s+giant|supergiant|white\s+dwarf|supernova|neutron\s+star|black\s+hole|galaxy|milky\s+way|light-year|redshift|big\s+bang|cosmic\s+microwave|hubble|0625|9702|igcse|mark\s+scheme|harony|haroony)\b/i;
+    /\b(physics|forces?|newtons?|velocit(?:y|ies)|accelerations?|decelerations?|speeds?|distance|displacement|scalar|vector|free\s*fall|terminal\s+velocity|momentum|impulse|collisions?|kinetic|potential\s+energy|gravitational|gpe|work\s+done|power|watts?|joules?|efficiency|densit(?:y|ies)|mass|volume|weight|gravity|moments?|torque|pivot|equilibrium|centre\s+of\s+gravity|center\s+of\s+mass|hooke|spring\s+constant|extension|limit\s+of\s+proportionality|pressures?|pascal|barometer|manometer|hydraulic|boyle|kelvin|absolute\s+zero|brownian|evaporation|boiling|melting|thermal|conduction|convection|infrared|radiation|emitter|absorber|specific\s+heat|latent\s+heat|waves?|transverse|longitudinal|wavelengths?|frequenc(?:y|ies)|amplitude|period|hertz|wavefronts?|diffraction|refraction|reflection|total\s+internal|critical\s+angle|snell|refractive\s+index|lens(?:es)?|focal\s+length|converging|diverging|principal\s+focus|dispersion|monochromatic|electromagnetic\s+spectrum|microwaves?|ultraviolet|x-rays|gamma|ultrasound|echo(?:es)?|sonar|pitch|loudness|charges?|coulombs?|electrostatic|electric\s+field|currents?|amperes?|amps|voltages?|volts?|emf|potential\s+difference|resistance|ohms?|resistors?|filament\s+lamp|diode|ldr|thermistor|series\s+circuit|parallel\s+circuit|circuits?|potential\s+divider|kilowatt|kwh|fuse|earth\s+wire|circuit\s+breaker|magnets?|magnetic|solenoid|electromagnets?|fleming|motor\s+effect|commutator|electromagnetic\s+induction|lenz|faraday|generators?|slip\s+ring|transformers?|step-up|step-down|national\s+grid|atoms?|nucle(?:us|i)|protons?|neutrons?|electrons?|isotopes?|nuclide|alpha|beta|radioactive|radioactivity|ionising|ionizing|background\s+radiation|geiger|half-life|decay|fission|fusion|rutherford|gold\s+foil|solar\s+system|orbits?|orbital\s+speed|planets?|comets?|satellites?|geostationary|protostar|main\s+sequence|red\s+giant|supergiant|white\s+dwarf|supernova|neutron\s+star|black\s+hole|galax(?:y|ies)|milky\s+way|light-year|redshift|big\s+bang|cosmic\s+microwave|hubble|0625|9702|igcse|mark\s+scheme|harony|haroony)\b/i;
 
   const FOLLOWUP_PHYSICS_RE =
     /\b(example|another|explain\s+more|simpler|why|how\s+come|what\s+if|formula|equation|unit|units|step|steps|rearrange|double|halve|increase|decrease|graph|diagram|quiz|question|solve|calculate|check)\b/i;
 
   const STOPWORDS = new Set([
+    "in", "on", "of", "to", "is", "it", "at", "by", "as", "or", "an", "be", "do", "no", "so", "if", "up", "vs",
+    "me", "my", "we", "he", "us", "am", "go",
     "the", "and", "for", "with", "from", "that", "this", "what", "how", "why",
     "explain", "define", "state", "describe", "calculate", "find", "determine",
-    "into", "are", "was", "were", "has", "have", "when", "where", "which",
+    "into", "onto", "are", "was", "were", "has", "have", "had", "when", "where", "which",
     "your", "about", "does", "can", "you", "give", "tell", "please", "physics",
-    "question", "answer", "marks", "mark"
+    "question", "questions", "answer", "marks", "mark", "compare", "difference", "between",
+    "law", "laws", "effect", "effects", "rule", "rules", "principle", "theory",
+    "work", "works", "first", "second", "third", "fluid", "fluids", "step", "steps",
   ]);
 
   // Built-in Physics Concept Synthesizer fallback knowledge (used ONLY if WebGPU/WASM CDN is unreachable)
@@ -95,6 +99,78 @@
         "**Principle of Moments:** For an object in rotational equilibrium, **total clockwise moment = total anticlockwise moment** about the same pivot.",
         "**Two Conditions for Complete Equilibrium:** (1) No resultant force in any direction (`ΣF = 0`), and (2) No resultant moment about any point (`ΣM = 0`).",
         "**SI Unit:** Newton-metre (`N m`). Note: Moment is a vector (direction: clockwise or anticlockwise), distinct from work done in joules.",
+      ],
+    },
+    {
+      match: /\b(convection|conduction|thermal\s+radiation|heat\s+transmission)\b/i,
+      title: "Thermal Energy Transfer (Conduction, Convection & Radiation)",
+      summary:
+        "Thermal energy transfers by **conduction** (mainly in solids), **convection** (in fluids: liquids and gases), and **infrared radiation** (even through a vacuum).",
+      formulas: ["Density = Mass / Volume  (ρ = m / V)"],
+      points: [
+        "**Convection (Fluids):** Heated fluid **expands**, its **density decreases**, and the warmer, less dense fluid **rises**; cooler, denser fluid **sinks** to take its place, forming a **convection current**.",
+        "**Conduction (Metals vs Non-metals):** Lattice ions vibrate faster and pass energy to neighbours; in metals, **delocalised (free) electrons** move rapidly through the lattice and collide with ions, transferring energy much faster.",
+        "**Infrared Radiation:** **Dull, black surfaces** are the best emitters and absorbers; **shiny, silver/white surfaces** are poor emitters and good reflectors.",
+      ],
+    },
+    {
+      match: /\b(transverse|longitudinal|diffraction|wave\s+properties|ripple\s+tank)\b/i,
+      title: "General Wave Properties & Diffraction",
+      summary:
+        "Waves transfer **energy without transferring matter**. They are classified as **transverse** or **longitudinal** based on particle vibration direction.",
+      formulas: ["v = f × λ", "f = 1 / T"],
+      points: [
+        "**Transverse Waves (e.g. light, water, EM waves):** Particles vibrate **perpendicular (at 90°)** to the direction of wave energy propagation (forming crests and troughs).",
+        "**Longitudinal Waves (e.g. sound):** Particles vibrate **parallel** to the direction of energy propagation, forming alternating **compressions** (high pressure) and **rarefactions** (low pressure).",
+        "**Diffraction:** Waves spread out when passing through a gap or around an edge. **Maximum diffraction** occurs when the **gap width ≈ wavelength (`λ`)**; wavelength, frequency, and speed stay **unchanged**.",
+      ],
+    },
+    {
+      match: /\b(sound\s+waves?|echo(?:es)?|ultrasound|pitch|loudness)\b/i,
+      title: "Sound Waves, Echoes & Ultrasound",
+      summary:
+        "Sound is a **longitudinal mechanical wave** requiring a medium (solid, liquid, or gas) and cannot travel through a vacuum.",
+      formulas: ["v = 2d / t  (for an echo)", "Human hearing range: 20 Hz to 20,000 Hz"],
+      points: [
+        "**Pitch & Loudness:** Higher **frequency** gives a higher **pitch**; larger **amplitude** gives a **louder** sound.",
+        "**Speed of Sound:** Fastest in **solids**, slower in **liquids**, slowest in **gases** (≈ `330–340 m/s` in air).",
+        "**Ultrasound (`f > 20 kHz`):** Used for medical fetal scanning, SONAR depth measurement (`d = v × t / 2`), and non-destructive crack detection in metals.",
+      ],
+    },
+    {
+      match: /\b(brownian\s+motion|kinetic\s+particle|boyle'?s?\s+law|gas\s+pressure)\b/i,
+      title: "Kinetic Particle Theory, Brownian Motion & Gas Laws",
+      summary:
+        "Matter consists of continuously moving particles whose average kinetic energy depends on **absolute (Kelvin) temperature**.",
+      formulas: ["T(K) = θ(°C) + 273", "p₁ V₁ = p₂ V₂  (constant T)"],
+      points: [
+        "**Brownian Motion:** Random, jerky zig-zag motion of visible smoke/pollen particles caused by **fast-moving, invisible air/water molecules colliding randomly** with them from all directions.",
+        "**Gas Pressure:** Caused by gas molecules colliding with the container walls and exerting a **force per unit area** (rate of change of momentum).",
+        "**Heating a Fixed Volume of Gas:** Molecules move **faster**, collide with the walls **more frequently** and **more violently**, so pressure increases.",
+      ],
+    },
+    {
+      match: /\b(half[\s-]*life|nuclear\s+fission|nuclear\s+fusion|alpha.*beta.*gamma|radioactiv)\b/i,
+      title: "Radioactivity, Half-Life, Fission & Fusion",
+      summary:
+        "Radioactive decay is **random and spontaneous** — unaffected by temperature, pressure, or chemical bonding.",
+      formulas: ["N = N₀ × (½)^(t / t_½)"],
+      points: [
+        "**Half-Life (`t_½`):** The **average time taken** for half the unstable nuclei in a radioactive sample to decay (or for the corrected count rate to fall by half).",
+        "**Nuclear Fission:** A heavy unstable nucleus (e.g. `U-235`) absorbs a neutron and **splits** into two smaller nuclei, releasing energy and more neutrons (used in nuclear power stations).",
+        "**Nuclear Fusion:** Two light nuclei (e.g. hydrogen isotopes) **join together** at extremely high temperature and pressure to form a heavier nucleus (helium), releasing huge energy (powers the Sun & stars).",
+      ],
+    },
+    {
+      match: /\b(redshift|red[\s-]*shift|big\s+bang|hubble|cosmic\s+microwave|cmbr)\b/i,
+      title: "Redshift, Hubble's Law & The Big Bang",
+      summary:
+        "Astronomical observations show that distant galaxies are moving away from us, providing direct evidence that the Universe is **expanding**.",
+      formulas: ["v = H₀ × d", "Age of Universe ≈ 1 / H₀  (H₀ ≈ 2.2 × 10⁻¹⁸ s⁻¹)"],
+      points: [
+        "**Redshift:** Light from distant galaxies shows an **increase in observed wavelength** (shifted towards the red end of the spectrum), proving galaxies are receding; **further galaxies move faster**.",
+        "**Big Bang Theory:** The Universe began ~13.8 billion years ago from a **hot, dense point** and has been expanding and cooling ever since.",
+        "**CMBR Evidence:** **Cosmic Microwave Background Radiation** fills all of space uniformly in the microwave region — the cooled leftover thermal radiation from the early hot Universe.",
       ],
     },
   ];
@@ -531,38 +607,63 @@
   }
 
   // ==================== RELEVANCE-FILTERED HARONY 2026/2027 SEARCH ====================
+  const CHUNK_SYNONYMS = {
+    ohm: ["resistance", "voltage", "current", "circuits", "electric"],
+    ohms: ["resistance", "voltage", "current", "circuits", "electric"],
+    newton: ["forces", "inertia", "acceleration", "kinematics", "mechanics"],
+    convection: ["heat", "transmission", "thermal", "density"],
+    conduction: ["heat", "transmission", "thermal", "electrons"],
+    brownian: ["kinetic", "particle", "theory", "molecules", "thermal"],
+    diffraction: ["waves", "water", "wavefronts", "gap"],
+    redshift: ["universe", "hubble", "big", "bang", "astronomy"],
+    bang: ["universe", "redshift", "astronomy"],
+    transformer: ["transformers", "electromagnetism", "primary", "secondary"],
+  };
+
   function searchChunksScored(kb, query, topK) {
-    const qToks = tokenize(query).filter((w) => !STOPWORDS.has(w) && w.length >= 3);
-    if (!qToks.length) return [];
-    const uniqueQ = Array.from(new Set(qToks));
+    const baseToks = tokenize(query).filter((w) => !STOPWORDS.has(w) && w.length >= 3);
+    if (!baseToks.length) return [];
+    const expanded = [];
+    for (const t of baseToks) {
+      if (!expanded.includes(t)) expanded.push(t);
+      for (const syn of CHUNK_SYNONYMS[t] || []) {
+        if (!expanded.includes(syn)) expanded.push(syn);
+      }
+    }
+    const uniqueQ = expanded;
     const isPaperCode = /\b20\d{2}\b|\bp[24]\b|\bq\d+/i.test(query);
 
     const scored = [];
     for (const ch of kb.chunks) {
-      const topicLow = ((ch.unit || "") + " " + (ch.topic || "")).toLowerCase();
-      const bodyLow = (ch.text || "").toLowerCase();
+      const topicWords = new Set(tokenize((ch.unit || "") + " " + (ch.topic || "")));
+      const bodyWords = new Set(tokenize(ch.text || ""));
       let s = 0;
-      let matchedTerms = 0;
+      let matchedBase = 0;
       for (const tok of uniqueQ) {
+        const isBase = baseToks.includes(tok);
         let hit = false;
-        if (topicLow.includes(tok)) {
-          s += 3.6;
+        if (topicWords.has(tok)) {
+          s += isBase ? 4.2 : 2.0;
           hit = true;
         }
-        if (bodyLow.includes(tok)) {
-          s += 1.5;
+        if (bodyWords.has(tok)) {
+          s += isBase ? 1.8 : 0.8;
           hit = true;
         }
-        if (hit) matchedTerms++;
+        if (hit && isBase) matchedBase++;
       }
-      const coverage = matchedTerms / uniqueQ.length;
-      if (!isPaperCode && ch.source === "Harony Notes 2026 Final" && s > 0) s += 1.0;
-      // Require meaningful semantic match so unrelated slides are NEVER returned!
-      if (s >= 2.8 && (coverage >= 0.4 || matchedTerms >= 2)) {
+      const coverage = matchedBase / baseToks.length;
+      if (!isPaperCode && ch.source === "Harony Notes 2026 Final" && s > 0) s += 1.2;
+      if (s >= 2.8 && (coverage >= 0.4 || matchedBase >= 2)) {
         scored.push({ s, coverage, ch });
       }
     }
     scored.sort((a, b) => b.s - a.s);
+    if (scored.length && scored[0].s >= 4.0) {
+      const primaryUnit = scored[0].ch.unit;
+      const locked = scored.filter((x) => !primaryUnit || x.ch.unit === primaryUnit);
+      return locked.slice(0, topK);
+    }
     return scored.slice(0, topK);
   }
 
@@ -592,21 +693,76 @@
     "topic", "topics", "about", "with", "from", "can", "you", "get", "me", "want", "need",
   ]);
 
-  function searchVideos(kb, query, topK) {
+  const VIDEO_SYNONYMS = {
+    convection: ["heat", "transmission"],
+    conduction: ["heat", "transmission"],
+    radiation: ["heat", "transmission"],
+    transverse: ["waves", "water"],
+    longitudinal: ["waves", "water", "sound"],
+    transformer: ["transformers"],
+    "step-up": ["transformers"],
+    "step-down": ["transformers"],
+    ohm: ["electric", "circuits", "resistance"],
+    ohms: ["electric", "circuits", "resistance"],
+    newton: ["forces", "kinematics"],
+    inertia: ["forces"],
+    redshift: ["universe", "redshift", "hubble"],
+    bang: ["universe"],
+    optical: ["refraction", "total", "internal"],
+    fibres: ["refraction", "total", "internal"],
+    fibre: ["refraction", "total", "internal"],
+    tir: ["total", "internal", "reflection"],
+    echo: ["sound"],
+    echoes: ["sound"],
+    ultrasound: ["sound"],
+    half: ["half", "life"],
+    halflife: ["half", "life"],
+    fission: ["alpha", "beta", "gamma", "nuclear", "fission"],
+    fusion: ["nuclear", "fusion", "stars"],
+  };
+
+  function searchVideos(kb, query, topK, preferredUnit = null, preferredTopic = null) {
     const rawToks = tokenize(query).filter((w) => !STOPWORDS.has(w) && !VIDEO_IGNORE.has(w) && w.length >= 2);
-    const qToks = Array.from(new Set(rawToks.map((t) => (t === "may" ? "jun" : t))));
+    const qToks = [];
+    for (const raw of rawToks) {
+      const t = raw === "may" ? "jun" : raw;
+      if (!qToks.includes(t)) qToks.push(t);
+      for (const syn of VIDEO_SYNONYMS[t] || []) {
+        if (!qToks.includes(syn)) qToks.push(syn);
+      }
+    }
+    if (!qToks.length && preferredTopic) {
+      for (const t of tokenize(preferredTopic)) {
+        if (!STOPWORDS.has(t) && t.length >= 3 && !qToks.includes(t)) qToks.push(t);
+      }
+    }
     if (!qToks.length || !kb.videos) return [];
+
+    const isPaperCode = /\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+/i.test(query);
     const scored = [];
     for (const v of kb.videos) {
-      const labelLow = (v.label || "").toLowerCase();
-      const nkLow = (v.norm_key || "").toLowerCase();
-      const hay = `${labelLow} ${nkLow} ${v.chapter || ""} ${v.unit || ""}`.toLowerCase();
+      const vUnit = v.unit || "";
+      if (preferredUnit && !isPaperCode && vUnit && vUnit !== preferredUnit) continue;
+
+      const labelWords = new Set(tokenize(v.label || ""));
+      const nkWords = new Set(tokenize(v.norm_key || ""));
+      const chapWords = new Set(tokenize(v.chapter || ""));
+      const unitWords = new Set(tokenize(vUnit));
+
       let hits = 0;
+      let matchedDistinct = 0;
       for (const t of qToks) {
-        if (labelLow.includes(t) || nkLow.includes(t)) hits += 2.5;
-        else if (hay.includes(t)) hits += 1.2;
+        if (labelWords.has(t) || nkWords.has(t)) {
+          hits += 3.0;
+          matchedDistinct++;
+        } else if (chapWords.has(t)) {
+          hits += 2.2;
+          matchedDistinct++;
+        } else if (unitWords.has(t) && t.length >= 4) {
+          hits += 1.0;
+        }
       }
-      if (hits >= 2.0 || (qToks.length === 1 && hits >= 1.2)) {
+      if (hits >= 2.2 && matchedDistinct >= 1) {
         scored.push({ hits, v });
       }
     }
@@ -1265,7 +1421,7 @@
           category: "greeting",
           reply:
             "Hello! Welcome to **Haroony AI**.\n\n" +
-            "Ask me any **IGCSE or A-Level Physics** question, upload a photo or PDF of a Physics problem, or open **Check Answer** above to mark your work!",
+            "Ask me any **IGCSE or A-Level Physics** question, request **YouTube video solutions** for any topic, or attach / paste (`Ctrl+V`) a photo or PDF of a Physics problem!",
           notes_cards: [],
           video_links: [],
           engine: "Haroony AI",
@@ -1283,8 +1439,10 @@
 
       // Direct YouTube video solution requests for any topic or paper code!
       if (/\b(?:youtube|youtu\.be|videos?|video\s+solution|watch)\b/i.test(combined)) {
-        const vidHits = searchVideos(kb, searchQuery, 8);
         const noteHits = searchChunksScored(kb, searchQuery, 2);
+        const prefUnit = noteHits.length && noteHits[0].s >= 4.0 ? noteHits[0].ch.unit : null;
+        const prefTopic = noteHits.length ? noteHits[0].ch.topic : null;
+        const vidHits = searchVideos(kb, searchQuery, 8, prefUnit, prefTopic);
         const strongCards = noteHits
           .filter((x) => x.s >= 4.2)
           .slice(0, 2)
@@ -1297,7 +1455,7 @@
           });
           replyMd =
             "### 🎥 Harony Physics YouTube Video Solutions\n\n" +
-            "Here are the matching Mr. Haroony video walkthroughs from **Harony ClassWork 2027** and **P2 Classified 2027**:\n\n" +
+            "Here are the matching Mr. Haroony video walkthroughs from **Harony ClassWork 2027**, **P2 Classified 2027**, and **P4 Classified 2027**:\n\n" +
             lines.join("\n");
         } else {
           replyMd =
@@ -1313,14 +1471,16 @@
           notes_cards: strongCards,
           video_links: vidHits,
           ocr_text: ocrText || null,
-          engine: "Haroony Video Library (2,085 Solutions)",
+          engine: "Haroony Video Library (2,793 Solutions)",
         };
       }
 
       const solved = solvePhysicsProblem(combined);
       const scoredChunks = searchChunksScored(kb, searchQuery, 3);
+      const primaryUnit = scoredChunks.length && scoredChunks[0].s >= 4.0 ? scoredChunks[0].ch.unit : null;
+      const primaryTopic = scoredChunks.length ? scoredChunks[0].ch.topic : null;
       const msTips = searchMsTips(kb, searchQuery, 2);
-      const vids = searchVideos(kb, searchQuery, 3);
+      const vids = searchVideos(kb, searchQuery, 3, primaryUnit, primaryTopic);
 
       // Only attach visual reference cards if strongly relevant to the question!
       const strongCards = scoredChunks

@@ -16,30 +16,21 @@
       <div class="brand" id="brandHome" title="Haroony AI">
         <img src="static/assets/harony_logo.webp" alt="Harony Physics Clinic" class="brand-logo" />
       </div>
-
-      <nav class="nav-tabs" role="tablist" aria-label="Modes">
-        <button class="nav-tab active" data-tab="tutor" role="tab" aria-selected="true" type="button">
-          Ask AI
-        </button>
-        <button class="nav-tab" data-tab="grader" role="tab" aria-selected="false" type="button">
-          Check Answer
-        </button>
-      </nav>
+      <div class="topbar-right">
+        <span id="kbBadge" class="kb-status-pill">Harony 2026/2027</span>
+      </div>
     </div>
   </header>
 
   <main class="container">
-    <!-- ==================== TAB 1: ASK AI ==================== -->
-    <section id="tab-tutor" class="tab-panel active" role="tabpanel">
-      <div class="chat-card">
+    <!-- ==================== HAROONY AI CHAT ==================== -->
+    <section id="tab-tutor" class="tab-panel active">
+      <div class="chat-card chat-card-full" id="chatCard">
         <div class="chat-header">
           <div class="chat-header-left">
             <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="mascot-avatar" />
             <div>
-              <div class="chat-title-row">
-                <h2>Haroony AI</h2>
-                <span id="kbBadge" class="kb-status-pill">Harony 2026/2027</span>
-              </div>
+              <h2>Haroony AI</h2>
               <p>Physics Tutor &bull; Notes &bull; 2,793 Video Solutions</p>
             </div>
           </div>
@@ -60,8 +51,8 @@
                 <p>Hi! I'm <strong>Haroony AI</strong>, trained on <strong>Harony Notes 2026</strong>, <strong>ClassWork 2027</strong>, <strong>P2 Classified</strong>, and <strong>P4 Classified 2027</strong>.</p>
                 <ul>
                   <li>Ask any <strong>Physics concept</strong> or <strong>calculation</strong> for step-by-step Cambridge working</li>
-                  <li>Ask for <strong>YouTube video solutions</strong> on any topic (e.g. <em>"YouTube videos for density"</em>)</li>
-                  <li>Attach a <strong>photo or PDF</strong> of any Physics question to read and solve it</li>
+                  <li>Ask for <strong>YouTube video solutions</strong> on any topic (e.g. <em>"YouTube videos for waves"</em>)</li>
+                  <li>Attach a <strong>photo / PDF</strong>, drag &amp; drop, or press <strong><code>Ctrl+V</code></strong> in the text bar to paste a screenshot!</li>
                 </ul>
               </div>
             </div>
@@ -80,7 +71,7 @@
 
         <!-- Chat Input Bar -->
         <form id="chatForm" class="chat-input-bar">
-          <label for="chatFileInput" class="btn btn-attach" title="Upload Photo or PDF">
+          <label for="chatFileInput" class="btn btn-attach" title="Upload Photo or PDF (or press Ctrl+V to paste a screenshot)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
             </svg>
@@ -90,121 +81,13 @@
           <textarea
             id="chatInput"
             rows="1"
-            placeholder="Ask a Physics question, or ask for YouTube videos on any topic..."
+            placeholder="Ask a Physics question, or press Ctrl+V to paste a screenshot..."
           ></textarea>
           <button type="submit" id="chatSendBtn" class="btn btn-primary">
             Send
           </button>
         </form>
       </div>
-    </section>
-
-    <!-- ==================== TAB 2: CHECK ANSWER ==================== -->
-    <section id="tab-grader" class="tab-panel" role="tabpanel">
-      <form id="gradeForm" class="grader-grid">
-        <!-- Step 1: Student Answer -->
-        <div class="panel-card">
-          <div class="panel-card-top">
-            <div class="panel-card-header">
-              <span class="step-pill">1</span>
-              <h3>Your Physics Answer</h3>
-            </div>
-            <button type="button" id="clearGraderBtn" class="btn btn-ghost btn-sm">Clear</button>
-          </div>
-          <p class="panel-help">Upload photo(s)/PDF of your work, or type your answer below. Only what you submit is graded.</p>
-
-          <label for="studentFilesInput" class="dropzone" id="studentDropzone">
-            <div class="dropzone-icon">📷</div>
-            <div class="dropzone-title">Upload answer photo(s) or PDF</div>
-            <div class="dropzone-sub">Drag &amp; drop or click to browse</div>
-            <input type="file" id="studentFilesInput" accept="image/*,.pdf" multiple hidden />
-          </label>
-          <div id="studentFilesList" class="file-pills"></div>
-
-          <div class="field-group">
-            <label for="studentTextInput">Type or edit your answer</label>
-            <textarea
-              id="studentTextInput"
-              rows="5"
-              placeholder="Using Harony MS? Type only your answer.&#10;Using AI Auto Check? Include the question too, e.g.:&#10;Question: Explain why a steel ship floats on water.&#10;Answer: It has air spaces so its overall density is less than water."
-            ></textarea>
-          </div>
-        </div>
-
-        <!-- Step 2: Mark Scheme -->
-        <div class="panel-card">
-          <div class="panel-card-header">
-            <span class="step-pill">2</span>
-            <h3>Correction Mode</h3>
-          </div>
-          <p class="panel-help">Choose <strong>Harony MS</strong> for exact past-paper questions, or <strong>AI Auto Check</strong> for calculations &amp; quick checks.</p>
-
-          <div class="ms-mode-switcher" role="radiogroup" aria-label="Mark Scheme Source">
-            <button type="button" class="ms-mode-btn active" data-ms-mode="auto">AI Auto Check</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="library">Harony MS</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="upload">Upload MS</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="paste">Paste MS</button>
-          </div>
-
-          <!-- Submode A: Auto Check (Default) -->
-          <div id="ms-pane-auto" class="ms-pane">
-            <div class="info-callout">
-              <strong>Smart AI Physics Examiner:</strong> Evaluates calculations, matches Harony 2027 questions &amp; YouTube videos, and highlights the exact Harony Notes page to revise.
-            </div>
-          </div>
-
-          <!-- Submode B: Saved Library MS with Searchable Question Picker -->
-          <div id="ms-pane-library" class="ms-pane hidden">
-            <div class="field-group">
-              <label for="msLibrarySelect">1. Select Harony Book (ClassWork / P4 CLS / P2 CLS)</label>
-              <select id="msLibrarySelect"></select>
-            </div>
-            <div class="field-group">
-              <label for="questionSearchInput">2. Search &amp; pick exact question <span class="muted-tag">(optional)</span></label>
-              <input
-                type="text"
-                id="questionSearchInput"
-                placeholder="Filter by topic, year, or Q# (e.g. density, 2023, Q02)..."
-              />
-              <select id="questionSelect" class="question-select"></select>
-            </div>
-          </div>
-
-          <!-- Submode C: Upload MS PDF / Photo -->
-          <div id="ms-pane-upload" class="ms-pane hidden">
-            <label for="msFileInput" class="dropzone dropzone-compact">
-              <div class="dropzone-icon">📄</div>
-              <div class="dropzone-title">Upload Mark Scheme PDF or photo</div>
-              <div class="dropzone-sub">Official MS PDF or screenshot</div>
-              <input type="file" id="msFileInput" accept="image/*,.pdf" hidden />
-            </label>
-            <div id="msFilePill" class="file-pills"></div>
-            <div class="field-group">
-              <label for="questionIdUploadInput">Question filter <span class="muted-tag">(optional)</span></label>
-              <input type="text" id="questionIdUploadInput" placeholder="e.g. 2(b) or leave blank" />
-            </div>
-          </div>
-
-          <!-- Submode D: Paste MS Text -->
-          <div id="ms-pane-paste" class="ms-pane hidden">
-            <div class="field-group">
-              <label for="msTextInput">Paste Mark Scheme points</label>
-              <textarea
-                id="msTextInput"
-                rows="5"
-                placeholder="e.g.&#10;1(a) nuclear fusion B1&#10;hydrogen nuclei join to form helium B1"
-              ></textarea>
-            </div>
-          </div>
-
-          <button type="submit" id="gradeSubmitBtn" class="btn btn-primary btn-lg btn-block">
-            Check My Answer
-          </button>
-        </div>
-      </form>
-
-      <!-- Grading Output Area -->
-      <div id="gradeResultArea" class="grade-result-area hidden"></div>
     </section>
   </main>
 

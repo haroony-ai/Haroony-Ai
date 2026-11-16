@@ -2362,7 +2362,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch3: Heat Transmission",
     "page": 231,
-    "label": "12. 2025 May P4 V2 Q04 b  Heat Transmission Conduction",
+    "label": "12. 2025 May P4 V2 Q04 b Heat Transmission Conduction",
     "norm_key": "2025-Jun-P4-V2-Q04",
     "video_url": "https://youtu.be/czFdFflpyUI"
   },
@@ -3955,7 +3955,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 381,
-    "label": "2. 2025 March P4 V2 Q08 a b Electromagnetics Force due to current",
+    "label": "2. 2025 March P4 V2 Q08 a b Electromagnetic Force due to current",
     "norm_key": "2025-March-P4-V2-Q08",
     "video_url": "https://youtu.be/1VmjqrkyiqI"
   },
@@ -4684,7 +4684,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch1: Atomic Structure",
     "page": 456,
-    "label": "1. 2021 Nov P4 V1 Q09-a,b",
+    "label": "1. 2021 Nov P4 V1 Q09-a, b",
     "norm_key": "2021-Nov-P4-V1-Q09",
     "video_url": "https://youtu.be/bLHW2O8JZio"
   },
@@ -5215,7 +5215,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 497,
-    "label": "3. 2024 May P4 V3 Q10 b,C -Uses of radiation",
+    "label": "3. 2024 May P4 V3 Q10 b, C -Uses of radiation",
     "norm_key": "2024-Jun-P4-V3-Q10",
     "video_url": "https://youtu.be/7Qmj5aoqEs8"
   },
@@ -6016,7 +6016,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 583,
-    "label": "5. 2018 Nov P4 V1 07 a,b",
+    "label": "5. 2018 Nov P4 V1 07 a, b",
     "norm_key": "2018-Nov-P4-V1-Q00",
     "video_url": "https://youtu.be/MGanCKCspP0"
   },
@@ -6448,7 +6448,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch1: Earth, Moon and sun",
     "page": 640,
-    "label": "3. 2025 March P4 V2 Q10 a,b -Earth moon and sun",
+    "label": "3. 2025 March P4 V2 Q10 a, b -Earth moon and sun",
     "norm_key": "2025-March-P4-V2-Q10",
     "video_url": "https://youtu.be/V6S27C2osaI"
   },
@@ -11767,7 +11767,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch3 Heat Transmission",
     "page": 265,
-    "label": "Q20: 2025 Nov P2 V1 Q16 Heat Transmission Radiation.......................C",
+    "label": "Q20: 2025 Nov P2 V1 Q16 Heat Transmission Radiation",
     "norm_key": "2025-Nov-P2-V1-Q16",
     "video_url": "https://youtu.be/-lmE5GtVtzY"
   },
@@ -13439,7 +13439,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch4 Circuit Components",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 350,
     "label": "Q1: June 2017 Paper 2 Variant 2",
     "norm_key": "june-2017-paper-2-variant-2",
@@ -13448,7 +13448,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch4 Circuit Components",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 350,
     "label": "Q2: June 2017 Paper 2 Variant 2",
     "norm_key": "june-2017-paper-2-variant-2",
@@ -13457,7 +13457,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch4 Circuit Components",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 351,
     "label": "Q3: June 2017 Paper 2 Variant 3",
     "norm_key": "june-2017-paper-2-variant-3",
@@ -13466,7 +13466,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch4 Circuit Components",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 351,
     "label": "Q4: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -13474,8 +13474,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 352,
     "label": "Q5: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -13483,8 +13483,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 352,
     "label": "Q6: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -13492,8 +13492,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 353,
     "label": "Q7: 2018 Jun P2 V1 Q30",
     "norm_key": "2018-Jun-P2-V1-Q30",
@@ -13501,8 +13501,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 353,
     "label": "Q8: 2018 Jun P2 V1 Q31",
     "norm_key": "2018-Jun-P2-V1-Q31",
@@ -13510,8 +13510,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 353,
     "label": "Q9: 2018 Jun P2 V2 Q30",
     "norm_key": "2018-Jun-P2-V2-Q30",
@@ -13519,8 +13519,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 354,
     "label": "Q10: 2018 Nov P2 V1 Q31",
     "norm_key": "2018-Nov-P2-V1-Q31",
@@ -13528,8 +13528,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 354,
     "label": "Q11: 2018 Nov P2 V1 Q32",
     "norm_key": "2018-Nov-P2-V1-Q32",
@@ -13537,8 +13537,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 355,
     "label": "Q12: 2019 Jun P2 V1 Q34",
     "norm_key": "2019-Jun-P2-V1-Q34",
@@ -13546,8 +13546,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 356,
     "label": "Q13: 2019 Nov P2 V1 Q29",
     "norm_key": "2019-Nov-P2-V1-Q29",
@@ -13555,8 +13555,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 356,
     "label": "Q14: 2020 May P2 V1 Q30",
     "norm_key": "2020-Jun-P2-V1-Q30",
@@ -13564,8 +13564,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 357,
     "label": "Q15: 2020 Nov P2 V1 Q32",
     "norm_key": "2020-Nov-P2-V1-Q32",
@@ -13573,8 +13573,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 358,
     "label": "Q16: 2021 May P2V1 Q32",
     "norm_key": "2021-Jun-P2-V1-Q32",
@@ -13582,8 +13582,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 358,
     "label": "Q17: 2021 Nov P2 V1 Q31",
     "norm_key": "2021-Nov-P2-V1-Q31",
@@ -13591,8 +13591,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 359,
     "label": "Q18: 2023 May P2 V2 q29 -Circuit Components",
     "norm_key": "2023-Jun-P2-V2-Q29",
@@ -13600,8 +13600,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 360,
     "label": "Q19: 2023 Nov P2 V1 q29 -Diode",
     "norm_key": "2023-Nov-P2-V1-Q29",
@@ -13609,8 +13609,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 361,
     "label": "Q20: 2023 Nov P2 V1 q30 -Circuit Components",
     "norm_key": "2023-Nov-P2-V1-Q30",
@@ -13618,8 +13618,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 362,
     "label": "Q21: 2023 Nov P2 V2 q30 -Circuit Components",
     "norm_key": "2023-Nov-P2-V2-Q30",
@@ -13627,8 +13627,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 363,
     "label": "Q22: 2023 Nov P2 V3 q30 -Circuit Components",
     "norm_key": "2023-Nov-P2-V3-Q30",
@@ -13636,8 +13636,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 363,
     "label": "Q23: 2024 March P2 V2 Q29 -Diode",
     "norm_key": "2024-March-P2-V2-Q29",
@@ -13645,8 +13645,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 364,
     "label": "Q24: 2024 May P2 V3 Q31 -Circuit components",
     "norm_key": "2024-Jun-P2-V3-Q31",
@@ -13654,8 +13654,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 364,
     "label": "Q25: 2024 Nov P2 V3 Q28 -Diode",
     "norm_key": "2024-Nov-P2-V3-Q28",
@@ -13663,8 +13663,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 365,
     "label": "Q26: 2024 Nov P2 V3 Q30 -Thermistor in series",
     "norm_key": "2024-Nov-P2-V3-Q30",
@@ -13672,8 +13672,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 366,
     "label": "Q27: 2025 May P2 V1 Q28 Diode",
     "norm_key": "2025-Jun-P2-V1-Q28",
@@ -13681,17 +13681,17 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 366,
-    "label": "Q28: 2025 May P2 V2 Q30 Diode.......................A",
+    "label": "Q28: 2025 May P2 V2 Q30 Diode",
     "norm_key": "2025-Jun-P2-V2-Q30",
     "video_url": "https://youtu.be/xngarDtiArs"
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch4 Circuit Components",
+    "unit": "Unit 3: Electricity",
+    "chapter": "U3 Ch4: Circuit Components",
     "page": 367,
     "label": "Q29: 2025 Nov P2 V3 Q29 Diode",
     "norm_key": "2025-Nov-P2-V3-Q29",
@@ -14330,7 +14330,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 411,
     "label": "Q1: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -14339,7 +14339,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 411,
     "label": "Q2: 2018 Jun P2 V3 Q34",
     "norm_key": "2018-Jun-P2-V3-Q34",
@@ -14348,7 +14348,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 412,
     "label": "Q3: 2020 May P2 V1 Q34",
     "norm_key": "2020-Jun-P2-V1-Q34",
@@ -14357,7 +14357,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 412,
     "label": "Q4: 2023 March P2 V2 Q30 -Electromagnetic induction",
     "norm_key": "2023-March-P2-V2-Q30",
@@ -14366,7 +14366,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 413,
     "label": "Q5: 2024 Nov P2 V1 q31 -Electromagnetic induction",
     "norm_key": "2024-Nov-P2-V1-Q31",
@@ -14375,7 +14375,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 413,
     "label": "Q6: 2025 March P2 V2 Q30 Moving a wire in a magnetic field",
     "norm_key": "2025-March-P2-V2-Q30",
@@ -14384,7 +14384,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 414,
     "label": "Q7: 2025 May P2 V1 Q29 Moving wire in magnetic field",
     "norm_key": "2025-Jun-P2-V1-Q29",
@@ -14393,7 +14393,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 414,
     "label": "Q8: 2025 Nov P2 V2 Q30 Electromagnetic Induction",
     "norm_key": "2025-Nov-P2-V2-Q30",
@@ -14402,7 +14402,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 416,
     "label": "Q1: Specimen 2016 Paper 2",
     "norm_key": "specimen-2016-paper-2",
@@ -14411,7 +14411,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 4: Electromagnetism",
-    "chapter": "U4 Ch3 Generator",
+    "chapter": "U4 Ch3: Generator",
     "page": 417,
     "label": "Q2: March 2016 Paper 2",
     "norm_key": "march-2016-paper-2",
@@ -14419,8 +14419,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 418,
     "label": "Q3: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -14428,8 +14428,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 419,
     "label": "Q4: 2018 Jun P2 V2 Q34",
     "norm_key": "2018-Jun-P2-V2-Q34",
@@ -14437,8 +14437,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 419,
     "label": "Q5: 2021 May P2V1 Q35",
     "norm_key": "2021-Jun-P2-V1-Q35",
@@ -14446,8 +14446,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 420,
     "label": "Q6: 2023 May P2 V3 Q31 -AC Generator",
     "norm_key": "2023-Jun-P2-V3-Q31",
@@ -14455,8 +14455,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 420,
     "label": "Q7: 2023 Nov P2 V3 q31 -AC Generator",
     "norm_key": "2023-Nov-P2-V3-Q31",
@@ -14464,8 +14464,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 420,
     "label": "Q8: 2024 May P2 V2 q26 -A.C Generator",
     "norm_key": "2024-Jun-P2-V2-Q26",
@@ -14473,8 +14473,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 421,
     "label": "Q9: 2025 March P2 V2 Q33 ac Generator",
     "norm_key": "2025-March-P2-V2-Q33",
@@ -14482,8 +14482,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 421,
     "label": "Q10: 2025 May P2 V1 Q30 generator",
     "norm_key": "2025-Jun-P2-V1-Q30",
@@ -14491,8 +14491,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 422,
     "label": "Q11: 2025 May P2 V3 Q31 ac generator",
     "norm_key": "2025-Jun-P2-V3-Q31",
@@ -14500,8 +14500,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 3: Electricity",
-    "chapter": "U3 Ch3 Generator",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Generator",
     "page": 423,
     "label": "Q12: 2025 Nov P2 V2 Q31 AC Generator",
     "norm_key": "2025-Nov-P2-V2-Q31",
@@ -14870,7 +14870,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 450,
     "label": "Q1: March 2016 Paper 2",
     "norm_key": "march-2016-paper-2",
@@ -14879,7 +14879,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 450,
     "label": "Q2: Jun 2016 Paper 2 Variant 2",
     "norm_key": "jun-2016-paper-2-variant-2",
@@ -14888,7 +14888,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 451,
     "label": "Q3: Jun 2016 Paper 2 Variant 3",
     "norm_key": "jun-2016-paper-2-variant-3",
@@ -14897,7 +14897,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 452,
     "label": "Q4: Nov 2016 Paper 2 Variant 1",
     "norm_key": "nov-2016-paper-2-variant-1",
@@ -14906,7 +14906,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 452,
     "label": "Q5: June 2017 Paper 2 Variant 3",
     "norm_key": "june-2017-paper-2-variant-3",
@@ -14914,8 +14914,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 453,
     "label": "Q6: Nov 2017 Paper 2 Variant 2",
     "norm_key": "nov-2017-paper-2-variant-2",
@@ -14923,8 +14923,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 454,
     "label": "Q7: 2019 Nov P2 V1 Q38",
     "norm_key": "2019-Nov-P2-V1-Q38",
@@ -14932,8 +14932,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 454,
     "label": "Q8: 2022 Nov P2 V1 q37",
     "norm_key": "2022-Nov-P2-V1-Q37",
@@ -14941,8 +14941,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 454,
     "label": "Q9: 2022 Nov P2 V1 q40",
     "norm_key": "2022-Nov-P2-V1-Q40",
@@ -14950,8 +14950,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 455,
     "label": "Q10: 2023 May P2 V3 Q33 -Atomic Structure",
     "norm_key": "2023-Jun-P2-V3-Q33",
@@ -14959,8 +14959,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 455,
     "label": "Q11: 2023 March P2 V2 Q33 -Atomic Structure",
     "norm_key": "2023-March-P2-V2-Q33",
@@ -14968,8 +14968,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 456,
     "label": "Q12: 2023 Nov P2 V1 q34 -Gold Foil Experiment",
     "norm_key": "2023-Nov-P2-V1-Q34",
@@ -14977,8 +14977,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 456,
     "label": "Q13: 2023 Nov P2 V3 q34 -Gold Foil Experiment",
     "norm_key": "2023-Nov-P2-V3-Q34",
@@ -14986,8 +14986,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 457,
     "label": "Q14: 2024 May P2 V1 q32 -Gold foil experiment",
     "norm_key": "2024-Jun-P2-V1-Q32",
@@ -14995,8 +14995,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 457,
     "label": "Q15: 2024 May P2 V2 q33 -Gold foil experiment",
     "norm_key": "2024-Jun-P2-V2-Q33",
@@ -15004,8 +15004,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 457,
     "label": "Q16: 2024 Nov P2 V1 q34 -Gold Foil Experiment",
     "norm_key": "2024-Nov-P2-V1-Q34",
@@ -15013,8 +15013,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 458,
     "label": "Q17: 2025 May P2 V1 Q33 Gold foil experiment",
     "norm_key": "2025-Jun-P2-V1-Q33",
@@ -15022,8 +15022,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 458,
     "label": "Q18: 2025 May P2 V2 Q34 gold foil experiment",
     "norm_key": "2025-Jun-P2-V2-Q34",
@@ -15031,8 +15031,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 458,
     "label": "Q19: 2025 May P2 V3 Q34 Gold foil experiment",
     "norm_key": "2025-Jun-P2-V3-Q34",
@@ -15040,8 +15040,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 459,
     "label": "Q20: 2025 Nov P2 V2 Q33 Gold Foil Experiment",
     "norm_key": "2025-Nov-P2-V2-Q33",
@@ -15050,7 +15050,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 461,
     "label": "Q1: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -15059,7 +15059,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 461,
     "label": "Q2: 2018 Jun P2 V1 Q37",
     "norm_key": "2018-Jun-P2-V1-Q37",
@@ -15068,7 +15068,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 462,
     "label": "Q3: 2018 Nov P2 V1 Q37",
     "norm_key": "2018-Nov-P2-V1-Q37",
@@ -15077,7 +15077,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 462,
     "label": "Q4: 2019 Nov P2 V1 Q37",
     "norm_key": "2019-Nov-P2-V1-Q37",
@@ -15086,7 +15086,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 462,
     "label": "Q5: 2020 Nov P2 V1 Q38",
     "norm_key": "2020-Nov-P2-V1-Q38",
@@ -15095,7 +15095,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 463,
     "label": "Q6: 2021 May P2V1 Q37",
     "norm_key": "2021-Jun-P2-V1-Q37",
@@ -15104,7 +15104,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 463,
     "label": "Q7: 2023 May P2 V1 q33 -Atomic Structure",
     "norm_key": "2023-Jun-P2-V1-Q33",
@@ -15113,7 +15113,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 463,
     "label": "Q8: 2023 May P2 V1 q34 -Atomic Structure",
     "norm_key": "2023-Jun-P2-V1-Q34",
@@ -15122,7 +15122,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 464,
     "label": "Q9: 2023 May P2 V2 q34 -Atomic Structure",
     "norm_key": "2023-Jun-P2-V2-Q34",
@@ -15131,7 +15131,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 464,
     "label": "Q10: 2023 May P2 V3 Q34 -Atomic Structure",
     "norm_key": "2023-Jun-P2-V3-Q34",
@@ -15140,7 +15140,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 464,
     "label": "Q11: 2023 March P2 V2 Q34 -Atomic Structure",
     "norm_key": "2023-March-P2-V2-Q34",
@@ -15149,7 +15149,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 465,
     "label": "Q12: 2023 Nov P2 V2 q34 -Atomic Structure",
     "norm_key": "2023-Nov-P2-V2-Q34",
@@ -15158,7 +15158,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 465,
     "label": "Q13: 2024 March P2 V2 Q30 -Composition of atoms",
     "norm_key": "2024-March-P2-V2-Q30",
@@ -15167,7 +15167,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 465,
     "label": "Q14: 2024 May P2 V1 q33 -Atomic structure",
     "norm_key": "2024-Jun-P2-V1-Q33",
@@ -15176,7 +15176,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 466,
     "label": "Q15: 2024 May P2 V1 q34 -Atomic structure",
     "norm_key": "2024-Jun-P2-V1-Q34",
@@ -15185,7 +15185,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 466,
     "label": "Q16: 2024 May P2 V2 q34 -Atomic structure",
     "norm_key": "2024-Jun-P2-V2-Q34",
@@ -15194,7 +15194,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 466,
     "label": "Q17: 2024 May P2 V3 Q33 -Atomic structure",
     "norm_key": "2024-Jun-P2-V3-Q33",
@@ -15203,7 +15203,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 467,
     "label": "Q18: 2025 May P2 V1 Q34 Composition of atoms",
     "norm_key": "2025-Jun-P2-V1-Q34",
@@ -15212,7 +15212,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch1 Atomic Structure",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 467,
     "label": "Q19: 2025 May P2 V3 Q36 Composition of atoms",
     "norm_key": "2025-Jun-P2-V3-Q36",
@@ -15770,7 +15770,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 495,
     "label": "Q1: Specimen 2016 Paper 2",
     "norm_key": "specimen-2016-paper-2",
@@ -15779,7 +15779,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 495,
     "label": "Q2: Jun 2016 Paper 2 Variant 1",
     "norm_key": "jun-2016-paper-2-variant-1",
@@ -15788,7 +15788,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 496,
     "label": "Q3: Jun 2016 Paper 2 Variant 3",
     "norm_key": "jun-2016-paper-2-variant-3",
@@ -15797,7 +15797,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 496,
     "label": "Q4: March 2017 Paper 2",
     "norm_key": "march-2017-paper-2",
@@ -15806,7 +15806,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 496,
     "label": "Q5: June 2017 Paper 2 Variant 1",
     "norm_key": "june-2017-paper-2-variant-1",
@@ -15815,7 +15815,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 497,
     "label": "Q6: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -15824,7 +15824,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 497,
     "label": "Q7: Nov 2017 Paper 2 Variant 2",
     "norm_key": "nov-2017-paper-2-variant-2",
@@ -15832,8 +15832,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 498,
     "label": "Q8: 2018 Nov P2 V1 Q40 ……………………… half life",
     "norm_key": "2018-Nov-P2-V1-Q40",
@@ -15841,8 +15841,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 499,
     "label": "Q9: 2023 May P2 V1 q36 -Half Life",
     "norm_key": "2023-Jun-P2-V1-Q36",
@@ -15850,8 +15850,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 499,
     "label": "Q10: 2023 May P2 V2 q36 -Half Life",
     "norm_key": "2023-Jun-P2-V2-Q36",
@@ -15859,8 +15859,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 499,
     "label": "Q11: 2023 March P2 V2 Q35 -Half Life",
     "norm_key": "2023-March-P2-V2-Q35",
@@ -15868,8 +15868,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 500,
     "label": "Q12: 2023 Nov P2 V2 q36 -Half Life",
     "norm_key": "2023-Nov-P2-V2-Q36",
@@ -15877,8 +15877,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 500,
     "label": "Q13: 2024 May P2 V1 q36 -Half life - activity calculations",
     "norm_key": "2024-Jun-P2-V1-Q36",
@@ -15886,8 +15886,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 500,
     "label": "Q14: 2024 Nov P2 V1 q37 -Half Life",
     "norm_key": "2024-Nov-P2-V1-Q37",
@@ -15895,8 +15895,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 501,
     "label": "Q15: 2024 Nov P2 V2 Q37 -Half Life",
     "norm_key": "2024-Nov-P2-V2-Q37",
@@ -15904,8 +15904,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 501,
     "label": "Q16: 2024 Nov P2 V3 Q36 -Half Life",
     "norm_key": "2024-Nov-P2-V3-Q36",
@@ -15913,8 +15913,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 501,
     "label": "Q17: 2025 March P2 V2 Q37 Half Life",
     "norm_key": "2025-March-P2-V2-Q37",
@@ -15922,8 +15922,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 501,
     "label": "Q18: 2025 May P2 V1 Q35 Half Life",
     "norm_key": "2025-Jun-P2-V1-Q35",
@@ -15931,8 +15931,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 502,
     "label": "Q19: 2025 May P2 V2 Q37 Half Life",
     "norm_key": "2025-Jun-P2-V2-Q37",
@@ -15940,8 +15940,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 502,
     "label": "Q20: 2025 May P2 V3 Q37 Half life activity questions",
     "norm_key": "2025-Jun-P2-V3-Q37",
@@ -15950,7 +15950,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 504,
     "label": "Q1: 2020 May P2 V1 Q38",
     "norm_key": "2020-Jun-P2-V1-Q38",
@@ -15959,7 +15959,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 506,
     "label": "Q1: Jun 2016 Paper 2 Variant 2",
     "norm_key": "jun-2016-paper-2-variant-2",
@@ -15968,7 +15968,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 507,
     "label": "Q2: June 2017 Paper 2 Variant 3",
     "norm_key": "june-2017-paper-2-variant-3",
@@ -15976,8 +15976,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 508,
     "label": "Q3: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -15985,8 +15985,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 509,
     "label": "Q4: 2021 May P2V1 Q40",
     "norm_key": "2021-Jun-P2-V1-Q40",
@@ -15994,8 +15994,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 510,
     "label": "Q5: 2021 Nov P2 V1 Q38",
     "norm_key": "2021-Nov-P2-V1-Q38",
@@ -16003,8 +16003,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 511,
     "label": "Q6: 2022 Nov P2 V1 q39",
     "norm_key": "2022-Nov-P2-V1-Q39",
@@ -16012,8 +16012,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 511,
     "label": "Q7: 2023 May P2 V3 Q36 -Half Life",
     "norm_key": "2023-Jun-P2-V3-Q36",
@@ -16021,8 +16021,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 512,
     "label": "Q8: 2023 Nov P2 V3 q35 -Half Life",
     "norm_key": "2023-Nov-P2-V3-Q35",
@@ -16030,8 +16030,8 @@
   },
   {
     "book": "Harony P2 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Half Life",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch3: Half Life",
     "page": 512,
     "label": "Q9: 2024 May P2 V2 q37 -Half Life",
     "norm_key": "2024-Jun-P2-V2-Q37",
@@ -16040,7 +16040,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 514,
     "label": "Q1: 2019 Nov P2 V1 Q40",
     "norm_key": "2019-Nov-P2-V1-Q40",
@@ -16049,7 +16049,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 514,
     "label": "Q2: 2021 Nov P2 V1 Q40",
     "norm_key": "2021-Nov-P2-V1-Q40",
@@ -16058,7 +16058,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 514,
     "label": "Q3: 2023 March P2 V2 Q36 -Radiation and Safety",
     "norm_key": "2023-March-P2-V2-Q36",
@@ -16067,7 +16067,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 515,
     "label": "Q4: 2024 March P2 V2 Q35 -Safety and uses of radiation",
     "norm_key": "2024-March-P2-V2-Q35",
@@ -16076,7 +16076,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 515,
     "label": "Q5: 2024 May P2 V2 q36 -Uses of Radiation",
     "norm_key": "2024-Jun-P2-V2-Q36",
@@ -16085,7 +16085,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 515,
     "label": "Q6: 2024 May P2 V3 Q36 -Uses of radiation",
     "norm_key": "2024-Jun-P2-V3-Q36",
@@ -16094,7 +16094,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 516,
     "label": "Q7: 2024 May P2 V3 Q37 -Radiation and safety features",
     "norm_key": "2024-Jun-P2-V3-Q37",
@@ -16103,7 +16103,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 516,
     "label": "Q8: 2024 Nov P2 V3 Q37 -Uses of Radioactive isotopes",
     "norm_key": "2024-Nov-P2-V3-Q37",
@@ -16112,7 +16112,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 517,
     "label": "Q9: 2025 March P2 V2 Q36 Radiation and safety",
     "norm_key": "2025-March-P2-V2-Q36",
@@ -16121,7 +16121,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 517,
     "label": "Q10: 2025 May P2 V1 Q37 Dangers and safety of radiation",
     "norm_key": "2025-Jun-P2-V1-Q37",
@@ -16130,7 +16130,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 517,
     "label": "Q11: 2025 May P2 V3 Q35 Uses and harms of radiation",
     "norm_key": "2025-Jun-P2-V3-Q35",
@@ -16139,7 +16139,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 517,
     "label": "Q12: 2025 Nov P2 V1 Q36 Uses of Radiation",
     "norm_key": "2025-Nov-P2-V1-Q36",
@@ -16148,7 +16148,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3 Half Life",
+    "chapter": "U5 Ch3: Half Life",
     "page": 518,
     "label": "Q13: 2025 Nov P2 V1 Q37 Uses of Radiation",
     "norm_key": "2025-Nov-P2-V1-Q37",
@@ -16157,7 +16157,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 521,
     "label": "Q1: Nov 2017 Paper 2 Variant 1",
     "norm_key": "nov-2017-paper-2-variant-1",
@@ -16166,7 +16166,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 522,
     "label": "Q2: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -16175,7 +16175,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 522,
     "label": "Q3: 2018 Jun P2 V1 Q19",
     "norm_key": "2018-Jun-P2-V1-Q19",
@@ -16184,7 +16184,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 522,
     "label": "Q4: 2018 Jun P2 V1 Q20",
     "norm_key": "2018-Jun-P2-V1-Q20",
@@ -16193,7 +16193,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 523,
     "label": "Q5: 2018 Jun P2 V2 Q19",
     "norm_key": "2018-Jun-P2-V2-Q19",
@@ -16202,7 +16202,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 523,
     "label": "Q6: 2018 Jun P2 V3 Q19",
     "norm_key": "2018-Jun-P2-V3-Q19",
@@ -16211,7 +16211,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 524,
     "label": "Q7: 2018 Nov P2 V1 Q21",
     "norm_key": "2018-Nov-P2-V1-Q21",
@@ -16220,7 +16220,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 524,
     "label": "Q8: 2019 Jun P2 V1 Q20",
     "norm_key": "2019-Jun-P2-V1-Q20",
@@ -16229,7 +16229,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 525,
     "label": "Q9: 2019 Nov P2 V1 Q21",
     "norm_key": "2019-Nov-P2-V1-Q21",
@@ -16238,7 +16238,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 525,
     "label": "Q10: 2020 May P2 V1 Q20",
     "norm_key": "2020-Jun-P2-V1-Q20",
@@ -16247,7 +16247,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 526,
     "label": "Q11: 2020 May P2 V1 Q21",
     "norm_key": "2020-Jun-P2-V1-Q21",
@@ -16256,7 +16256,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 527,
     "label": "Q12: 2020 Nov P2 V1 Q21",
     "norm_key": "2020-Nov-P2-V1-Q21",
@@ -16265,7 +16265,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 527,
     "label": "Q13: 2020 Nov P2 V1 Q22",
     "norm_key": "2020-Nov-P2-V1-Q22",
@@ -16274,7 +16274,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 528,
     "label": "Q14: 2021 Nov P2 V1 Q17",
     "norm_key": "2021-Nov-P2-V1-Q17",
@@ -16283,7 +16283,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 528,
     "label": "Q15: 2021 Nov P2 V1 Q18",
     "norm_key": "2021-Nov-P2-V1-Q18",
@@ -16292,7 +16292,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 529,
     "label": "Q16: 2022 May P2 V1 q21",
     "norm_key": "2022-Jun-P2-V1-Q21",
@@ -16301,7 +16301,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 529,
     "label": "Q17: 2022 Nov P2 V1 q17",
     "norm_key": "2022-Nov-P2-V1-Q17",
@@ -16310,7 +16310,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 530,
     "label": "Q18: 2022 Nov P2 V1 q18",
     "norm_key": "2022-Nov-P2-V1-Q18",
@@ -16319,7 +16319,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 531,
     "label": "Q19: 2023 May P2 V1 q17 -Waves",
     "norm_key": "2023-Jun-P2-V1-Q17",
@@ -16328,7 +16328,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 532,
     "label": "Q20: 2023 May P2 V2 q17 -Waves",
     "norm_key": "2023-Jun-P2-V2-Q17",
@@ -16337,7 +16337,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 532,
     "label": "Q21: 2023 May P2 V2 q21 -Waves",
     "norm_key": "2023-Jun-P2-V2-Q21",
@@ -16346,7 +16346,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 533,
     "label": "Q22: 2023 May P2 V3 Q17 -Water Waves",
     "norm_key": "2023-Jun-P2-V3-Q17",
@@ -16355,7 +16355,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 533,
     "label": "Q23: 2023 March P2 V2 Q18 -Waves",
     "norm_key": "2023-March-P2-V2-Q18",
@@ -16364,7 +16364,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 534,
     "label": "Q24: 2023 Nov P2 V1 q18 -Waves",
     "norm_key": "2023-Nov-P2-V1-Q18",
@@ -16373,7 +16373,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 534,
     "label": "Q25: 2023 Nov P2 V1 q22 -Waves",
     "norm_key": "2023-Nov-P2-V1-Q22",
@@ -16382,7 +16382,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 534,
     "label": "Q26: 2023 Nov P2 V2 q17 -Waves",
     "norm_key": "2023-Nov-P2-V2-Q17",
@@ -16391,7 +16391,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 535,
     "label": "Q27: 2023 Nov P2 V2 q18 -Water Waves",
     "norm_key": "2023-Nov-P2-V2-Q18",
@@ -16400,7 +16400,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 535,
     "label": "Q28: 2023 Nov P2 V3 q17 -Waves",
     "norm_key": "2023-Nov-P2-V3-Q17",
@@ -16409,7 +16409,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 536,
     "label": "Q29: 2023 Nov P2 V3 q18 -Waves",
     "norm_key": "2023-Nov-P2-V3-Q18",
@@ -16418,7 +16418,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 536,
     "label": "Q30: 2024 March P2 V2 Q16 -Introduction to waves",
     "norm_key": "2024-March-P2-V2-Q16",
@@ -16427,7 +16427,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 537,
     "label": "Q31: 2024 May P2 V1 q16 -Introduction to waves",
     "norm_key": "2024-Jun-P2-V1-Q16",
@@ -16436,7 +16436,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 537,
     "label": "Q32: 2024 May P2 V2 q17 -Introduction to waves",
     "norm_key": "2024-Jun-P2-V2-Q17",
@@ -16445,7 +16445,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 537,
     "label": "Q33: 2024 May P2 V2 q18 -Water waves",
     "norm_key": "2024-Jun-P2-V2-Q18",
@@ -16454,7 +16454,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 537,
     "label": "Q34: 2024 May P2 V3 Q17 -Introduction to waves",
     "norm_key": "2024-Jun-P2-V3-Q17",
@@ -16463,7 +16463,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 538,
     "label": "Q35: 2024 May P2 V3 Q18 -Behavior of waves",
     "norm_key": "2024-Jun-P2-V3-Q18",
@@ -16472,7 +16472,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 538,
     "label": "Q36: 2024 Nov P2 V1 q19 -Diffraction",
     "norm_key": "2024-Nov-P2-V1-Q19",
@@ -16481,7 +16481,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 539,
     "label": "Q37: 2024 Nov P2 V2 Q17 -Properties of waves",
     "norm_key": "2024-Nov-P2-V2-Q17",
@@ -16490,7 +16490,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 539,
     "label": "Q38: 2024 Nov P2 V2 Q18 -Properties of waves",
     "norm_key": "2024-Nov-P2-V2-Q18",
@@ -16499,7 +16499,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 540,
     "label": "Q39: 2024 Nov P2 V2 Q19 -Water Waves",
     "norm_key": "2024-Nov-P2-V2-Q19",
@@ -16508,7 +16508,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 540,
     "label": "Q40: 2024 Nov P2 V3 Q17 -Behaviour of water waves",
     "norm_key": "2024-Nov-P2-V3-Q17",
@@ -16517,7 +16517,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 541,
     "label": "Q41: 2024 Nov P2 V3 Q18 -Properties of waves",
     "norm_key": "2024-Nov-P2-V3-Q18",
@@ -16526,7 +16526,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 541,
     "label": "Q42: 2024 Nov P2 V3 Q19 -Behaviour of water waves",
     "norm_key": "2024-Nov-P2-V3-Q19",
@@ -16535,7 +16535,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 541,
     "label": "Q43: 2025 March P2 V2 Q19 Introduction to waves",
     "norm_key": "2025-March-P2-V2-Q19",
@@ -16544,7 +16544,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 542,
     "label": "Q44: 2025 May P2 V1 Q17 Properties of waves",
     "norm_key": "2025-Jun-P2-V1-Q17",
@@ -16553,7 +16553,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 542,
     "label": "Q45: 2025 May P2 V2 Q17 Diffraction",
     "norm_key": "2025-Jun-P2-V2-Q17",
@@ -16562,7 +16562,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 543,
     "label": "Q46: 2025 May P2 V2 Q18 introduction to waves",
     "norm_key": "2025-Jun-P2-V2-Q18",
@@ -16571,7 +16571,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 543,
     "label": "Q47: 2025 May P2 V2 Q19 introduction to waves",
     "norm_key": "2025-Jun-P2-V2-Q19",
@@ -16580,7 +16580,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 543,
     "label": "Q48: 2025 May P2 V3 Q17 introduction to waves",
     "norm_key": "2025-Jun-P2-V3-Q17",
@@ -16589,7 +16589,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 544,
     "label": "Q49: 2025 May P2 V3 Q18 Behaviour of waves",
     "norm_key": "2025-Jun-P2-V3-Q18",
@@ -16598,7 +16598,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 544,
     "label": "Q50: 2025 Nov P2 V1 Q18 Diffraction",
     "norm_key": "2025-Nov-P2-V1-Q18",
@@ -16607,7 +16607,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 544,
     "label": "Q51: 2025 Nov P2 V2 Q17 Properties of waves",
     "norm_key": "2025-Nov-P2-V2-Q17",
@@ -16616,7 +16616,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 545,
     "label": "Q52: 2025 Nov P2 V2 Q18 Introduction to waves",
     "norm_key": "2025-Nov-P2-V2-Q18",
@@ -16625,7 +16625,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1 Water Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 545,
     "label": "Q53: 2025 Nov P2 V3 Q18 Diffraction",
     "norm_key": "2025-Nov-P2-V3-Q18",
@@ -16634,7 +16634,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 548,
     "label": "Q1: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -16643,7 +16643,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 548,
     "label": "Q2: 2018 Jun P2 V1 Q24",
     "norm_key": "2018-Jun-P2-V1-Q24",
@@ -16652,7 +16652,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 548,
     "label": "Q3: 2018 Jun P2 V2 Q24",
     "norm_key": "2018-Jun-P2-V2-Q24",
@@ -16661,7 +16661,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 549,
     "label": "Q4: 2018 Jun P2 V3 Q23",
     "norm_key": "2018-Jun-P2-V3-Q23",
@@ -16670,7 +16670,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 549,
     "label": "Q5: 2018 Jun P2 V3 Q24",
     "norm_key": "2018-Jun-P2-V3-Q24",
@@ -16679,7 +16679,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 550,
     "label": "Q6: 2018 Nov P2 V1 Q26",
     "norm_key": "2018-Nov-P2-V1-Q26",
@@ -16688,7 +16688,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 550,
     "label": "Q7: 2019 Jun P2 V1 Q24",
     "norm_key": "2019-Jun-P2-V1-Q24",
@@ -16697,7 +16697,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 550,
     "label": "Q8: 2019 Jun P2 V1 Q25",
     "norm_key": "2019-Jun-P2-V1-Q25",
@@ -16706,7 +16706,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 551,
     "label": "Q9: 2019 Nov P2 V1 Q25",
     "norm_key": "2019-Nov-P2-V1-Q25",
@@ -16715,7 +16715,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 551,
     "label": "Q10: 2020 May P2 V1 Q25",
     "norm_key": "2020-Jun-P2-V1-Q25",
@@ -16724,7 +16724,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 551,
     "label": "Q11: 2020 Nov P2 V1 Q25",
     "norm_key": "2020-Nov-P2-V1-Q25",
@@ -16733,7 +16733,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 552,
     "label": "Q12: 2020 Nov P2 V1 Q26",
     "norm_key": "2020-Nov-P2-V1-Q26",
@@ -16742,7 +16742,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 552,
     "label": "Q13: 2021 May P2V1 Q21",
     "norm_key": "2021-Jun-P2-V1-Q21",
@@ -16751,7 +16751,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 552,
     "label": "Q14: 2021 May P2V1 Q26",
     "norm_key": "2021-Jun-P2-V1-Q26",
@@ -16760,7 +16760,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 553,
     "label": "Q15: 2021 May P2V1 Q27",
     "norm_key": "2021-Jun-P2-V1-Q27",
@@ -16769,7 +16769,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 553,
     "label": "Q16: 2021 Nov P2 V1 Q24",
     "norm_key": "2021-Nov-P2-V1-Q24",
@@ -16778,7 +16778,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 553,
     "label": "Q17: 2022 May P2 V1 q22",
     "norm_key": "2022-Jun-P2-V1-Q22",
@@ -16787,7 +16787,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 554,
     "label": "Q18: 2022 Nov P2 V1 q22",
     "norm_key": "2022-Nov-P2-V1-Q22",
@@ -16796,7 +16796,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 554,
     "label": "Q19: 2022 Nov P2 V1 q24",
     "norm_key": "2022-Nov-P2-V1-Q24",
@@ -16805,7 +16805,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 554,
     "label": "Q20: 2023 May P2 V1 q22 -Sound Waves",
     "norm_key": "2023-Jun-P2-V1-Q22",
@@ -16814,7 +16814,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 554,
     "label": "Q21: 2023 May P2 V2 q22 -Sound Waves",
     "norm_key": "2023-Jun-P2-V2-Q22",
@@ -16823,7 +16823,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 555,
     "label": "Q22: 2023 May P2 V3 Q22 -Sound Waves",
     "norm_key": "2023-Jun-P2-V3-Q22",
@@ -16832,7 +16832,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 555,
     "label": "Q23: 2023 March P2 V2 Q23 -Sound Waves",
     "norm_key": "2023-March-P2-V2-Q23",
@@ -16841,7 +16841,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 555,
     "label": "Q24: 2023 Nov P2 V1 q23 -Sound Waves",
     "norm_key": "2023-Nov-P2-V1-Q23",
@@ -16850,7 +16850,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 555,
     "label": "Q25: 2023 Nov P2 V2 q23 -Sound Waves",
     "norm_key": "2023-Nov-P2-V2-Q23",
@@ -16859,7 +16859,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 556,
     "label": "Q26: 2023 Nov P2 V3 q23 -Sound Waves",
     "norm_key": "2023-Nov-P2-V3-Q23",
@@ -16868,7 +16868,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 556,
     "label": "Q27: 2024 March P2 V2 Q18 -Sound Waves",
     "norm_key": "2024-March-P2-V2-Q18",
@@ -16877,7 +16877,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 556,
     "label": "Q28: 2024 May P2 V1 q22 -Sound waves",
     "norm_key": "2024-Jun-P2-V1-Q22",
@@ -16886,7 +16886,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 557,
     "label": "Q29: 2024 May P2 V1 q23 -Sound waves",
     "norm_key": "2024-Jun-P2-V1-Q23",
@@ -16895,7 +16895,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 557,
     "label": "Q30: 2024 May P2 V3 Q24 -Sound waves",
     "norm_key": "2024-Jun-P2-V3-Q24",
@@ -16904,7 +16904,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 558,
     "label": "Q31: 2024 Nov P2 V1 q23 -Sound Waves",
     "norm_key": "2024-Nov-P2-V1-Q23",
@@ -16913,7 +16913,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 559,
     "label": "Q32: 2024 Nov P2 V2 Q23 -Sound Waves",
     "norm_key": "2024-Nov-P2-V2-Q23",
@@ -16922,7 +16922,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 559,
     "label": "Q33: 2024 Nov P2 V3 Q23 -Sound Ref lection",
     "norm_key": "2024-Nov-P2-V3-Q23",
@@ -16931,7 +16931,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 559,
     "label": "Q34: 2025 March P2 V2 Q20 Sound waves",
     "norm_key": "2025-March-P2-V2-Q20",
@@ -16940,7 +16940,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 560,
     "label": "Q35: 2025 May P2 V1 Q23 Sound waves",
     "norm_key": "2025-Jun-P2-V1-Q23",
@@ -16949,7 +16949,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 560,
     "label": "Q36: 2025 May P2 V2 Q24 Sound waves",
     "norm_key": "2025-Jun-P2-V2-Q24",
@@ -16958,7 +16958,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 560,
     "label": "Q37: 2025 May P2 V2 Q25 Sound waves",
     "norm_key": "2025-Jun-P2-V2-Q25",
@@ -16967,7 +16967,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 560,
     "label": "Q38: 2025 May P2 V3 Q22 Sound Waves",
     "norm_key": "2025-Jun-P2-V3-Q22",
@@ -16976,7 +16976,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 561,
     "label": "Q39: 2025 May P2 V3 Q23 Sound Waves",
     "norm_key": "2025-Jun-P2-V3-Q23",
@@ -16985,7 +16985,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 561,
     "label": "Q40: 2025 Nov P2 V1 Q23 Sound Waves",
     "norm_key": "2025-Nov-P2-V1-Q23",
@@ -16994,7 +16994,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 561,
     "label": "Q41: 2025 Nov P2 V2 Q23 Sound Waves",
     "norm_key": "2025-Nov-P2-V2-Q23",
@@ -17003,7 +17003,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch2 Sound Waves",
+    "chapter": "U6 Ch2: Sound Waves",
     "page": 561,
     "label": "Q42: 2025 Nov P2 V3 Q23 Sound waves",
     "norm_key": "2025-Nov-P2-V3-Q23",
@@ -17012,7 +17012,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 564,
     "label": "Q1: 2018 Jun P2 V1 Q21",
     "norm_key": "2018-Jun-P2-V1-Q21",
@@ -17021,7 +17021,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 564,
     "label": "Q2: 2018 Nov P2 V1 Q22",
     "norm_key": "2018-Nov-P2-V1-Q22",
@@ -17030,7 +17030,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 565,
     "label": "Q3: 2019 Jun P2 V1 Q21",
     "norm_key": "2019-Jun-P2-V1-Q21",
@@ -17039,7 +17039,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 565,
     "label": "Q4: 2019 Nov P2 V1 Q22",
     "norm_key": "2019-Nov-P2-V1-Q22",
@@ -17048,7 +17048,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 566,
     "label": "Q5: 2022 May P2 V1 q23",
     "norm_key": "2022-Jun-P2-V1-Q23",
@@ -17057,7 +17057,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 566,
     "label": "Q6: 2022 Nov P2 V1 q20",
     "norm_key": "2022-Nov-P2-V1-Q20",
@@ -17066,7 +17066,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 566,
     "label": "Q7: 2022 Nov P2 V1 q21",
     "norm_key": "2022-Nov-P2-V1-Q21",
@@ -17075,7 +17075,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 567,
     "label": "Q8: 2023 Nov P2 V1 q17 -Diffraction of sound and Light",
     "norm_key": "2023-Nov-P2-V1-Q17",
@@ -17084,7 +17084,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 567,
     "label": "Q9: 2023 Nov P2 V1 q20 -Light Reflection",
     "norm_key": "2023-Nov-P2-V1-Q20",
@@ -17093,7 +17093,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 568,
     "label": "Q10: 2023 Nov P2 V2 q20 -Light Reflection",
     "norm_key": "2023-Nov-P2-V2-Q20",
@@ -17102,7 +17102,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 568,
     "label": "Q11: 2023 Nov P2 V3 q20 -Light Reflection",
     "norm_key": "2023-Nov-P2-V3-Q20",
@@ -17111,7 +17111,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 568,
     "label": "Q12: 2024 March P2 V2 Q17 -Light Ref lection",
     "norm_key": "2024-March-P2-V2-Q17",
@@ -17120,7 +17120,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 569,
     "label": "Q13: 2024 March P2 V2 Q19 -Light Ref lection",
     "norm_key": "2024-March-P2-V2-Q19",
@@ -17129,7 +17129,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 569,
     "label": "Q14: 2024 May P2 V1 q17 -Light Reflection",
     "norm_key": "2024-Jun-P2-V1-Q17",
@@ -17138,7 +17138,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 570,
     "label": "Q15: 2024 May P2 V2 q19 -Light Ref lection",
     "norm_key": "2024-Jun-P2-V2-Q19",
@@ -17147,7 +17147,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 570,
     "label": "Q16: 2024 May P2 V2 q24 -Reflection",
     "norm_key": "2024-Jun-P2-V2-Q24",
@@ -17156,7 +17156,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 571,
     "label": "Q17: 2024 May P2 V3 Q19 -Light ref lection",
     "norm_key": "2024-Jun-P2-V3-Q19",
@@ -17165,7 +17165,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 571,
     "label": "Q18: 2024 Nov P2 V3 Q20 -Light Ref lection",
     "norm_key": "2024-Nov-P2-V3-Q20",
@@ -17174,7 +17174,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 571,
     "label": "Q19: 2025 March P2 V2 Q21 Mirrors",
     "norm_key": "2025-March-P2-V2-Q21",
@@ -17183,7 +17183,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 572,
     "label": "Q20: 2025 May P2 V1 Q19 Light Reflection",
     "norm_key": "2025-Jun-P2-V1-Q19",
@@ -17192,7 +17192,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 572,
     "label": "Q21: 2025 May P2 V2 Q20 Light reflection plane mirror",
     "norm_key": "2025-Jun-P2-V2-Q20",
@@ -17201,7 +17201,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 572,
     "label": "Q22: 2025 May P2 V2 Q23 Properties of light waves",
     "norm_key": "2025-Jun-P2-V2-Q23",
@@ -17210,7 +17210,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 573,
     "label": "Q23: 2025 May P2 V3 Q19 Light Reflection Plane mirror",
     "norm_key": "2025-Jun-P2-V3-Q19",
@@ -17219,7 +17219,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 573,
     "label": "Q24: 2025 Nov P2 V1 Q17 Light refraction",
     "norm_key": "2025-Nov-P2-V1-Q17",
@@ -17228,7 +17228,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 573,
     "label": "Q25: 2025 Nov P2 V2 Q19 Light Reflection",
     "norm_key": "2025-Nov-P2-V2-Q19",
@@ -17237,7 +17237,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch3 Light Reflection",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 574,
     "label": "Q26: 2025 Nov P2 V3 Q19 Light Reflection",
     "norm_key": "2025-Nov-P2-V3-Q19",
@@ -17246,7 +17246,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 576,
     "label": "Q1: Nov 2016 Paper 2 Variant 2",
     "norm_key": "nov-2016-paper-2-variant-2",
@@ -17255,7 +17255,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 576,
     "label": "Q2: June 2017 Paper 2 Variant 1",
     "norm_key": "june-2017-paper-2-variant-1",
@@ -17264,7 +17264,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 577,
     "label": "Q3: Nov 2017 Paper 2 Variant 2",
     "norm_key": "nov-2017-paper-2-variant-2",
@@ -17273,7 +17273,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 577,
     "label": "Q4: Nov 2017 Paper 4 Variant 3",
     "norm_key": "nov-2017-paper-4-variant-3",
@@ -17282,7 +17282,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 577,
     "label": "Q5: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -17291,7 +17291,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 578,
     "label": "Q6: 2021 May P2V1 Q22",
     "norm_key": "2021-Jun-P2-V1-Q22",
@@ -17300,7 +17300,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 579,
     "label": "Q7: 2021 Nov P2 V1 Q19",
     "norm_key": "2021-Nov-P2-V1-Q19",
@@ -17309,7 +17309,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 579,
     "label": "Q8: 2022 Nov P2 V1 q19",
     "norm_key": "2022-Nov-P2-V1-Q19",
@@ -17318,7 +17318,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 579,
     "label": "Q9: 2023 May P2 V1 q18 -Light Refraction",
     "norm_key": "2023-Jun-P2-V1-Q18",
@@ -17327,7 +17327,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 580,
     "label": "Q10: 2023 May P2 V3 Q19 -Light Refraction",
     "norm_key": "2023-Jun-P2-V3-Q19",
@@ -17336,7 +17336,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 580,
     "label": "Q11: 2023 Nov P2 V2 q19 -Light refraction………………..C",
     "norm_key": "2023-Nov-P2-V2-Q19",
@@ -17345,7 +17345,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 580,
     "label": "Q12: 2023 Nov P2 V3 q22 -Light Refraction………………..B",
     "norm_key": "2023-Nov-P2-V3-Q22",
@@ -17354,16 +17354,16 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 580,
-    "label": "Q13: 2024 March P2 V2 Q20 -Light Refraction.......................C",
+    "label": "Q13: 2024 March P2 V2 Q20 -Light Refraction",
     "norm_key": "2024-March-P2-V2-Q20",
     "video_url": "https://youtu.be/CLcCtUwZSTc"
   },
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 581,
     "label": "Q14: 2024 March P2 V2 Q21 -Light Refraction",
     "norm_key": "2024-March-P2-V2-Q21",
@@ -17372,7 +17372,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 581,
     "label": "Q15: 2024 May P2 V1 q19 -Light Refraction",
     "norm_key": "2024-Jun-P2-V1-Q19",
@@ -17381,7 +17381,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 582,
     "label": "Q16: 2024 May P2 V2 q20 -Light Refraction",
     "norm_key": "2024-Jun-P2-V2-Q20",
@@ -17390,7 +17390,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 582,
     "label": "Q17: 2024 May P2 V3 Q20 -Light refraction",
     "norm_key": "2024-Jun-P2-V3-Q20",
@@ -17399,7 +17399,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 583,
     "label": "Q18: 2024 Nov P2 V1 q18 -Light Refraction",
     "norm_key": "2024-Nov-P2-V1-Q18",
@@ -17408,7 +17408,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 583,
     "label": "Q19: 2024 Nov P2 V2 Q20 -Light Refraction",
     "norm_key": "2024-Nov-P2-V2-Q20",
@@ -17417,7 +17417,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 584,
     "label": "Q20: 2025 May P2 V1 Q20 Light Refraction",
     "norm_key": "2025-Jun-P2-V1-Q20",
@@ -17426,7 +17426,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 584,
     "label": "Q21: 2025 May P2 V2 Q21 Light refraction",
     "norm_key": "2025-Jun-P2-V2-Q21",
@@ -17435,7 +17435,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 584,
     "label": "Q22: 2025 Nov P2 V1 Q19 Light refraction",
     "norm_key": "2025-Nov-P2-V1-Q19",
@@ -17444,7 +17444,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 585,
     "label": "Q23: 2025 Nov P2 V2 Q22 Refraction",
     "norm_key": "2025-Nov-P2-V2-Q22",
@@ -17453,7 +17453,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 585,
     "label": "Q24: 2025 Nov P2 V3 Q20 Light Refraction",
     "norm_key": "2025-Nov-P2-V3-Q20",
@@ -17462,7 +17462,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 587,
     "label": "Q1: Nov 2017 Paper 4 Variant 3",
     "norm_key": "nov-2017-paper-4-variant-3",
@@ -17471,7 +17471,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 587,
     "label": "Q2: 2018 Jun P2 V1 Q22",
     "norm_key": "2018-Jun-P2-V1-Q22",
@@ -17480,7 +17480,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 588,
     "label": "Q3: 2018 Nov P2 V1 Q23",
     "norm_key": "2018-Nov-P2-V1-Q23",
@@ -17489,7 +17489,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 588,
     "label": "Q4: 2020 May P2 V1 Q22",
     "norm_key": "2020-Jun-P2-V1-Q22",
@@ -17498,7 +17498,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 589,
     "label": "Q5: 2021 May P2V1 Q23",
     "norm_key": "2021-Jun-P2-V1-Q23",
@@ -17507,7 +17507,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 589,
     "label": "Q6: 2021 Nov P2 V1 Q20",
     "norm_key": "2021-Nov-P2-V1-Q20",
@@ -17516,7 +17516,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 590,
     "label": "Q7: 2021 Nov P2 V1 Q21",
     "norm_key": "2021-Nov-P2-V1-Q21",
@@ -17525,7 +17525,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 590,
     "label": "Q8: 2023 March P2 V2 Q19 -Critical Angles",
     "norm_key": "2023-March-P2-V2-Q19",
@@ -17534,7 +17534,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 590,
     "label": "Q9: 2024 May P2 V1 q18 -Total internal reflection",
     "norm_key": "2024-Jun-P2-V1-Q18",
@@ -17543,7 +17543,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 591,
     "label": "Q10: 2024 Nov P2 V1 q20 -Critical Angle",
     "norm_key": "2024-Nov-P2-V1-Q20",
@@ -17552,7 +17552,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 592,
     "label": "Q11: 2025 March P2 V2 Q22 Critical Angles and TIR",
     "norm_key": "2025-March-P2-V2-Q22",
@@ -17561,7 +17561,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 592,
     "label": "Q12: 2025 May P2 V3 Q20 Critical angle and TIR",
     "norm_key": "2025-Jun-P2-V3-Q20",
@@ -17570,7 +17570,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 592,
     "label": "Q13: 2025 Nov P2 V2 Q20 Total Internal Reflection",
     "norm_key": "2025-Nov-P2-V2-Q20",
@@ -17579,7 +17579,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch4 Light Refraction",
+    "chapter": "U6 Ch4: Light Refraction",
     "page": 594,
     "label": "Q1: 2024 May P2 V1 q20 -Applications on total internal ref lection",
     "norm_key": "2024-Jun-P2-V1-Q20",
@@ -17588,7 +17588,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 598,
     "label": "Q1: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -17597,7 +17597,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 598,
     "label": "Q2: 2018 Jun P2 V2 Q22",
     "norm_key": "2018-Jun-P2-V2-Q22",
@@ -17606,7 +17606,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 598,
     "label": "Q3: 2020 May P2 V1 Q23",
     "norm_key": "2020-Jun-P2-V1-Q23",
@@ -17615,7 +17615,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 599,
     "label": "Q4: 2020 Nov P2 V1 Q24",
     "norm_key": "2020-Nov-P2-V1-Q24",
@@ -17624,7 +17624,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 599,
     "label": "Q5: 2023 May P2 V1 q20 -Light Dispersion",
     "norm_key": "2023-Jun-P2-V1-Q20",
@@ -17633,7 +17633,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 600,
     "label": "Q6: 2023 May P2 V2 q19 -Light Dispersion",
     "norm_key": "2023-Jun-P2-V2-Q19",
@@ -17642,7 +17642,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 600,
     "label": "Q7: 2023 May P2 V2 q20 -Light Dispersion",
     "norm_key": "2023-Jun-P2-V2-Q20",
@@ -17651,7 +17651,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 601,
     "label": "Q8: 2023 May P2 V3 Q20 -Light Dispersion",
     "norm_key": "2023-Jun-P2-V3-Q20",
@@ -17660,7 +17660,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 601,
     "label": "Q9: 2023 March P2 V2 Q21 -Light Dispersion",
     "norm_key": "2023-March-P2-V2-Q21",
@@ -17669,7 +17669,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 602,
     "label": "Q10: 2023 Nov P2 V3 q19 -Light Dispersion",
     "norm_key": "2023-Nov-P2-V3-Q19",
@@ -17678,7 +17678,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 602,
     "label": "Q11: 2024 May P2 V2 q22 -Light dispersion",
     "norm_key": "2024-Jun-P2-V2-Q22",
@@ -17687,7 +17687,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 603,
     "label": "Q12: 2024 May P2 V3 Q22 -Light Dispersion",
     "norm_key": "2024-Jun-P2-V3-Q22",
@@ -17696,7 +17696,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 603,
     "label": "Q13: 2025 May P2 V1 Q21 Light dispersion",
     "norm_key": "2025-Jun-P2-V1-Q21",
@@ -17705,7 +17705,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 603,
     "label": "Q14: 2025 Nov P2 V1 Q21 Light Dispersion",
     "norm_key": "2025-Nov-P2-V1-Q21",
@@ -17714,7 +17714,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 605,
     "label": "Q1: Nov 2017 Paper 2 Variant 2",
     "norm_key": "nov-2017-paper-2-variant-2",
@@ -17723,7 +17723,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 605,
     "label": "Q2: Nov 2017 Paper 4 Variant 3",
     "norm_key": "nov-2017-paper-4-variant-3",
@@ -17732,7 +17732,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 605,
     "label": "Q3: March 18 Paper 2 Variant 2",
     "norm_key": "march-18-paper-2-variant-2",
@@ -17741,7 +17741,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 606,
     "label": "Q4: 2018 Jun P2 V1 Q23",
     "norm_key": "2018-Jun-P2-V1-Q23",
@@ -17750,7 +17750,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 606,
     "label": "Q5: 2018 Jun P2 V2 Q23",
     "norm_key": "2018-Jun-P2-V2-Q23",
@@ -17759,7 +17759,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 606,
     "label": "Q6: 2018 Nov P2 V1 Q24",
     "norm_key": "2018-Nov-P2-V1-Q24",
@@ -17768,7 +17768,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 607,
     "label": "Q7: 2019 Jun P2 V1 Q23",
     "norm_key": "2019-Jun-P2-V1-Q23",
@@ -17777,7 +17777,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 607,
     "label": "Q8: 2019 Nov P2 V1 Q24",
     "norm_key": "2019-Nov-P2-V1-Q24",
@@ -17786,7 +17786,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 607,
     "label": "Q9: 2021 Nov P2 V1 Q23",
     "norm_key": "2021-Nov-P2-V1-Q23",
@@ -17795,7 +17795,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 608,
     "label": "Q10: 2022 May P2 V1 q26",
     "norm_key": "2022-Jun-P2-V1-Q26",
@@ -17804,7 +17804,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 608,
     "label": "Q11: 2022 May P2 V1 q27",
     "norm_key": "2022-Jun-P2-V1-Q27",
@@ -17813,7 +17813,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 608,
     "label": "Q12: 2022 Nov P2 V1 q23",
     "norm_key": "2022-Nov-P2-V1-Q23",
@@ -17822,7 +17822,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 608,
     "label": "Q13: 2023 May P2 V1 q21 -Electromagnetic spectrum",
     "norm_key": "2023-Jun-P2-V1-Q21",
@@ -17831,7 +17831,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 609,
     "label": "Q14: 2023 May P2 V3 Q21 -Electromagnetic Waves",
     "norm_key": "2023-Jun-P2-V3-Q21",
@@ -17840,7 +17840,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 609,
     "label": "Q15: 2023 March P2 V2 Q22 -Electromagnetic Waves",
     "norm_key": "2023-March-P2-V2-Q22",
@@ -17849,7 +17849,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 609,
     "label": "Q16: 2023 Nov P2 V2 q22 -Electromagnetic spectrum",
     "norm_key": "2023-Nov-P2-V2-Q22",
@@ -17858,7 +17858,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 610,
     "label": "Q18: 2024 May P2 V3 Q23 -Electromagnetic spectrum",
     "norm_key": "2024-Jun-P2-V3-Q23",
@@ -17867,7 +17867,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 610,
     "label": "Q19: 2024 Nov P2 V1 q22 -Electromagnetic Waves",
     "norm_key": "2024-Nov-P2-V1-Q22",
@@ -17876,7 +17876,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 611,
     "label": "Q20: 2024 Nov P2 V2 Q22 -Electromagnetic Waves",
     "norm_key": "2024-Nov-P2-V2-Q22",
@@ -17885,7 +17885,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 611,
     "label": "Q21: 2024 Nov P2 V3 Q22 -Uses of electromagnetic spectrum",
     "norm_key": "2024-Nov-P2-V3-Q22",
@@ -17894,7 +17894,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 611,
     "label": "Q22: 2025 May P2 V1 Q22 communication",
     "norm_key": "2025-Jun-P2-V1-Q22",
@@ -17903,7 +17903,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 612,
     "label": "Q23: 2025 May P2 V3 Q21 Electromagnetic Waves",
     "norm_key": "2025-Jun-P2-V3-Q21",
@@ -17912,7 +17912,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 612,
     "label": "Q24: 2025 Nov P2 V1 Q22 Electromagnetic waves",
     "norm_key": "2025-Nov-P2-V1-Q22",
@@ -17921,7 +17921,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 612,
     "label": "Q25: 2025 Nov P2 V3 Q22 Electromagnetic waves",
     "norm_key": "2025-Nov-P2-V3-Q22",
@@ -17930,7 +17930,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch5 Light Dispersion",
+    "chapter": "U6 Ch5: Light Dispersion",
     "page": 614,
     "label": "Q1: 2023 May P2 V2 q18 -Analogue and Digital",
     "norm_key": "2023-Jun-P2-V2-Q18",
@@ -17939,7 +17939,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 616,
     "label": "Q1: Nov 2017 Paper 2 Variant 2",
     "norm_key": "nov-2017-paper-2-variant-2",
@@ -17948,7 +17948,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 616,
     "label": "Q2: 2018 Jun P2 V3 Q22",
     "norm_key": "2018-Jun-P2-V3-Q22",
@@ -17957,7 +17957,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 617,
     "label": "Q3: 2019 Jun P2 V1 Q22",
     "norm_key": "2019-Jun-P2-V1-Q22",
@@ -17966,7 +17966,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 617,
     "label": "Q4: 2019 Nov P2 V1 Q23",
     "norm_key": "2019-Nov-P2-V1-Q23",
@@ -17975,7 +17975,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 618,
     "label": "Q5: 2020 Nov P2 V1 Q23",
     "norm_key": "2020-Nov-P2-V1-Q23",
@@ -17984,7 +17984,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 618,
     "label": "Q6: 2021 May P2V1 Q24",
     "norm_key": "2021-Jun-P2-V1-Q24",
@@ -17993,7 +17993,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 619,
     "label": "Q7: 2022 May P2 V1 q24",
     "norm_key": "2022-Jun-P2-V1-Q24",
@@ -18002,7 +18002,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 619,
     "label": "Q8: 2023 May P2 V1 q19 -Lenses",
     "norm_key": "2023-Jun-P2-V1-Q19",
@@ -18011,7 +18011,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 620,
     "label": "Q9: 2023 May P2 V3 Q18 -Lenses",
     "norm_key": "2023-Jun-P2-V3-Q18",
@@ -18020,7 +18020,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 621,
     "label": "Q10: 2023 March P2 V2 Q20 -Lenses",
     "norm_key": "2023-March-P2-V2-Q20",
@@ -18029,7 +18029,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 621,
     "label": "Q11: 2023 Nov P2 V1 q19 -Lenses",
     "norm_key": "2023-Nov-P2-V1-Q19",
@@ -18038,7 +18038,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 622,
     "label": "Q12: 2023 Nov P2 V1 q21 -Lenses",
     "norm_key": "2023-Nov-P2-V1-Q21",
@@ -18047,7 +18047,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 622,
     "label": "Q13: 2023 Nov P2 V2 q21 -Lenses",
     "norm_key": "2023-Nov-P2-V2-Q21",
@@ -18056,7 +18056,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 623,
     "label": "Q14: 2023 Nov P2 V3 q21 -Lenses",
     "norm_key": "2023-Nov-P2-V3-Q21",
@@ -18065,7 +18065,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 623,
     "label": "Q15: 2024 May P2 V2 q21 -Lenses",
     "norm_key": "2024-Jun-P2-V2-Q21",
@@ -18074,7 +18074,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 624,
     "label": "Q16: 2024 May P2 V3 Q21 -Lenses",
     "norm_key": "2024-Jun-P2-V3-Q21",
@@ -18083,7 +18083,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 624,
     "label": "Q17: 2024 Nov P2 V1 q21 -Lenses",
     "norm_key": "2024-Nov-P2-V1-Q21",
@@ -18092,7 +18092,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 625,
     "label": "Q18: 2024 Nov P2 V2 Q21 -Lenses",
     "norm_key": "2024-Nov-P2-V2-Q21",
@@ -18101,7 +18101,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 626,
     "label": "Q19: 2024 Nov P2 V3 Q21 -Lenses",
     "norm_key": "2024-Nov-P2-V3-Q21",
@@ -18110,7 +18110,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 626,
     "label": "Q20: 2025 March P2 V2 Q23 Lenses",
     "norm_key": "2025-March-P2-V2-Q23",
@@ -18119,7 +18119,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 627,
     "label": "Q21: 2025 May P2 V1 Q18 Lenses",
     "norm_key": "2025-Jun-P2-V1-Q18",
@@ -18128,7 +18128,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 627,
     "label": "Q22: 2025 May P2 V2 Q22 Lenses",
     "norm_key": "2025-Jun-P2-V2-Q22",
@@ -18137,7 +18137,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 627,
     "label": "Q23: 2025 Nov P2 V1 Q20 Lenses",
     "norm_key": "2025-Nov-P2-V1-Q20",
@@ -18146,7 +18146,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 629,
     "label": "Q1: 2024 March P2 V2 Q22 -Lenses and eye pieces",
     "norm_key": "2024-March-P2-V2-Q22",
@@ -18155,7 +18155,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 629,
     "label": "Q2: 2025 Nov P2 V2 Q21 Eye Pieces",
     "norm_key": "2025-Nov-P2-V2-Q21",
@@ -18164,7 +18164,7 @@
   {
     "book": "Harony P2 CLS 2027",
     "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch6 Lenses",
+    "chapter": "U6 Ch6: Lenses",
     "page": 630,
     "label": "Q3: 2025 Nov P2 V3 Q21 Eye Pieces",
     "norm_key": "2025-Nov-P2-V3-Q21",
@@ -18769,7 +18769,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch0: Measurements",
     "page": 7,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/pasufUXCX1Q"
   },
@@ -18778,7 +18778,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch0: Measurements",
     "page": 7,
-    "label": "2.   June 2017 Paper 4 Variant 1",
+    "label": "2. June 2017 Paper 4 Variant 1",
     "norm_key": "2-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/cWg4yMa93aA"
   },
@@ -18787,7 +18787,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch0: Measurements",
     "page": 8,
-    "label": "3.   June 2017 Paper 4 Variant 2",
+    "label": "3. June 2017 Paper 4 Variant 2",
     "norm_key": "3-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/PPAWvibTQkU"
   },
@@ -18796,7 +18796,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch0: Measurements",
     "page": 8,
-    "label": "4.   June 2017 Paper 4 Variant 3",
+    "label": "4. June 2017 Paper 4 Variant 3",
     "norm_key": "4-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/v9bmLJDq1YI"
   },
@@ -18805,7 +18805,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch0: Measurements",
     "page": 9,
-    "label": "5.   June 2017 Paper 4 Variant 3",
+    "label": "5. June 2017 Paper 4 Variant 3",
     "norm_key": "5-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/pVOD8rXVtT4"
   },
@@ -18814,7 +18814,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Measurements",
     "page": 10,
-    "label": "6.   Nov 2017 Paper 4 Variant 1",
+    "label": "6. Nov 2017 Paper 4 Variant 1",
     "norm_key": "6-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/zAdQfciRngo"
   },
@@ -18823,7 +18823,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Measurements",
     "page": 11,
-    "label": "7.   Nov 2017 Paper 4 Variant 3",
+    "label": "7. Nov 2017 Paper 4 Variant 3",
     "norm_key": "7-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/dLKgMwrHlm0"
   },
@@ -18832,7 +18832,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Measurements",
     "page": 12,
-    "label": "8.   Nov 2017 Paper 4 Variant 3",
+    "label": "8. Nov 2017 Paper 4 Variant 3",
     "norm_key": "8-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/7h_gIK3md2o"
   },
@@ -18850,7 +18850,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Measurements",
     "page": 13,
-    "label": "10. 2018 Nov P4 V1 04 a   density.",
+    "label": "10. 2018 Nov P4 V1 04 a density.",
     "norm_key": "2018-Nov-P4-V1-Q00",
     "video_url": "https://youtu.be/viJoQ039Xgg"
   },
@@ -18895,7 +18895,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 20,
-    "label": "1. 2021 Nov P4 V1 Q01-a,b.",
+    "label": "1. 2021 Nov P4 V1 Q01-a, b.",
     "norm_key": "2021-Nov-P4-V1-Q01",
     "video_url": "https://youtu.be/nLSN5YHYrkY"
   },
@@ -18949,7 +18949,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 23,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/xRTcFDpBhbs"
   },
@@ -18958,7 +18958,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 24,
-    "label": "2.   March 2017 Paper 4",
+    "label": "2. March 2017 Paper 4",
     "norm_key": "2-march-2017-paper-4",
     "video_url": "https://youtu.be/sKqoEwK-Ack"
   },
@@ -19012,7 +19012,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 32,
-    "label": "1.   Nov 2017 Paper 4 Variant 1",
+    "label": "1. Nov 2017 Paper 4 Variant 1",
     "norm_key": "1-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/AlRbZV0AWDI"
   },
@@ -19057,7 +19057,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 37,
-    "label": "6. 2024 Nov P4 V1 Q02 b -Kinematics (gradient)  Related to previous question",
+    "label": "6. 2024 Nov P4 V1 Q02 b -Kinematics (gradient) Related to previous question",
     "norm_key": "2024-Nov-P4-V1-Q02",
     "video_url": "https://youtu.be/7191CYxv1wk"
   },
@@ -19147,7 +19147,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 52,
-    "label": "1.   June 2017 Paper 4 Variant 3",
+    "label": "1. June 2017 Paper 4 Variant 3",
     "norm_key": "1-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/KoAruDU_Jas"
   },
@@ -19156,7 +19156,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 52,
-    "label": "2.   Nov 2017 Paper 4 Variant 3",
+    "label": "2. Nov 2017 Paper 4 Variant 3",
     "norm_key": "2-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/bIh2nXBRR2Y"
   },
@@ -19210,7 +19210,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 59,
-    "label": "1.   March 2018 P4",
+    "label": "1. March 2018 P4",
     "norm_key": "1-march-2018-p4",
     "video_url": "https://youtu.be/qAI8ZfLk1YY"
   },
@@ -19228,7 +19228,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch1: Kinematics and motion",
     "page": 62,
-    "label": "3. 2019 May P4 V1 01 a,b",
+    "label": "3. 2019 May P4 V1 01 a, b",
     "norm_key": "2019-Jun-P4-V1-Q00",
     "video_url": "https://youtu.be/pBZh_CXEjXc"
   },
@@ -19264,7 +19264,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch2: Forces",
     "page": 67,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/TuJa_0BzOgw"
   },
@@ -19273,7 +19273,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch2: Forces",
     "page": 69,
-    "label": "2.   June 2017 Paper 4 Variant 1",
+    "label": "2. June 2017 Paper 4 Variant 1",
     "norm_key": "2-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/rRL_3MliOrI"
   },
@@ -19282,7 +19282,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch2: Forces",
     "page": 70,
-    "label": "3.   June 2017 Paper 4 Variant 1",
+    "label": "3. June 2017 Paper 4 Variant 1",
     "norm_key": "3-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/Qj-gbCGj0DE"
   },
@@ -19291,7 +19291,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch2: Forces",
     "page": 70,
-    "label": "4.   Nov 2017 Paper 4 Variant 2",
+    "label": "4. Nov 2017 Paper 4 Variant 2",
     "norm_key": "4-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/MjkWH08_hM4"
   },
@@ -19354,7 +19354,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch3: Forces",
     "page": 76,
-    "label": "1.   June 2017 Paper 4 Variant 1",
+    "label": "1. June 2017 Paper 4 Variant 1",
     "norm_key": "1-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/griF7MpkLRw"
   },
@@ -19651,7 +19651,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch3: Moments and Center of mass",
     "page": 117,
-    "label": "1.   June 2014 Paper 3 Variant 3",
+    "label": "1. June 2014 Paper 3 Variant 3",
     "norm_key": "1-june-2014-paper-3-variant-3",
     "video_url": "https://youtu.be/Ek4sOo0cGEs"
   },
@@ -19660,7 +19660,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch3: Moments and Center of mass",
     "page": 118,
-    "label": "2.   June 2014 Paper 3 Variant 3",
+    "label": "2. June 2014 Paper 3 Variant 3",
     "norm_key": "2-june-2014-paper-3-variant-3",
     "video_url": "https://youtu.be/EXEns1QanFA"
   },
@@ -19669,7 +19669,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch3: Moments and Center of mass",
     "page": 119,
-    "label": "3.   Nov 2014 Paper 3 Variant 2",
+    "label": "3. Nov 2014 Paper 3 Variant 2",
     "norm_key": "3-nov-2014-paper-3-variant-2",
     "video_url": "https://youtu.be/RQjY4tpBY-g"
   },
@@ -19678,7 +19678,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch3: Moments and Center of mass",
     "page": 120,
-    "label": "4.   Nov 2014 Paper 3 Variant 2",
+    "label": "4. Nov 2014 Paper 3 Variant 2",
     "norm_key": "4-nov-2014-paper-3-variant-2",
     "video_url": "https://youtu.be/6LY1op9YhOw"
   },
@@ -19687,7 +19687,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch3: Moments and Center of mass",
     "page": 120,
-    "label": "5.   March 2017 Paper 4",
+    "label": "5. March 2017 Paper 4",
     "norm_key": "5-march-2017-paper-4",
     "video_url": "https://youtu.be/HwQMhJsMpTs"
   },
@@ -19804,7 +19804,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch4: Pressure",
     "page": 136,
-    "label": "1.   Nov 2017 Paper 4 Variant 1",
+    "label": "1. Nov 2017 Paper 4 Variant 1",
     "norm_key": "1-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/fj19wmL26uc"
   },
@@ -19813,7 +19813,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch4: Pressure",
     "page": 137,
-    "label": "2.   Nov 2017 Paper 4 Variant 3",
+    "label": "2. Nov 2017 Paper 4 Variant 3",
     "norm_key": "2-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/W9X_NZpZ6ps"
   },
@@ -20092,7 +20092,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 168,
-    "label": "1. 2018 Nov P4 V1 03a,b(i).",
+    "label": "1. 2018 Nov P4 V1 03a, b(i).",
     "norm_key": "2018-Nov-P4-V1-Q00",
     "video_url": "https://youtu.be/ZKfIdfAw3Ew"
   },
@@ -20191,7 +20191,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 179,
-    "label": "1.   March 2018 P4",
+    "label": "1. March 2018 P4",
     "norm_key": "1-march-2018-p4",
     "video_url": "https://youtu.be/30mBJ9_ZX-E"
   },
@@ -20200,7 +20200,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 180,
-    "label": "2.   March 2018 P4",
+    "label": "2. March 2018 P4",
     "norm_key": "2-march-2018-p4",
     "video_url": "https://youtu.be/XZPyXcS2yYQ"
   },
@@ -20254,7 +20254,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 187,
-    "label": "1.   Nov 2017 Paper 4 Variant 2",
+    "label": "1. Nov 2017 Paper 4 Variant 2",
     "norm_key": "1-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/JziuQeWsVL4"
   },
@@ -20263,7 +20263,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 188,
-    "label": "2.   Nov 2017 Paper 4 Variant 3",
+    "label": "2. Nov 2017 Paper 4 Variant 3",
     "norm_key": "2-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/Nk7cXtLT9RU"
   },
@@ -20272,7 +20272,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 188,
-    "label": "3.   Nov 2017 Paper 4 Variant 3",
+    "label": "3. Nov 2017 Paper 4 Variant 3",
     "norm_key": "3-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/H9yUr8qfu_c"
   },
@@ -20281,7 +20281,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch5: Work, Energy and Power",
     "page": 189,
-    "label": "4.   Nov 2017 Paper 4 Variant 3",
+    "label": "4. Nov 2017 Paper 4 Variant 3",
     "norm_key": "4-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/vhIdQsp_6XE"
   },
@@ -20407,7 +20407,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 200,
-    "label": "1.   March 2018 P4",
+    "label": "1. March 2018 P4",
     "norm_key": "1-march-2018-p4",
     "video_url": "https://youtu.be/0Yu00CGA7v4"
   },
@@ -20434,7 +20434,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 202,
-    "label": "4. 2019 Nov P2 V1 Q03 a,b",
+    "label": "4. 2019 Nov P2 V1 Q03 a, b",
     "norm_key": "2019-Nov-P2-V1-Q03",
     "video_url": "https://youtu.be/plM0n3qHC8U"
   },
@@ -20587,7 +20587,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 221,
-    "label": "1.   June 2017 Paper 4 Variant 2",
+    "label": "1. June 2017 Paper 4 Variant 2",
     "norm_key": "1-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/X2XQQ0_OOpU"
   },
@@ -20596,7 +20596,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 221,
-    "label": "2.   June 2017 Paper 4 Variant 2",
+    "label": "2. June 2017 Paper 4 Variant 2",
     "norm_key": "2-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/wPcGUKuGgvI"
   },
@@ -20632,7 +20632,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 228,
-    "label": "1.   June 2017 Paper 4 Variant 3",
+    "label": "1. June 2017 Paper 4 Variant 3",
     "norm_key": "1-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/n1lT7gyvXFM"
   },
@@ -20641,7 +20641,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 228,
-    "label": "2.   June 2017 Paper 4 Variant 3",
+    "label": "2. June 2017 Paper 4 Variant 3",
     "norm_key": "2-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/CTN1mClH_FQ"
   },
@@ -20650,7 +20650,7 @@
     "unit": "Unit 1: Mechanics",
     "chapter": "U1 Ch6: Momentum",
     "page": 228,
-    "label": "3.   June 2017 Paper 4 Variant 3",
+    "label": "3. June 2017 Paper 4 Variant 3",
     "norm_key": "3-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/Tks0veFAMOc"
   },
@@ -20686,7 +20686,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch1: Kinetic Theory",
     "page": 238,
-    "label": "1.   Nov 2017 Paper 4 Variant 3",
+    "label": "1. Nov 2017 Paper 4 Variant 3",
     "norm_key": "1-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/lOhj8rLib74"
   },
@@ -20695,7 +20695,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch1: Kinetic Theory",
     "page": 238,
-    "label": "2.   2018 May P4 V1 q04 a",
+    "label": "2. 2018 May P4 V1 q04 a",
     "norm_key": "2018-Jun-P4-V1-Q04",
     "video_url": "https://youtu.be/Kvs22uHPri0"
   },
@@ -20704,7 +20704,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch1: Kinetic Theory",
     "page": 239,
-    "label": "3.   2018 May P4 V2 q 04 a b c",
+    "label": "3. 2018 May P4 V2 q 04 a b c",
     "norm_key": "2018-Jun-P4-V2-Q00",
     "video_url": "https://youtu.be/SFte_oPBJHE"
   },
@@ -20713,7 +20713,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch1: Kinetic Theory",
     "page": 240,
-    "label": "4.   2019 Nov P2 V1 Q03 c",
+    "label": "4. 2019 Nov P2 V1 Q03 c",
     "norm_key": "2019-Nov-P2-V1-Q03",
     "video_url": "https://youtu.be/4kueefUuPeo"
   },
@@ -20767,7 +20767,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch1: Kinetic Theory",
     "page": 245,
-    "label": "1.   March 2018 P4",
+    "label": "1. March 2018 P4",
     "norm_key": "1-march-2018-p4",
     "video_url": "https://youtu.be/UfehGic2ZQ8"
   },
@@ -20776,7 +20776,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch1: Kinetic Theory",
     "page": 245,
-    "label": "2.   2018 May P4 V3 q05 a",
+    "label": "2. 2018 May P4 V3 q05 a",
     "norm_key": "2018-Jun-P4-V3-Q05",
     "video_url": "https://youtu.be/cumr2miqmtg"
   },
@@ -21019,7 +21019,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch3: Heat Transmission",
     "page": 274,
-    "label": "1.   Nov 2017 Paper 4 Variant 3",
+    "label": "1. Nov 2017 Paper 4 Variant 3",
     "norm_key": "1-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/FHo5VHMi_Bs"
   },
@@ -21280,7 +21280,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch4: Specific Heat Capacity",
     "page": 305,
-    "label": "1.   June 2017 Paper 4 Variant 2",
+    "label": "1. June 2017 Paper 4 Variant 2",
     "norm_key": "1-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/fGknUkHVSgY"
   },
@@ -21289,7 +21289,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch4: Specific Heat Capacity",
     "page": 306,
-    "label": "2.   March 2018 P4",
+    "label": "2. March 2018 P4",
     "norm_key": "2-march-2018-p4",
     "video_url": "https://youtu.be/p-WzFUrFXyM"
   },
@@ -21298,7 +21298,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch4: Specific Heat Capacity",
     "page": 307,
-    "label": "3.   2019 May P4 V1 04 a",
+    "label": "3. 2019 May P4 V1 04 a",
     "norm_key": "2019-Jun-P4-V1-Q00",
     "video_url": "https://youtu.be/jdNvwJQxfcE"
   },
@@ -21307,7 +21307,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch4: Specific Heat Capacity",
     "page": 308,
-    "label": "4.  2019 Nov P2 V1 Q06 b",
+    "label": "4. 2019 Nov P2 V1 Q06 b",
     "norm_key": "2019-Nov-P2-V1-Q06",
     "video_url": "https://youtu.be/-mlp_QMHA4E"
   },
@@ -21316,7 +21316,7 @@
     "unit": "Unit 2: Thermal Physics",
     "chapter": "U2 Ch4: Specific Heat Capacity",
     "page": 309,
-    "label": "5. 2021 Nov P4 V1 Q02-b,ci",
+    "label": "5. 2021 Nov P4 V1 Q02-b, ci",
     "norm_key": "2021-Nov-P4-V1-Q02",
     "video_url": "https://youtu.be/pP2BMgGzYHo"
   },
@@ -21442,7 +21442,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch1: Electrostatics",
     "page": 328,
-    "label": "2.   Nov 2016 Paper 4 Variant 1",
+    "label": "2. Nov 2016 Paper 4 Variant 1",
     "norm_key": "2-nov-2016-paper-4-variant-1",
     "video_url": "https://youtu.be/_D82w9omUAY"
   },
@@ -21667,7 +21667,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 354,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/A2M-nU66fMU"
   },
@@ -21676,7 +21676,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 355,
-    "label": "2.   March 2017 Paper 4",
+    "label": "2. March 2017 Paper 4",
     "norm_key": "2-march-2017-paper-4",
     "video_url": "https://youtu.be/wCgcqgEMNDw"
   },
@@ -21685,7 +21685,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 357,
-    "label": "3.   Nov 2017 Paper 4 Variant 1",
+    "label": "3. Nov 2017 Paper 4 Variant 1",
     "norm_key": "3-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/Cd5EfCBZwC0"
   },
@@ -21694,7 +21694,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 358,
-    "label": "4.   Nov 2017 Paper 4 Variant 2",
+    "label": "4. Nov 2017 Paper 4 Variant 2",
     "norm_key": "4-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/QSHK53npBhM"
   },
@@ -21703,7 +21703,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 358,
-    "label": "5.   March 2018 P4",
+    "label": "5. March 2018 P4",
     "norm_key": "5-march-2018-p4",
     "video_url": "https://youtu.be/EUNpEhB9SD8"
   },
@@ -21712,7 +21712,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 359,
-    "label": "6.   March 2018 P4",
+    "label": "6. March 2018 P4",
     "norm_key": "6-march-2018-p4",
     "video_url": "https://youtu.be/b9ygUWCTZNU"
   },
@@ -21739,7 +21739,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 362,
-    "label": "9. 2018 Nov P4 V1 09   Current",
+    "label": "9. 2018 Nov P4 V1 09 Current",
     "norm_key": "2018-Nov-P4-V1-Q00",
     "video_url": "https://youtu.be/BmUcRU4BnI4"
   },
@@ -21919,7 +21919,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 386,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/MYSEaSZkILU"
   },
@@ -21928,7 +21928,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 387,
-    "label": "2.   March 2017 Paper 4",
+    "label": "2. March 2017 Paper 4",
     "norm_key": "2-march-2017-paper-4",
     "video_url": "https://youtu.be/zdaegr4J7uY"
   },
@@ -21937,7 +21937,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch2: Electric Circuits",
     "page": 387,
-    "label": "3.   March 2018 P4",
+    "label": "3. March 2018 P4",
     "norm_key": "3-march-2018-p4",
     "video_url": "https://youtu.be/vDFlavISUMA"
   },
@@ -22009,7 +22009,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch3: Home installation and Safety",
     "page": 395,
-    "label": "1.   Nov 2016 Paper 4 Variant 1",
+    "label": "1. Nov 2016 Paper 4 Variant 1",
     "norm_key": "1-nov-2016-paper-4-variant-1",
     "video_url": "https://youtu.be/J6d3dJQ8xD8"
   },
@@ -22018,7 +22018,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch3: Home installation and Safety",
     "page": 396,
-    "label": "2.   2019 Nov P2 V1 Q06 a",
+    "label": "2. 2019 Nov P2 V1 Q06 a",
     "norm_key": "2019-Nov-P2-V1-Q06",
     "video_url": "https://youtu.be/59szcodalH0"
   },
@@ -22144,7 +22144,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch4: Circuit Components",
     "page": 11,
-    "label": "1.   Nov 2017 Paper 4 Variant 1",
+    "label": "1. Nov 2017 Paper 4 Variant 1",
     "norm_key": "1-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/38vH359amho"
   },
@@ -22153,7 +22153,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch4: Circuit Components",
     "page": 11,
-    "label": "2.   Nov 2017 Paper 4 Variant 2",
+    "label": "2. Nov 2017 Paper 4 Variant 2",
     "norm_key": "2-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/yP6fNghW7yE"
   },
@@ -22162,7 +22162,7 @@
     "unit": "Unit 3: Electricity",
     "chapter": "U3 Ch4: Circuit Components",
     "page": 12,
-    "label": "3.   Nov 2017 Paper 4 Variant 3",
+    "label": "3. Nov 2017 Paper 4 Variant 3",
     "norm_key": "3-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/NFf9wr--tNc"
   },
@@ -22252,7 +22252,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch1: Magnetism",
     "page": 25,
-    "label": "1.   June 2017 Paper 4 Variant 1",
+    "label": "1. June 2017 Paper 4 Variant 1",
     "norm_key": "1-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/15agBfweq_4"
   },
@@ -22315,7 +22315,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 33,
-    "label": "1.   Nov 2017 Paper 4 Variant 2",
+    "label": "1. Nov 2017 Paper 4 Variant 2",
     "norm_key": "1-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/P9uzK5YtGfk"
   },
@@ -22369,7 +22369,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 42,
-    "label": "1.   Nov 2016 Paper 4 Variant 1",
+    "label": "1. Nov 2016 Paper 4 Variant 1",
     "norm_key": "1-nov-2016-paper-4-variant-1",
     "video_url": "https://youtu.be/WrLrDDv3teE"
   },
@@ -22378,7 +22378,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 43,
-    "label": "2.   June 2017 Paper 4 Variant 2",
+    "label": "2. June 2017 Paper 4 Variant 2",
     "norm_key": "2-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/aNoTddLjEG4"
   },
@@ -22387,7 +22387,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 44,
-    "label": "3. 2025 March P4 V2 Q08 a b Electromagnetics Force due to current",
+    "label": "3. 2025 March P4 V2 Q08 a b Electromagnetic Force due to current",
     "norm_key": "2025-March-P4-V2-Q08",
     "video_url": "https://youtu.be/1VmjqrkyiqI"
   },
@@ -22396,7 +22396,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 46,
-    "label": "1.   Nov 2016 Paper 4 Variant 2",
+    "label": "1. Nov 2016 Paper 4 Variant 2",
     "norm_key": "1-nov-2016-paper-4-variant-2",
     "video_url": "https://youtu.be/pgp_lpyXRM0"
   },
@@ -22405,7 +22405,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch2: Motor",
     "page": 47,
-    "label": "2.   2020 Nov P4 V1 Q07b ii, C",
+    "label": "2. 2020 Nov P4 V1 Q07b ii, C",
     "norm_key": "2020-Nov-P4-V1-Q07",
     "video_url": "https://youtu.be/6Ftuomn8XSo"
   },
@@ -22477,7 +22477,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch3: Electromagnetic Induction (Gen)",
     "page": 60,
-    "label": "1.   Nov 2015 Paper 4 Variant 2",
+    "label": "1. Nov 2015 Paper 4 Variant 2",
     "norm_key": "1-nov-2015-paper-4-variant-2",
     "video_url": "https://youtu.be/8zMP4lHydtk"
   },
@@ -22486,7 +22486,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch3: Electromagnetic Induction (Gen)",
     "page": 62,
-    "label": "3.   Jun 2016 Paper 4 Variant 3",
+    "label": "3. Jun 2016 Paper 4 Variant 3",
     "norm_key": "3-jun-2016-paper-4-variant-3",
     "video_url": "https://youtu.be/zmac58NJF90"
   },
@@ -22495,7 +22495,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch3: Electromagnetic Induction (Gen)",
     "page": 63,
-    "label": "4.   Nov 2016 Paper 4 Variant 3",
+    "label": "4. Nov 2016 Paper 4 Variant 3",
     "norm_key": "4-nov-2016-paper-4-variant-3",
     "video_url": "https://youtu.be/0HybRwwN9lk"
   },
@@ -22504,16 +22504,16 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch3: Electromagnetic Induction (Gen)",
     "page": 64,
-    "label": "5.   Nov 2016 Paper 4 Variant 3",
+    "label": "5. Nov 2016 Paper 4 Variant 3",
     "norm_key": "5-nov-2016-paper-4-variant-3",
     "video_url": "https://youtu.be/IZDJZbkiuag"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 5: Nuclear Physics",
-    "chapter": "U5 Ch3: Electromagnetic Induction (P1)",
+    "unit": "Unit 4: Electromagnetism",
+    "chapter": "U4 Ch3: Electromagnetic Induction (P1)",
     "page": 65,
-    "label": "6.   March 2018 P4",
+    "label": "6. March 2018 P4",
     "norm_key": "6-march-2018-p4",
     "video_url": "https://youtu.be/o7PsoND7SLg"
   },
@@ -22522,7 +22522,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch3: Electromagnetic Induction (Gen)",
     "page": 67,
-    "label": "1.   Nov 2017 Paper 4 Variant 3",
+    "label": "1. Nov 2017 Paper 4 Variant 3",
     "norm_key": "1-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/LKC_JzpBu_4"
   },
@@ -22603,7 +22603,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 83,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/9LhxzGiuV_E"
   },
@@ -22612,7 +22612,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 84,
-    "label": "2.   June 2017 Paper 4 Variant 3",
+    "label": "2. June 2017 Paper 4 Variant 3",
     "norm_key": "2-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/eHL4NpI6B4E"
   },
@@ -22621,7 +22621,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 86,
-    "label": "3.   Nov 2017 Paper 4 Variant 1",
+    "label": "3. Nov 2017 Paper 4 Variant 1",
     "norm_key": "3-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/wydy1GesDgU"
   },
@@ -22630,7 +22630,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 86,
-    "label": "4.   Nov 2017 Paper 4 Variant 3",
+    "label": "4. Nov 2017 Paper 4 Variant 3",
     "norm_key": "4-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/odn59sB_mHk"
   },
@@ -22639,7 +22639,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 87,
-    "label": "5.   March 2018 P4",
+    "label": "5. March 2018 P4",
     "norm_key": "5-march-2018-p4",
     "video_url": "https://youtu.be/ls4pSwTCFWQ"
   },
@@ -22666,7 +22666,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 89,
-    "label": "8. 2018 Nov P4 V1 10 a,b",
+    "label": "8. 2018 Nov P4 V1 10 a, b",
     "norm_key": "2018-Nov-P4-V1-Q00",
     "video_url": "https://youtu.be/e6zQcWD30mI"
   },
@@ -22675,7 +22675,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 90,
-    "label": "9.   2020 May P4 V1 Q07",
+    "label": "9. 2020 May P4 V1 Q07",
     "norm_key": "2020-Jun-P4-V1-Q07",
     "video_url": "https://youtu.be/ICqJYeeJy5c"
   },
@@ -22747,7 +22747,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 101,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/NdHCuP1sY7E"
   },
@@ -22756,7 +22756,7 @@
     "unit": "Unit 4: Electromagnetism",
     "chapter": "U4 Ch4: Transformers",
     "page": 102,
-    "label": "2.   June 2017 Paper 4 Variant 3",
+    "label": "2. June 2017 Paper 4 Variant 3",
     "norm_key": "2-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/DN65eb16-XM"
   },
@@ -22846,7 +22846,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch1: Atomic Structure",
     "page": 116,
-    "label": "1.   Specimen 2016 Paper 4",
+    "label": "1. Specimen 2016 Paper 4",
     "norm_key": "1-specimen-2016-paper-4",
     "video_url": "https://youtu.be/1E2QCBa2ekE"
   },
@@ -22855,7 +22855,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch1: Atomic Structure",
     "page": 116,
-    "label": "2.   June 2017 Paper 4 Variant 1",
+    "label": "2. June 2017 Paper 4 Variant 1",
     "norm_key": "2-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/3kEuJtjXHRA"
   },
@@ -22864,14 +22864,14 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch1: Atomic Structure",
     "page": 117,
-    "label": "3.   June 2017 Paper 4 Variant 2",
+    "label": "3. June 2017 Paper 4 Variant 2",
     "norm_key": "3-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/Ln0uk_Ktf-4"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1: Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 118,
     "label": "4. 2024 March P4 V2 Q09 a -Gold Foil Experiment",
     "norm_key": "2024-March-P4-V2-Q09",
@@ -22879,8 +22879,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 6: Waves",
-    "chapter": "U6 Ch1: Atomic Structure",
+    "unit": "Unit 5: Nuclear Physics",
+    "chapter": "U5 Ch1: Atomic Structure",
     "page": 118,
     "label": "5. 2025 Nov P4 V3 Q08 a Gold foil experiment",
     "norm_key": "2025-Nov-P4-V3-Q08",
@@ -22900,7 +22900,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch1: Atomic Structure",
     "page": 121,
-    "label": "2. 2021 Nov P4 V1 Q09-a,b",
+    "label": "2. 2021 Nov P4 V1 Q09-a, b",
     "norm_key": "2021-Nov-P4-V1-Q09",
     "video_url": "https://youtu.be/bLHW2O8JZio"
   },
@@ -22981,7 +22981,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch2: Alpha, Beta and Gamma",
     "page": 127,
-    "label": "1.   March 2018 P4",
+    "label": "1. March 2018 P4",
     "norm_key": "1-march-2018-p4",
     "video_url": "https://youtu.be/HlOlDjnbqvY"
   },
@@ -22990,7 +22990,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch2: Alpha, Beta and Gamma",
     "page": 127,
-    "label": "2.   March 2018 P4",
+    "label": "2. March 2018 P4",
     "norm_key": "2-march-2018-p4",
     "video_url": "https://youtu.be/1nG4gGUd-Zg"
   },
@@ -23089,7 +23089,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch2: Alpha, Beta and Gamma",
     "page": 136,
-    "label": "13. 2021 Nov P4 V1 Q09-c,d",
+    "label": "13. 2021 Nov P4 V1 Q09-c, d",
     "norm_key": "2021-Nov-P4-V1-Q09",
     "video_url": "https://youtu.be/z_v9oGYy-qg"
   },
@@ -23269,7 +23269,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 152,
-    "label": "1.   June 2014 Paper 3 Variant 1",
+    "label": "1. June 2014 Paper 3 Variant 1",
     "norm_key": "1-june-2014-paper-3-variant-1",
     "video_url": "https://youtu.be/kgG5ML0oqNE"
   },
@@ -23278,7 +23278,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 153,
-    "label": "2.   Nov 2015 Paper 3 Variant 1",
+    "label": "2. Nov 2015 Paper 3 Variant 1",
     "norm_key": "2-nov-2015-paper-3-variant-1",
     "video_url": "https://youtu.be/NoYKaCN5UcA"
   },
@@ -23287,7 +23287,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 153,
-    "label": "3.   Nov 2015 Paper 4 Variant 2",
+    "label": "3. Nov 2015 Paper 4 Variant 2",
     "norm_key": "3-nov-2015-paper-4-variant-2",
     "video_url": "https://youtu.be/xunBjuwW6xU"
   },
@@ -23296,7 +23296,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 154,
-    "label": "5.   Jun 2016 Paper 4 Variant 3",
+    "label": "5. Jun 2016 Paper 4 Variant 3",
     "norm_key": "5-jun-2016-paper-4-variant-3",
     "video_url": "https://youtu.be/p7Nx4aC4qi8"
   },
@@ -23305,7 +23305,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 155,
-    "label": "6.   Nov 2016 Paper 4 Variant 2",
+    "label": "6. Nov 2016 Paper 4 Variant 2",
     "norm_key": "6-nov-2016-paper-4-variant-2",
     "video_url": "https://youtu.be/dPgGkyaFQfg"
   },
@@ -23314,7 +23314,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 155,
-    "label": "7.   Nov 2017 Paper 4 Variant 2",
+    "label": "7. Nov 2017 Paper 4 Variant 2",
     "norm_key": "7-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/GR7rFW9OU7o"
   },
@@ -23323,7 +23323,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 156,
-    "label": "8.   Nov 2017 Paper 4 Variant 3",
+    "label": "8. Nov 2017 Paper 4 Variant 3",
     "norm_key": "8-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/ds0IBjQOggI"
   },
@@ -23368,7 +23368,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 161,
-    "label": "1.   Nov 2016 Paper 4 Variant 1",
+    "label": "1. Nov 2016 Paper 4 Variant 1",
     "norm_key": "1-nov-2016-paper-4-variant-1",
     "video_url": "https://youtu.be/Jb4LS9v9Y8c"
   },
@@ -23377,7 +23377,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 161,
-    "label": "2.   Nov 2016 Paper 4 Variant 2",
+    "label": "2. Nov 2016 Paper 4 Variant 2",
     "norm_key": "2-nov-2016-paper-4-variant-2",
     "video_url": "https://youtu.be/u8mSsgaRP24"
   },
@@ -23386,7 +23386,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 162,
-    "label": "3.   Nov 2016 Paper 4 Variant 3",
+    "label": "3. Nov 2016 Paper 4 Variant 3",
     "norm_key": "3-nov-2016-paper-4-variant-3",
     "video_url": "https://youtu.be/ZeUVS9FAymU"
   },
@@ -23494,7 +23494,7 @@
     "unit": "Unit 5: Nuclear Physics",
     "chapter": "U5 Ch3: Half Life",
     "page": 174,
-    "label": "4. 2024 May P4 V3 Q10 b,C -Uses of radiation",
+    "label": "4. 2024 May P4 V3 Q10 b, C -Uses of radiation",
     "norm_key": "2024-Jun-P4-V3-Q10",
     "video_url": "https://youtu.be/7Qmj5aoqEs8"
   },
@@ -23566,7 +23566,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch1: Water Waves",
     "page": 185,
-    "label": "1.   June 2017 Paper 4 Variant 2",
+    "label": "1. June 2017 Paper 4 Variant 2",
     "norm_key": "1-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/mOXtYdGKBhI"
   },
@@ -23575,32 +23575,32 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch1: Water Waves",
     "page": 186,
-    "label": "2.   June 2017 Paper 4 Variant 2",
+    "label": "2. June 2017 Paper 4 Variant 2",
     "norm_key": "2-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/T8d9UERz6nY"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 187,
-    "label": "3.   Nov 2017 Paper 4 Variant 1",
+    "label": "3. Nov 2017 Paper 4 Variant 1",
     "norm_key": "3-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/5RnBOFeuyE8"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 188,
-    "label": "4.   Nov 2017 Paper 4 Variant 2",
+    "label": "4. Nov 2017 Paper 4 Variant 2",
     "norm_key": "4-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/I99NBCIK_Lw"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 189,
     "label": "5. 2018 May P4 V1 q06 a",
     "norm_key": "2018-Jun-P4-V1-Q06",
@@ -23608,8 +23608,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 190,
     "label": "6. 2018 May P4 V1 q06 b",
     "norm_key": "2018-Jun-P4-V1-Q06",
@@ -23617,8 +23617,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 191,
     "label": "7. 2018 Nov P4 V1 07 c",
     "norm_key": "2018-Nov-P4-V1-Q00",
@@ -23626,8 +23626,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 191,
     "label": "8. 2023 May P4 V2 Q06 -Waves",
     "norm_key": "2023-Jun-P4-V2-Q06",
@@ -23635,8 +23635,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 192,
     "label": "9. 2023 Nov P4 V3 Q05 -Waves",
     "norm_key": "2023-Nov-P4-V3-Q05",
@@ -23644,8 +23644,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 193,
     "label": "10. 2024 March P4 V2 Q05 b -Water waves",
     "norm_key": "2024-March-P4-V2-Q05",
@@ -23653,8 +23653,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 194,
     "label": "11. 2024 May P4 V1 Q05 -Introduction to waves",
     "norm_key": "2024-Jun-P4-V1-Q05",
@@ -23662,8 +23662,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 195,
     "label": "12. 2025 March P4 V2 Q07 a Diffraction",
     "norm_key": "2025-March-P4-V2-Q07",
@@ -23671,8 +23671,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch1: Water Waves",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch1: Water Waves",
     "page": 196,
     "label": "13. 2025 Nov P4 V3 Q05 b ci introduction to waves",
     "norm_key": "2025-Nov-P4-V3-Q05",
@@ -23836,7 +23836,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch3: Light Reflection",
     "page": 226,
-    "label": "1.   June 2014 Paper 3 Variant 2",
+    "label": "1. June 2014 Paper 3 Variant 2",
     "norm_key": "1-june-2014-paper-3-variant-2",
     "video_url": "https://youtu.be/qhb5rpcS4fw"
   },
@@ -23845,7 +23845,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch3: Light Reflection",
     "page": 227,
-    "label": "2.   June 2014 Paper 3 Variant 3",
+    "label": "2. June 2014 Paper 3 Variant 3",
     "norm_key": "2-june-2014-paper-3-variant-3",
     "video_url": "https://youtu.be/WQYP64rHc8s"
   },
@@ -23854,23 +23854,23 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch3: Light Reflection",
     "page": 228,
-    "label": "3.   Nov 2014 Paper 3 Variant 1",
+    "label": "3. Nov 2014 Paper 3 Variant 1",
     "norm_key": "3-nov-2014-paper-3-variant-1",
     "video_url": "https://youtu.be/1Dq8QPOdUzg"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch3: Light Reflection",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 229,
-    "label": "4.   Nov 2017 Paper 4 Variant 2",
+    "label": "4. Nov 2017 Paper 4 Variant 2",
     "norm_key": "4-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/fk37g0UXdpY"
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch3: Light Reflection",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 230,
     "label": "5. 2023 Nov P4 V2 Q05 a b-Light Reflection",
     "norm_key": "2023-Nov-P4-V2-Q05",
@@ -23878,8 +23878,8 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch3: Light Reflection",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch3: Light Reflection",
     "page": 231,
     "label": "6. 2024 Nov P4 V2 Q06 b -Light reflection",
     "norm_key": "2024-Nov-P4-V2-Q06",
@@ -23890,7 +23890,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 233,
-    "label": "1.   June 2017 Paper 4 Variant 2",
+    "label": "1. June 2017 Paper 4 Variant 2",
     "norm_key": "1-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/-RzpeLoeiFc"
   },
@@ -23899,7 +23899,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 234,
-    "label": "2.   Nov 2017 Paper 4 Variant 3",
+    "label": "2. Nov 2017 Paper 4 Variant 3",
     "norm_key": "2-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/7GGWEP0cYho"
   },
@@ -23989,7 +23989,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 246,
-    "label": "1.   Nov 2016 Paper 4 Variant 1",
+    "label": "1. Nov 2016 Paper 4 Variant 1",
     "norm_key": "1-nov-2016-paper-4-variant-1",
     "video_url": "https://youtu.be/sdfmqMbESDQ"
   },
@@ -23998,7 +23998,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 247,
-    "label": "2.   Nov 2016 Paper 4 Variant 2",
+    "label": "2. Nov 2016 Paper 4 Variant 2",
     "norm_key": "2-nov-2016-paper-4-variant-2",
     "video_url": "https://youtu.be/2o_6sloHZWg"
   },
@@ -24007,7 +24007,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 247,
-    "label": "3.   June 2017 Paper 4 Variant 1",
+    "label": "3. June 2017 Paper 4 Variant 1",
     "norm_key": "3-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/PcfGybbU_O4"
   },
@@ -24016,7 +24016,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 248,
-    "label": "4.   June 2017 Paper 4 Variant 3",
+    "label": "4. June 2017 Paper 4 Variant 3",
     "norm_key": "4-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/bBRchFA34Qo"
   },
@@ -24106,7 +24106,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 261,
-    "label": "1.   Nov 2017 Paper 4 Variant 3",
+    "label": "1. Nov 2017 Paper 4 Variant 3",
     "norm_key": "1-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/0DctIxdt7pY"
   },
@@ -24142,7 +24142,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 267,
-    "label": "1.   March 2016 Paper 4",
+    "label": "1. March 2016 Paper 4",
     "norm_key": "1-march-2016-paper-4",
     "video_url": "https://youtu.be/vGLX8JPXyNY"
   },
@@ -24151,7 +24151,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 268,
-    "label": "3.   Nov 2016 Paper 4 Variant 3",
+    "label": "3. Nov 2016 Paper 4 Variant 3",
     "norm_key": "3-nov-2016-paper-4-variant-3",
     "video_url": "https://youtu.be/mtW5cFdGq78"
   },
@@ -24160,7 +24160,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 269,
-    "label": "4.   June 2017 Paper 4 Variant 1",
+    "label": "4. June 2017 Paper 4 Variant 1",
     "norm_key": "4-june-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/COAl1hYhxKo"
   },
@@ -24169,7 +24169,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 270,
-    "label": "5.   June 2017 Paper 4 Variant 2",
+    "label": "5. June 2017 Paper 4 Variant 2",
     "norm_key": "5-june-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/00tr9IkRgmg"
   },
@@ -24178,7 +24178,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 272,
-    "label": "6.   June 2017 Paper 4 Variant 3",
+    "label": "6. June 2017 Paper 4 Variant 3",
     "norm_key": "6-june-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/V0jyekOvSGI"
   },
@@ -24187,7 +24187,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 273,
-    "label": "7.   March 2018 P4",
+    "label": "7. March 2018 P4",
     "norm_key": "7-march-2018-p4",
     "video_url": "https://youtu.be/QIApju9kyWY"
   },
@@ -24196,7 +24196,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 274,
-    "label": "8.   March 2018 P4",
+    "label": "8. March 2018 P4",
     "norm_key": "8-march-2018-p4",
     "video_url": "https://youtu.be/tdsnYgzQAYE"
   },
@@ -24205,7 +24205,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch4: Light Refraction",
     "page": 275,
-    "label": "9. 2018 Nov P4 V1 07 a,b",
+    "label": "9. 2018 Nov P4 V1 07 a, b",
     "norm_key": "2018-Nov-P4-V1-Q00",
     "video_url": "https://youtu.be/MGanCKCspP0"
   },
@@ -24241,7 +24241,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch5: Light Dispersion",
     "page": 282,
-    "label": "1.   Nov 2017 Paper 4 Variant 1",
+    "label": "1. Nov 2017 Paper 4 Variant 1",
     "norm_key": "1-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/lF2-S_yT2Og"
   },
@@ -24250,7 +24250,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch5: Light Dispersion",
     "page": 283,
-    "label": "2.   Nov 2017 Paper 4 Variant 3",
+    "label": "2. Nov 2017 Paper 4 Variant 3",
     "norm_key": "2-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/LOrcL2IJW4I"
   },
@@ -24259,7 +24259,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch5: Light Dispersion",
     "page": 284,
-    "label": "4.   March 2018 P4",
+    "label": "4. March 2018 P4",
     "norm_key": "4-march-2018-p4",
     "video_url": "https://youtu.be/x2gu_kXAd_8"
   },
@@ -24295,7 +24295,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch5: Light Dispersion",
     "page": 288,
-    "label": "1.   March 2018 P4",
+    "label": "1. March 2018 P4",
     "norm_key": "1-march-2018-p4",
     "video_url": "https://youtu.be/Wnx9HsmTpsA"
   },
@@ -24445,10 +24445,10 @@
   },
   {
     "book": "Harony P4 CLS 2027",
-    "unit": "Unit 7: Astronomy",
-    "chapter": "U7 Ch6: Lenses",
+    "unit": "Unit 6: Waves",
+    "chapter": "U6 Ch6: Lenses",
     "page": 307,
-    "label": "1.   March 2017 Paper 4",
+    "label": "1. March 2017 Paper 4",
     "norm_key": "1-march-2017-paper-4",
     "video_url": "https://youtu.be/i09ztvBbUjw"
   },
@@ -24457,7 +24457,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch6: Lenses",
     "page": 308,
-    "label": "2.   Nov 2017 Paper 4 Variant 1",
+    "label": "2. Nov 2017 Paper 4 Variant 1",
     "norm_key": "2-nov-2017-paper-4-variant-1",
     "video_url": "https://youtu.be/uASb63DIcmE"
   },
@@ -24466,7 +24466,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch6: Lenses",
     "page": 309,
-    "label": "3.   Nov 2017 Paper 4 Variant 2",
+    "label": "3. Nov 2017 Paper 4 Variant 2",
     "norm_key": "3-nov-2017-paper-4-variant-2",
     "video_url": "https://youtu.be/LpM7KEVInnQ"
   },
@@ -24475,7 +24475,7 @@
     "unit": "Unit 6: Waves",
     "chapter": "U6 Ch6: Lenses",
     "page": 310,
-    "label": "4.   Nov 2017 Paper 4 Variant 3",
+    "label": "4. Nov 2017 Paper 4 Variant 3",
     "norm_key": "4-nov-2017-paper-4-variant-3",
     "video_url": "https://youtu.be/p92zYwRkC4Y"
   },
@@ -24664,7 +24664,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch1: Earth, Moon and sun",
     "page": 342,
-    "label": "4. 2025 March P4 V2 Q10 a,b -Earth moon and sun",
+    "label": "4. 2025 March P4 V2 Q10 a, b -Earth moon and sun",
     "norm_key": "2025-March-P4-V2-Q10",
     "video_url": "https://youtu.be/V6S27C2osaI"
   },
@@ -24673,7 +24673,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 344,
-    "label": "1.   2023 May P4 V1 Q10 a -Solar system",
+    "label": "1. 2023 May P4 V1 Q10 a -Solar system",
     "norm_key": "2023-Jun-P4-V1-Q10",
     "video_url": "https://youtu.be/fLnivtOg7VM"
   },
@@ -24682,7 +24682,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 345,
-    "label": "2.   2023 May P4 V2 Q10 a -Solar System",
+    "label": "2. 2023 May P4 V2 Q10 a -Solar System",
     "norm_key": "2023-Jun-P4-V2-Q10",
     "video_url": "https://youtu.be/xG0NpM1NZxg"
   },
@@ -24691,7 +24691,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 345,
-    "label": "3.   2023 March P4 V2 Q10 b -Solar System",
+    "label": "3. 2023 March P4 V2 Q10 b -Solar System",
     "norm_key": "2023-March-P4-V2-Q10",
     "video_url": "https://youtu.be/LujiqpKSRVE"
   },
@@ -24700,7 +24700,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 346,
-    "label": "4.   2023 Nov P4 V2 Q09-Solar System",
+    "label": "4. 2023 Nov P4 V2 Q09-Solar System",
     "norm_key": "2023-Nov-P4-V2-Q09",
     "video_url": "https://youtu.be/DAPoysTqW5s"
   },
@@ -24709,7 +24709,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 347,
-    "label": "5.   2024 March P4 V2 Q10 bii -Solar System",
+    "label": "5. 2024 March P4 V2 Q10 bii -Solar System",
     "norm_key": "2024-March-P4-V2-Q10",
     "video_url": "https://youtu.be/rkFmLmXOSII"
   },
@@ -24718,7 +24718,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 347,
-    "label": "6.   2024 May P4 V1 Q09 b -Solar system",
+    "label": "6. 2024 May P4 V1 Q09 b -Solar system",
     "norm_key": "2024-Jun-P4-V1-Q09",
     "video_url": "https://youtu.be/uHGt_VaXGPQ"
   },
@@ -24727,7 +24727,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 348,
-    "label": "7.   2024 May P4 V2 Q10 a b c -Solar System",
+    "label": "7. 2024 May P4 V2 Q10 a b c -Solar System",
     "norm_key": "2024-Jun-P4-V2-Q10",
     "video_url": "https://youtu.be/fGLI0UsH9OI"
   },
@@ -24736,7 +24736,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 349,
-    "label": "8.   2024 May P4 V2 Q10 d -Solar System",
+    "label": "8. 2024 May P4 V2 Q10 d -Solar System",
     "norm_key": "2024-Jun-P4-V2-Q10",
     "video_url": "https://youtu.be/LQfn4Uco7Tk"
   },
@@ -24745,7 +24745,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 350,
-    "label": "9.   2024 Nov P4 V2 Q11 -Solar System",
+    "label": "9. 2024 Nov P4 V2 Q11 -Solar System",
     "norm_key": "2024-Nov-P4-V2-Q11",
     "video_url": "https://youtu.be/V0lNSl43u9M"
   },
@@ -24754,7 +24754,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 351,
-    "label": "10.   2025 March P4 V2 Q10 c,d Solar System",
+    "label": "10. 2025 March P4 V2 Q10 c, d Solar System",
     "norm_key": "2025-March-P4-V2-Q10",
     "video_url": "https://youtu.be/GoLMnLR0kSc"
   },
@@ -24763,7 +24763,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 352,
-    "label": "11.   2025 May P4 V1 Q10 a Solar System",
+    "label": "11. 2025 May P4 V1 Q10 a Solar System",
     "norm_key": "2025-Jun-P4-V1-Q10",
     "video_url": "https://youtu.be/fVxrapOC5kE"
   },
@@ -24772,7 +24772,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 352,
-    "label": "12.   2025 May P4 V1 Q10 bii - 10 c Solar System",
+    "label": "12. 2025 May P4 V1 Q10 bii - 10 c Solar System",
     "norm_key": "2025-Jun-P4-V1-Q10",
     "video_url": "https://youtu.be/HZG7WrD-Z0M"
   },
@@ -24781,7 +24781,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 353,
-    "label": "13.   2025 May P4 V2 Q10 ai Solar System",
+    "label": "13. 2025 May P4 V2 Q10 ai Solar System",
     "norm_key": "2025-Jun-P4-V2-Q10",
     "video_url": "https://youtu.be/a0aGfHMWdjE"
   },
@@ -24790,7 +24790,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 353,
-    "label": "14.   2025 May P4 V2 Q10 aiii Solar System",
+    "label": "14. 2025 May P4 V2 Q10 aiii Solar System",
     "norm_key": "2025-Jun-P4-V2-Q10",
     "video_url": "https://youtu.be/h6cYSJnwkZs"
   },
@@ -24799,7 +24799,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 354,
-    "label": "15.   2025 May P4 V3 Q10 b Solar System",
+    "label": "15. 2025 May P4 V3 Q10 b Solar System",
     "norm_key": "2025-Jun-P4-V3-Q10",
     "video_url": "https://youtu.be/9qpk461iBZw"
   },
@@ -24808,7 +24808,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 354,
-    "label": "16.   2025 Nov P4 V1 Q10 a b Solar System",
+    "label": "16. 2025 Nov P4 V1 Q10 a b Solar System",
     "norm_key": "2025-Nov-P4-V1-Q10",
     "video_url": "https://youtu.be/RFee4adUw0w"
   },
@@ -24817,7 +24817,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 355,
-    "label": "17.   2025 Nov P4 V2 Q10 a Solar System",
+    "label": "17. 2025 Nov P4 V2 Q10 a Solar System",
     "norm_key": "2025-Nov-P4-V2-Q10",
     "video_url": "https://youtu.be/IfJIrexN7nI"
   },
@@ -24826,7 +24826,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 355,
-    "label": "18.   2025 Nov P4 V2 Q10 b Solar System",
+    "label": "18. 2025 Nov P4 V2 Q10 b Solar System",
     "norm_key": "2025-Nov-P4-V2-Q10",
     "video_url": "https://youtu.be/xBE00xgs7Pc"
   },
@@ -24835,7 +24835,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 356,
-    "label": "19.   2025 Nov P4 V3 Q09 b Solar System",
+    "label": "19. 2025 Nov P4 V3 Q09 b Solar System",
     "norm_key": "2025-Nov-P4-V3-Q09",
     "video_url": "https://youtu.be/zEvFX_6mlZo"
   },
@@ -24844,7 +24844,7 @@
     "unit": "Unit 7: Astronomy",
     "chapter": "U7 Ch2: Solar System",
     "page": 357,
-    "label": "19.   2025 Nov P4 V3 Q09 b Solar System",
+    "label": "19. 2025 Nov P4 V3 Q09 b Solar System",
     "norm_key": "2025-Nov-P4-V3-Q09",
     "video_url": "https://youtu.be/12YR2JEdgHc"
   },
