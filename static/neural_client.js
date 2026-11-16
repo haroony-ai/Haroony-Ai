@@ -1,125 +1,56 @@
-/* Haroony AI — Real In-Browser Neural LLM + Vision OCR/PDF Client
- * 1. WebGPU Neural Engine: @mlc-ai/web-llm (Qwen2.5-1.5B-Instruct / Qwen2.5-0.5B-Instruct)
- * 2. WASM CPU Neural Fallback: @huggingface/transformers (Qwen2.5-0.5B-Instruct q4)
- * 3. Browser Document & Vision Reader: PDF.js + Tesseract.js v5
- * Runs 100% free with zero API keys, zero logins, and persistent browser caching.
+/* Haroony AI — Fast In-Browser Vision OCR/PDF + Optional Cached WebGPU Neural Enhancer
+ * 1. Instant-first architecture: NEVER blocks chat or grading waiting for multi-hundred-MB downloads.
+ * 2. Optional WebGPU Neural Engine (@mlc-ai/web-llm) warms quietly ONLY when WebGPU is supported;
+ *    only used when already cached & ready, with a strict timeout.
+ * 3. Browser Document & Vision Reader: PDF.js + Tesseract.js v5 (loaded on demand for uploads).
  */
 (function (global) {
   "use strict";
 
   let engineState = "idle"; // idle | loading | ready | failed
-  let backendType = null;   // "webllm" | "wasm"
   let mlcEngine = null;
-  let wasmWorker = null;
   let initPromise = null;
-  let activeProgressListeners = new Set();
-  let reqCounter = 0;
-  let pendingWasmCalls = new Map();
-
-  function notifyProgress(text) {
-    for (const fn of activeProgressListeners) {
-      try {
-        fn(text);
-      } catch (_) {}
-    }
-  }
 
   function isMobileDevice() {
     return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
   }
 
   async function tryInitWebLLM() {
-    if (!navigator.gpu) throw new Error("WebGPU not available");
+    if (!navigator.gpu || isMobileDevice()) {
+      engineState = "failed";
+      return false;
+    }
     const adapter = await navigator.gpu.requestAdapter();
-    if (!adapter) throw new Error("No WebGPU adapter");
+    if (!adapter) {
+      engineState = "failed";
+      return false;
+    }
 
     const maxBuf = (adapter.limits && adapter.limits.maxStorageBufferBindingSize) || 0;
     const modelId =
-      isMobileDevice() || (maxBuf > 0 && maxBuf < 268435456)
+      maxBuf > 0 && maxBuf < 268435456
         ? "Qwen2.5-0.5B-Instruct-q4f16_1-MLC"
         : "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
 
     const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.88");
     const worker = new Worker("static/llm_worker.js", { type: "module" });
 
-    mlcEngine = await webllm.CreateWebWorkerMLCEngine(worker, modelId, {
-      initProgressCallback: (report) => {
-        if (!report) return;
-        if (typeof report.progress === "number" && report.progress > 0 && report.progress < 1) {
-          const pct = Math.round(report.progress * 100);
-          notifyProgress(`Loading Physics AI brain (${pct}%)…`);
-        } else if (report.text && report.text.toLowerCase().includes("cache")) {
-          notifyProgress("Loading cached Physics AI…");
-        }
-      },
-    });
-    backendType = "webllm";
+    mlcEngine = await webllm.CreateWebWorkerMLCEngine(worker, modelId, {});
     engineState = "ready";
     return true;
   }
 
-  async function tryInitWasmFallback() {
-    return new Promise((resolve, reject) => {
-      try {
-        wasmWorker = new Worker("static/wasm_llm_worker.js", { type: "module" });
-      } catch (err) {
-        reject(err);
-        return;
-      }
-      const warmupId = "warmup-0";
-      wasmWorker.onmessage = (ev) => {
-        const d = ev.data || {};
-        if (d.type === "progress" && d.text) {
-          notifyProgress(d.text);
-          return;
-        }
-        if (d.id === warmupId) {
-          if (d.type === "ready") {
-            backendType = "wasm";
-            engineState = "ready";
-            resolve(true);
-          } else if (d.type === "error") {
-            reject(new Error(d.error || "WASM init failed"));
-          }
-          return;
-        }
-        const pending = pendingWasmCalls.get(d.id);
-        if (pending) {
-          pendingWasmCalls.delete(d.id);
-          if (d.type === "done") pending.resolve(d.text || "");
-          else pending.reject(new Error(d.error || "WASM generation error"));
-        }
-      };
-      wasmWorker.onerror = (err) => {
-        reject(err);
-      };
-      wasmWorker.postMessage({ id: warmupId, type: "warmup" });
-    });
-  }
-
-  function ensureEngine(onProgress) {
-    if (onProgress) activeProgressListeners.add(onProgress);
-    if (engineState === "ready") {
-      if (onProgress) activeProgressListeners.delete(onProgress);
-      return Promise.resolve(true);
-    }
-    if (!initPromise) {
-      engineState = "loading";
-      initPromise = tryInitWebLLM()
-        .catch(() => tryInitWasmFallback())
-        .catch((err) => {
-          console.warn("Neural engine unavailable, using symbolic+RAG synthesizer:", err);
-          engineState = "failed";
-          return false;
-        });
-    }
-    return initPromise.finally(() => {
-      if (onProgress) activeProgressListeners.delete(onProgress);
+  function warmInBackground() {
+    if (initPromise || engineState === "ready" || engineState === "failed") return;
+    engineState = "loading";
+    initPromise = tryInitWebLLM().catch(() => {
+      engineState = "failed";
+      return false;
     });
   }
 
   // ==================== DOCUMENT & PHOTO OCR IN BROWSER ====================
-  let scriptCache = {};
+  const scriptCache = {};
   function loadScriptOnce(src) {
     if (!scriptCache[src]) {
       scriptCache[src] = new Promise((resolve, reject) => {
@@ -172,7 +103,6 @@
       if (pageTxt.length >= 25) {
         pagesOut.push(pageTxt);
       } else if (p <= 3) {
-        // Scanned image PDF page -> render onto canvas & OCR!
         const viewport = page.getViewport({ scale: 1.7 });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
@@ -205,14 +135,18 @@
     }
   }
 
-  // ==================== GENERATE COMPLETION ====================
+  // ==================== NON-BLOCKING FAST GENERATION ====================
   async function generate(messages, opts = {}) {
-    const { maxTokens = 520, temperature = 0.2, onProgress = null, onToken = null } = opts;
-    const ready = await ensureEngine(onProgress);
-    if (!ready) return null;
+    // NEVER block the student waiting for a download; only generate when WebGPU is already ready!
+    if (engineState !== "ready" || !mlcEngine) {
+      warmInBackground();
+      return null;
+    }
 
-    if (backendType === "webllm" && mlcEngine) {
-      if (onProgress) onProgress("Writing clear step-by-step explanation…");
+    const { maxTokens = 480, temperature = 0.2, onProgress = null, onToken = null, timeoutMs = 6000 } = opts;
+    if (onProgress) onProgress("Writing clear step-by-step explanation…");
+
+    const runStream = (async () => {
       const chunks = await mlcEngine.chat.completions.create({
         messages,
         max_tokens: maxTokens,
@@ -234,33 +168,26 @@
         }
       }
       return fullText.trim();
-    }
+    })();
 
-    if (backendType === "wasm" && wasmWorker) {
-      if (onProgress) onProgress("Generating Physics explanation…");
-      const id = "gen-" + ++reqCounter;
-      return new Promise((resolve, reject) => {
-        pendingWasmCalls.set(id, { resolve, reject });
-        wasmWorker.postMessage({ id, type: "generate", messages, maxTokens, temperature });
-      });
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs));
+    try {
+      return await Promise.race([runStream, timeout]);
+    } catch (_) {
+      return null;
     }
-
-    return null;
   }
 
-  // Warm up quietly shortly after page load so AI is ready fast
   if (typeof window !== "undefined") {
     window.addEventListener("load", () => {
-      setTimeout(() => {
-        ensureEngine(null);
-      }, 450);
+      setTimeout(warmInBackground, 1200);
     });
   }
 
   global.HaroonyNeuralAI = {
-    ensureEngine,
+    isReady: () => engineState === "ready",
+    getStatus: () => ({ state: engineState, backend: engineState === "ready" ? "webllm" : "instant" }),
     generate,
     extractDocumentText,
-    getState: () => ({ state: engineState, backend: backendType }),
   };
-})(window);
+})(typeof window !== "undefined" ? window : globalThis);

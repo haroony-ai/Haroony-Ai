@@ -145,6 +145,18 @@ def run_all_tests() -> None:
         tv_bad = client.post("/api/teacher/verify", data={"pin": "9999"})
         assert tv_bad.status_code == 401
 
+        # 12. YouTube Video Solutions Finder in Chat + Deterministic Repeat Grading + Revision Notes
+        vid_q = client.post("/api/chat", data={"message": "Give me YouTube videos for solving density"}).json()
+        assert vid_q["ok"] is True and len(vid_q.get("video_links", [])) >= 5
+        assert "https://youtu.be/" in vid_q["reply"]
+
+        auto_q = "Question: Explain why a steel ship floats on water. Answer: The ship is not solid steel and has air spaces so its overall density is less than water."
+        ag1 = client.post("/api/grade", data={"student_text": auto_q}).json()
+        ag2 = client.post("/api/grade", data={"student_text": auto_q}).json()
+        assert ag1["awarded_marks"] == ag2["awarded_marks"] == 2 and ag1["max_marks"] == ag2["max_marks"] == 2
+        assert ag1["questions"][0]["video_url"].startswith("https://youtu.be/")
+        assert len(ag1["notes_references"]) >= 1 and len(ag1["notes_references"][0].get("revision_points", [])) >= 1
+
     print("ALL HAROONY AI 2026/2027 INTEGRATION TESTS PASSED PERFECTLY!")
 
 

@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  const MIN_THINK_MS = 2200; // Minimum 2.2s smooth thinking animation
+  const MIN_THINK_MS = 320; // Snappy thinking pulse without slowing down the student
   const AI_AVATAR = "static/assets/harony_avatar.webp";
 
   let serverAvailable = null;
@@ -225,7 +225,7 @@
         <img src="${AI_AVATAR}" alt="Harony Physics Clinic" class="msg-avatar" />
         <div class="msg-bubble">
           <div class="msg-content">
-            <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want explained step-by-step.</p>
+            <p>Hi! Ask me any <strong>Physics</strong> question, request <strong>YouTube video solutions</strong> for any topic, or attach a photo or PDF of a problem you want explained step-by-step.</p>
           </div>
         </div>
       </div>`;
@@ -368,7 +368,7 @@
   }
 
   async function enhanceServerReplyWithNeural(userText, data, liveBubble) {
-    if (!window.HaroonyNeuralAI) return data;
+    if (!window.HaroonyNeuralAI || !window.HaroonyNeuralAI.isReady || !window.HaroonyNeuralAI.isReady()) return data;
     if (data.refused || data.category !== "physics" || data.neural_generated) return data;
     try {
       const sysPrompt =
@@ -633,24 +633,63 @@
       })
       .join("");
 
-    const refsWithImg = (res.notes_references || []).filter((n) => n.image_url);
+    const extraVideos = (res.related_videos || []).filter(
+      (v) => v && v.video_url && !(res.questions || []).some((q) => q.video_url === v.video_url)
+    );
+    const videosBlockHtml =
+      extraVideos.length > 0
+        ? `<div class="panel-card" style="margin-top:14px;animation:fadeSlideUp 0.42s var(--ease-out);">
+            <h3 style="margin-bottom:8px;">🎥 Related Harony YouTube Video Solutions</h3>
+            <div class="video-pills">
+              ${extraVideos
+                .map(
+                  (v) =>
+                    `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
+                      🎥 ${escapeHtml((v.label || v.chapter || "Watch Video Solution").slice(0, 56))}
+                    </a>`
+                )
+                .join("")}
+            </div>
+          </div>`
+        : "";
+
+    const noteRefs = res.notes_references || [];
     let notesHtml = "";
-    if (refsWithImg.length > 0) {
+    if (noteRefs.length > 0) {
       notesHtml = `
-        <div class="panel-card" style="margin-top:14px;animation:fadeSlideUp 0.44s var(--ease-out);">
-          <h3 style="margin-bottom:10px;">Related Notes</h3>
-          <div class="msg-notes-cards">
-            ${refsWithImg
+        <div class="panel-card revision-notes-card" style="margin-top:14px;animation:fadeSlideUp 0.44s var(--ease-out);">
+          <h3 style="margin-bottom:10px;">📖 Part to Revise from Harony Notes</h3>
+          <div class="revision-list">
+            ${noteRefs
               .map((n) => {
-                const imgUrl = normalizeAssetUrl(n.image_url);
+                const pts = (n.revision_points || []).filter(Boolean);
+                const ptsHtml = pts.length
+                  ? `<ul class="revision-bullets">${pts.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`
+                  : n.snippet
+                  ? `<p class="revision-snippet">${escapeHtml(n.snippet)}</p>`
+                  : "";
+                const imgHtml = n.image_url
+                  ? (() => {
+                      const imgUrl = normalizeAssetUrl(n.image_url);
+                      return `
+                      <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${n.page || ""} — ${escapeHtml(n.topic)}">
+                        <img src="${escapeHtml(imgUrl)}" alt="Page ${n.page || ""}" />
+                        <div class="mini-note-card-body">
+                          <strong>Page ${n.page || ""} &bull; ${escapeHtml(n.topic)}</strong>
+                          <span>Click to zoom slide</span>
+                        </div>
+                      </div>`;
+                    })()
+                  : "";
                 return `
-                <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${n.page} — ${escapeHtml(n.topic)}">
-                  <img src="${escapeHtml(imgUrl)}" alt="Page ${n.page}" />
-                  <div class="mini-note-card-body">
-                    <strong>Page ${n.page} &bull; ${escapeHtml(n.topic)}</strong>
-                    <span>Click to zoom</span>
-                  </div>
-                </div>`;
+                  <div class="revision-item">
+                    <div class="revision-item-text">
+                      <div class="revision-badge">${escapeHtml(n.unit || "Harony Notes")} &bull; Page ${n.page || "?"}</div>
+                      <h4>${escapeHtml(n.topic || "Physics Revision")}</h4>
+                      ${ptsHtml}
+                    </div>
+                    ${imgHtml}
+                  </div>`;
               })
               .join("")}
           </div>
@@ -674,13 +713,13 @@
 
       ${feedbackHtml}
       ${questionsHtml}
+      ${videosBlockHtml}
+      ${notesHtml}
 
       <details class="ocr-details">
         <summary>View extracted answer text</summary>
         <pre style="white-space:pre-wrap;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0;font-size:0.82rem;margin:10px 0 0;">${escapeHtml(res.extracted_student_text || "")}</pre>
       </details>
-
-      ${notesHtml}
     `;
     area.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -708,7 +747,7 @@
       if (serverAvailable === null) await loadSystemStatus();
 
       let data;
-      if (serverAvailable && activeMsMode !== "auto") {
+      if (serverAvailable) {
         const fd = new FormData();
         fd.append("student_text", stuText);
         graderStudentFiles.forEach((f) => fd.append("student_files", f));
@@ -723,44 +762,8 @@
         }
         const resp = await fetch("api/grade", { method: "POST", body: fd });
         data = await resp.json();
-
-        // Add personalized neural examiner summary on top of exact MS grading
-        if (data && data.ok && !data.examiner_feedback && window.HaroonyNeuralAI) {
-          try {
-            const rub = (data.questions || [])
-              .map((q) => `${q.title} (${q.awarded_marks}/${q.max_marks}): ${q.model_answer}`)
-              .join("\n");
-            data.examiner_feedback =
-              (await window.HaroonyNeuralAI.generate(
-                [
-                  {
-                    role: "system",
-                    content:
-                      "You are Mr. Haroony's IGCSE Physics Examiner. Write a concise, helpful 2-sentence feedback summary explaining why the student earned their score and how to capture any missed mark-scheme points.",
-                  },
-                  {
-                    role: "user",
-                    content: `Student Answer:\n${(data.extracted_student_text || stuText).slice(0, 800)}\n\nMark Scheme Breakdown:\n${rub}`,
-                  },
-                ],
-                { maxTokens: 150, temperature: 0.2, onProgress: (st) => loader.setStatus(st) }
-              )) || "";
-          } catch (_) {}
-        }
       } else {
-        // If server is available in Auto Mode and student uploaded files, let server RapidOCR extract text fast first!
-        if (serverAvailable && graderStudentFiles.length > 0) {
-          const fd = new FormData();
-          fd.append("student_text", stuText);
-          graderStudentFiles.forEach((f) => fd.append("student_files", f));
-          const resp = await fetch("api/grade", { method: "POST", body: fd });
-          const srvRes = await resp.json();
-          if (srvRes && srvRes.refused) {
-            data = srvRes;
-          } else if (srvRes && srvRes.extracted_student_text) {
-            stuText = srvRes.extracted_student_text;
-          }
-        } else if (!serverAvailable && graderStudentFiles.length > 0 && window.HaroonyNeuralAI) {
+        if (graderStudentFiles.length > 0 && window.HaroonyNeuralAI) {
           const extractedParts = [stuText];
           for (const f of graderStudentFiles) {
             const txt = await window.HaroonyNeuralAI.extractDocumentText(f, (st) => loader.setStatus(st));
@@ -769,17 +772,15 @@
           stuText = extractedParts.filter(Boolean).join("\n\n");
         }
 
-        if (!data) {
-          data = await window.HaroonyBrowserEngine.grade({
-            studentText: stuText,
-            studentFile: null, // already extracted above if multiple files
-            msId: msId,
-            msText: msText,
-            msFile: activeMsMode === "upload" ? graderMsFile : null,
-            questionId: qId,
-            onProgress: (st) => loader.setStatus(st),
-          });
-        }
+        data = await window.HaroonyBrowserEngine.grade({
+          studentText: stuText,
+          studentFile: null,
+          msId: msId,
+          msText: msText,
+          msFile: activeMsMode === "upload" ? graderMsFile : null,
+          questionId: qId,
+          onProgress: (st) => loader.setStatus(st),
+        });
       }
 
       await minWait;

@@ -203,17 +203,35 @@ class HaronyKnowledgeBase:
         """Find matching Mr. Haroony YouTube video explanations from ClassWork 2027 & P2 CLS 2027."""
         if not self.videos:
             return []
+        ignore_words = {
+            "what", "how", "why", "the", "and", "for", "explain", "calculate", "define",
+            "state", "physics", "question", "questions", "youtube", "video", "videos",
+            "link", "links", "watch", "solve", "solving", "solution", "solutions",
+            "give", "send", "show", "find", "please", "any", "topic", "topics",
+            "about", "with", "from", "can", "you", "get", "me", "want", "need",
+        }
         q_tokens = [
             t for t in re.findall(r"[a-z0-9]{2,}", query.lower())
-            if t not in {"what", "how", "why", "the", "and", "for", "explain", "calculate", "define", "state", "physics", "question"}
+            if t not in ignore_words
         ]
         if not q_tokens:
             return []
+        # Normalize month/paper aliases like May -> Jun
+        norm_tokens = []
+        for t in q_tokens:
+            norm_tokens.append("jun" if t == "may" else t)
         scored: List[Tuple[float, Dict[str, Any]]] = []
         for v in self.videos:
-            hay = f"{v.get('label', '')} {v.get('chapter', '')} {v.get('unit', '')}".lower()
-            hits = sum(2.0 if tok in v.get("label", "").lower() else 1.0 for tok in q_tokens if tok in hay)
-            if hits >= 2.0 or (len(q_tokens) == 1 and hits >= 1.0):
+            label_low = (v.get("label") or "").lower()
+            nk_low = (v.get("norm_key") or "").lower()
+            hay = f"{label_low} {nk_low} {v.get('chapter', '')} {v.get('unit', '')}".lower()
+            hits = 0.0
+            for tok in norm_tokens:
+                if tok in label_low or tok in nk_low:
+                    hits += 2.5
+                elif tok in hay:
+                    hits += 1.2
+            if hits >= 2.0 or (len(norm_tokens) == 1 and hits >= 1.2):
                 scored.append((hits, v))
         scored.sort(key=lambda x: x[0], reverse=True)
         out: List[Dict[str, Any]] = []
