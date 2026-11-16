@@ -18,16 +18,23 @@ def run_all_tests() -> None:
         r = client.get("/")
         assert r.status_code == 200 and "Haroony AI" in r.text
         for asset in (
+            "/favicon.ico",
             "/static/styles.css",
             "/static/app.js",
+            "/static/neural_client.js",
+            "/static/llm_worker.js",
+            "/static/wasm_llm_worker.js",
             "/static/browser_engine.js",
             "/static/browser_kb.json",
             "/static/assets/harony_logo.webp",
+            "/static/assets/harony_avatar.webp",
+            "/static/assets/favicon-64.png",
             "/static/notes_pages/page_004.webp",
             "/static/samples/classwork_u1_p8.webp",
         ):
             ra = client.get(asset)
             assert ra.status_code == 200, f"Asset {asset} failed: {ra.status_code}"
+        assert "starterChips" not in r.text and "einstein_mascot" not in r.text
 
         # 2. System Status (8 Harony 2027 Mark Scheme Books, 340+ Chunks, 2,000+ Video Solutions)
         st = client.get("/api/status").json()
