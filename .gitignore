@@ -1,0 +1,18 @@
+# Virtual environments & Python caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+
+# Raw large source PDFs from Google Drive (extracted & indexed into data/ and static/notes_pages/)
+google_drive/
+uploads_tmp/
+models/harony_retriever.joblib
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.env
