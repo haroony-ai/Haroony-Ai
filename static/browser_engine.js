@@ -254,7 +254,10 @@
       ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*kpa\b/gi, 1000),
       ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*pa\b/gi, 1),
     ];
-    const temps = allMatches(/([+-]?\d+(?:\.\d+)?)\s*°\s*c\b/gi, 1);
+    let temps = allMatches(/([+-]?\d+(?:\.\d+)?)\s*°\s*c\b/gi, 1);
+    if (temps.length === 0 && /\b(?:temp|heat|heated|cool|cooled|thermal|celsius|specific\s+heat|water|boil|melt)\b/i.test(q)) {
+      temps = allMatches(/([+-]?\d+(?:\.\d+)?)\s*(?:°\s*)?(?:c|celsius)\b/gi, 1);
+    }
     const shc = allMatches(/([+-]?\d+(?:\.\d+)?)\s*j\s*\/\s*\(?\s*kg/gi, 1);
     const densities = [
       ...allMatches(/([+-]?\d+(?:\.\d+)?)\s*kg\s*\/\s*m\s*(?:3|³|\^3)/gi, 1),
@@ -1107,8 +1110,11 @@
       };
     }
 
-    // 3. Clean Harony Notes Concept Rubric (100% deterministic & contradiction-aware!)
-    if (scoredChunks.length > 0) {
+    // 3. Clean Harony Notes Concept Rubric ONLY when strong topic match (never fake a score on ambiguous fragments!)
+    const meaningfulWords = tokenize(studentText).filter(
+      (w) => w.length >= 3 && !STOPWORDS.has(w) && !["question", "answer", "my", "is", "the"].includes(w)
+    );
+    if (scoredChunks.length > 0 && scoredChunks[0].s >= 4.0 && meaningfulWords.length >= 4) {
       const top = scoredChunks[0].ch;
       const bullets = cleanNoteBullets(top.text, top.topic).slice(0, 3);
       const stuToks = expandWithSynonyms(new Set(tokenize(answerPart)));
@@ -1164,13 +1170,29 @@
 
     return {
       ok: false,
-      error: "Please include the Physics question or topic along with your answer (or select a Mark Scheme in Step 2) so I can grade it accurately.",
+      extracted_student_text: studentText,
+      error:
+        "I read your submission, but without the **question text** or a selected **Mark Scheme**, I won't guess a score. " +
+        "Please include the question above your answer, or pick the exact book & question in **Harony MS** / **Upload MS** / **Paste MS**.",
     };
   }
 
   // ==================== PUBLIC ENGINE API ====================
   global.HaroonyBrowserEngine = {
     solvePhysicsProblem,
+
+    async getMarkSchemeQuestions(msId) {
+      const kb = await ensureKB();
+      const ms = (kb.mark_schemes || []).find((m) => m.id === msId);
+      if (!ms) return [];
+      return (ms.questions || []).map((q) => ({
+        question_id: q.question_id,
+        title: q.title || q.question_id,
+        chapter: q.chapter || "",
+        max_marks: q.max_marks || 1,
+        video_url: q.video_url || null,
+      }));
+    },
 
     async getStatus() {
       const kb = await ensureKB();

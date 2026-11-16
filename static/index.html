@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="static/styles.css" />
 </head>
 <body>
-  <!-- Minimal Top Header -->
+  <!-- Top Navigation Header -->
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand" id="brandHome" title="Haroony AI">
@@ -36,11 +36,19 @@
           <div class="chat-header-left">
             <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="mascot-avatar" />
             <div>
-              <h2>Haroony AI</h2>
-              <p>Ask any Physics question or attach a photo/PDF</p>
+              <div class="chat-title-row">
+                <h2>Haroony AI</h2>
+                <span id="kbBadge" class="kb-status-pill">Harony 2026/2027</span>
+              </div>
+              <p>Physics Tutor &bull; Notes &bull; 2,793 Video Solutions</p>
             </div>
           </div>
-          <button id="clearChatBtn" class="btn btn-ghost btn-sm" type="button">New chat</button>
+          <div class="chat-header-actions">
+            <button id="aiSettingsBtn" class="btn btn-ghost btn-sm" type="button" title="Optional Neural AI & API Settings">
+              AI Engine
+            </button>
+            <button id="clearChatBtn" class="btn btn-ghost btn-sm" type="button">New chat</button>
+          </div>
         </div>
 
         <!-- Messages Stream -->
@@ -49,7 +57,12 @@
             <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="msg-avatar" />
             <div class="msg-bubble">
               <div class="msg-content">
-                <p>Hi! Ask me any <strong>Physics</strong> question, request <strong>YouTube video solutions</strong> for any topic, or attach a photo or PDF of a problem you want explained step-by-step.</p>
+                <p>Hi! I'm <strong>Haroony AI</strong>, trained on <strong>Harony Notes 2026</strong>, <strong>ClassWork 2027</strong>, <strong>P2 Classified</strong>, and <strong>P4 Classified 2027</strong>.</p>
+                <ul>
+                  <li>Ask any <strong>Physics concept</strong> or <strong>calculation</strong> for step-by-step Cambridge working</li>
+                  <li>Ask for <strong>YouTube video solutions</strong> on any topic (e.g. <em>"YouTube videos for density"</em>)</li>
+                  <li>Attach a <strong>photo or PDF</strong> of any Physics question to read and solve it</li>
+                </ul>
               </div>
             </div>
           </div>
@@ -58,6 +71,7 @@
         <!-- Attachment Preview Bar -->
         <div id="chatAttachmentBar" class="attachment-bar hidden">
           <div class="attachment-info">
+            <img id="chatAttachmentThumb" class="attachment-thumb hidden" alt="Preview" />
             <span class="attachment-badge">Attached</span>
             <span id="chatAttachmentName" class="attachment-name"></span>
           </div>
@@ -76,7 +90,7 @@
           <textarea
             id="chatInput"
             rows="1"
-            placeholder="Ask a Physics question or ask for YouTube videos on any topic..."
+            placeholder="Ask a Physics question, or ask for YouTube videos on any topic..."
           ></textarea>
           <button type="submit" id="chatSendBtn" class="btn btn-primary">
             Send
@@ -90,26 +104,29 @@
       <form id="gradeForm" class="grader-grid">
         <!-- Step 1: Student Answer -->
         <div class="panel-card">
-          <div class="panel-card-header">
-            <span class="step-pill">1</span>
-            <h3>Your Physics Work</h3>
+          <div class="panel-card-top">
+            <div class="panel-card-header">
+              <span class="step-pill">1</span>
+              <h3>Your Physics Answer</h3>
+            </div>
+            <button type="button" id="clearGraderBtn" class="btn btn-ghost btn-sm">Clear</button>
           </div>
-          <p class="panel-help">Upload a photo/PDF of your solved work or type the question &amp; your answer below.</p>
+          <p class="panel-help">Upload photo(s)/PDF of your work, or type your answer below. Only what you submit is graded.</p>
 
           <label for="studentFilesInput" class="dropzone" id="studentDropzone">
             <div class="dropzone-icon">📷</div>
-            <div class="dropzone-title">Upload answer photo or PDF</div>
+            <div class="dropzone-title">Upload answer photo(s) or PDF</div>
             <div class="dropzone-sub">Drag &amp; drop or click to browse</div>
             <input type="file" id="studentFilesInput" accept="image/*,.pdf" multiple hidden />
           </label>
           <div id="studentFilesList" class="file-pills"></div>
 
           <div class="field-group">
-            <label for="studentTextInput">Or type the question &amp; your answer</label>
+            <label for="studentTextInput">Type or edit your answer</label>
             <textarea
               id="studentTextInput"
               rows="5"
-              placeholder="Include the Physics question and write your formula, working, and final answer..."
+              placeholder="Using Harony MS? Type only your answer.&#10;Using AI Auto Check? Include the question too, e.g.:&#10;Question: Explain why a steel ship floats on water.&#10;Answer: It has air spaces so its overall density is less than water."
             ></textarea>
           </div>
         </div>
@@ -120,7 +137,7 @@
             <span class="step-pill">2</span>
             <h3>Correction Mode</h3>
           </div>
-          <p class="panel-help">Let AI grade automatically, pick a Harony Mark Scheme, or upload your own MS.</p>
+          <p class="panel-help">Choose <strong>Harony MS</strong> for exact past-paper questions, or <strong>AI Auto Check</strong> for calculations &amp; quick checks.</p>
 
           <div class="ms-mode-switcher" role="radiogroup" aria-label="Mark Scheme Source">
             <button type="button" class="ms-mode-btn active" data-ms-mode="auto">AI Auto Check</button>
@@ -132,23 +149,24 @@
           <!-- Submode A: Auto Check (Default) -->
           <div id="ms-pane-auto" class="ms-pane">
             <div class="info-callout">
-              <strong>Smart AI Physics Examiner:</strong> Include the question with your answer (typed or photo/PDF) — Haroony AI solves it, checks your formulas, units, and physics reasoning, and gives full feedback.
+              <strong>Smart AI Physics Examiner:</strong> Evaluates calculations, matches Harony 2027 questions &amp; YouTube videos, and highlights the exact Harony Notes page to revise.
             </div>
           </div>
 
-          <!-- Submode B: Saved Library MS -->
+          <!-- Submode B: Saved Library MS with Searchable Question Picker -->
           <div id="ms-pane-library" class="ms-pane hidden">
             <div class="field-group">
-              <label for="msLibrarySelect">Harony Mark Scheme book</label>
+              <label for="msLibrarySelect">1. Select Harony Book (ClassWork / P4 CLS / P2 CLS)</label>
               <select id="msLibrarySelect"></select>
             </div>
             <div class="field-group">
-              <label for="questionIdInput">Question filter <span class="muted-tag">(optional)</span></label>
+              <label for="questionSearchInput">2. Search &amp; pick exact question <span class="muted-tag">(optional)</span></label>
               <input
                 type="text"
-                id="questionIdInput"
-                placeholder="e.g. 2023 March P4 V2 Q02 or leave blank"
+                id="questionSearchInput"
+                placeholder="Filter by topic, year, or Q# (e.g. density, 2023, Q02)..."
               />
+              <select id="questionSelect" class="question-select"></select>
             </div>
           </div>
 
@@ -189,6 +207,50 @@
       <div id="gradeResultArea" class="grade-result-area hidden"></div>
     </section>
   </main>
+
+  <!-- Optional AI Engine Settings Modal (User-Initiated Only) -->
+  <div id="aiSettingsModal" class="lightbox hidden" role="dialog" aria-modal="true">
+    <div class="lightbox-backdrop" id="aiSettingsBackdrop"></div>
+    <div class="settings-modal-card">
+      <div class="settings-modal-header">
+        <h3>AI Engine Settings</h3>
+        <button type="button" id="aiSettingsClose" class="btn-icon" aria-label="Close">&times;</button>
+      </div>
+      <p class="panel-help" style="margin-bottom:12px;">
+        Haroony AI runs instantly out-of-the-box using all 5 Harony 2026/2027 books. You can also optionally enable in-browser WebGPU Neural AI or connect your own OpenAI-compatible / Ollama endpoint.
+      </p>
+
+      <div class="settings-section">
+        <div class="settings-row">
+          <div>
+            <strong>In-Browser WebGPU Neural AI</strong>
+            <div id="webgpuStatusText" class="settings-sub">Status: Ready to load on demand</div>
+          </div>
+          <button type="button" id="enableWebgpuBtn" class="btn btn-primary btn-sm">Load WebGPU AI</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <strong>Optional Custom Endpoint (Ollama / Groq / OpenAI)</strong>
+        <div class="field-group" style="margin-top:8px;">
+          <label for="customBaseUrl">API Base URL</label>
+          <input type="text" id="customBaseUrl" placeholder="e.g. http://localhost:11434/v1 or https://api.groq.com/openai/v1" />
+        </div>
+        <div class="field-group">
+          <label for="customModelName">Model Name</label>
+          <input type="text" id="customModelName" placeholder="e.g. qwen2.5:7b or llama-3.1-8b-instant" />
+        </div>
+        <div class="field-group">
+          <label for="customApiKey">API Key <span class="muted-tag">(saved locally in browser only)</span></label>
+          <input type="password" id="customApiKey" placeholder="Optional for local Ollama" />
+        </div>
+        <div class="settings-actions">
+          <button type="button" id="clearCustomCfgBtn" class="btn btn-ghost btn-sm">Reset</button>
+          <button type="button" id="saveCustomCfgBtn" class="btn btn-primary btn-sm">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Zoomable Note Page / Image Lightbox Modal -->
   <div id="lightboxModal" class="lightbox hidden" role="dialog" aria-modal="true">

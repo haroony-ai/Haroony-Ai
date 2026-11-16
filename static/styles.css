@@ -1235,3 +1235,125 @@ code {
   color: #475569;
   line-height: 1.5;
 }
+
+/* Improved Chat Header, Previews, Question Picker & Settings Modal */
+.chat-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kb-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  border: 1px solid #bfdbfe;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attachment-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #bfdbfe;
+}
+
+.panel-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.file-thumb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px 8px 4px 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.file-thumb-pill img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.question-select {
+  margin-top: 8px;
+  width: 100%;
+  font-size: 0.86rem;
+}
+
+.settings-modal-card {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  width: min(490px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+
+.settings-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.settings-modal-header h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.settings-section {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+  background: var(--surface-soft);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.settings-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.grade-badge-green { background: #dcfce7 !important; color: #15803d !important; border-color: #86efac !important; }
+.grade-badge-blue { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #93c5fd !important; }
+.grade-badge-amber { background: #fef3c7 !important; color: #b45309 !important; border-color: #fcd34d !important; }
+.grade-badge-red { background: #fee2e2 !important; color: #b91c1c !important; border-color: #fca5a5 !important; }
