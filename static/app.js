@@ -1,19 +1,19 @@
-/* Haroony AI — Dual-Mode Frontend Application (Server API + GitHub Pages Serverless Engine)
- * Uses strictly relative URLs so it runs identically on:
- *   1. FastAPI Live Server / Hugging Face Spaces / Docker (root `/`)
- *   2. GitHub Pages (`https://toolautomation2-droid.github.io/Haroony-Ai/`)
- */
+/* Haroony AI — Minimal, Smooth Dual-Mode Frontend (Server API + Static Browser Engine) */
 (function () {
   "use strict";
 
-  let serverAvailable = null; // null = probing, true = FastAPI server, false = GitHub Pages browser engine
+  const MIN_THINK_MS = 2200; // Minimum 2.2s smooth thinking animation
+
+  let serverAvailable = null;
   let chatHistory = [];
   let chatAttachedFile = null;
   let graderStudentFiles = [];
   let graderMsFile = null;
   let activeMsMode = "library";
-  let useSampleDemo = "";
-  let unlockedTeacherPin = "";
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
   function escapeHtml(str) {
     return String(str || "")
@@ -47,7 +47,6 @@
       out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
       out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
       out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-      // Convert bare https://youtu.be/... links into clickable video links
       out = out.replace(
         /(https:\/\/youtu\.be\/[A-Za-z0-9_\-]+)/g,
         '<a href="$1" target="_blank" rel="noopener noreferrer" class="video-pill-link">🎥 Watch Video</a>'
@@ -91,7 +90,7 @@
     return html.join("");
   }
 
-  // Lightbox
+  // ==================== LIGHTBOX ====================
   const lightboxModal = document.getElementById("lightboxModal");
   const lightboxImg = document.getElementById("lightboxImg");
   const lightboxCaption = document.getElementById("lightboxCaption");
@@ -121,7 +120,7 @@
     }
   });
 
-  // Tab Navigation
+  // ==================== TAB NAVIGATION ====================
   const navTabs = document.querySelectorAll(".nav-tab");
   const tabPanels = document.querySelectorAll(".tab-panel");
 
@@ -134,9 +133,6 @@
     tabPanels.forEach((panel) => {
       panel.classList.toggle("active", panel.id === "tab-" + tabName);
     });
-    if (tabName === "notes" && !document.getElementById("notesGrid").children.length) {
-      loadNotesExplorer();
-    }
   }
 
   navTabs.forEach((btn) => {
@@ -144,7 +140,7 @@
   });
   document.getElementById("brandHome").addEventListener("click", () => switchTab("tutor"));
 
-  // Probe server or fall back to GitHub Pages Browser Engine
+  // ==================== INITIALIZE STATUS & MS LIST ====================
   async function loadSystemStatus() {
     let data = null;
     try {
@@ -175,39 +171,18 @@
     }
 
     const msSelect = document.getElementById("msLibrarySelect");
-    msSelect.innerHTML = "";
-    (data.mark_schemes || []).forEach((ms) => {
-      const opt = document.createElement("option");
-      opt.value = ms.id;
-      opt.textContent = `${ms.title} (${ms.question_count} Qs • ${ms.total_marks} Marks)`;
-      msSelect.appendChild(opt);
-    });
-
-    const unitSelect = document.getElementById("notesUnitFilter");
-    const currentVal = unitSelect.value;
-    unitSelect.innerHTML = '<option value="">All 7 IGCSE Physics Units</option>';
-    (data.curriculum || []).forEach((u) => {
-      const opt = document.createElement("option");
-      opt.value = u.unit;
-      opt.textContent = u.unit;
-      unitSelect.appendChild(opt);
-    });
-    unitSelect.value = currentVal;
-
-    document.getElementById("metricNotesCount").textContent = `${data.notes_chunks_count} Chunks (243 Slides)`;
-    const totalQs = (data.mark_schemes || []).reduce((acc, m) => acc + (m.question_count || 0), 0);
-    const vidCnt = data.video_solutions_count || (data.metrics && data.metrics.video_solutions_indexed) || 2085;
-    document.getElementById("metricMsCount").textContent = `${totalQs.toLocaleString()} Qs • ${vidCnt.toLocaleString()} Videos`;
-    if (data.metrics && data.metrics.validation_accuracy) {
-      document.getElementById("metricAccuracy").textContent = `${(data.metrics.validation_accuracy * 100).toFixed(1)}%`;
-    }
-    const modeEl = document.getElementById("metricEngineMode");
-    if (modeEl) {
-      modeEl.textContent = serverAvailable ? "Live Server • Unlimited" : "GitHub Pages • Unlimited";
+    if (msSelect) {
+      msSelect.innerHTML = "";
+      (data.mark_schemes || []).forEach((ms) => {
+        const opt = document.createElement("option");
+        opt.value = ms.id;
+        opt.textContent = ms.title;
+        msSelect.appendChild(opt);
+      });
     }
   }
 
-  // ==================== TUTOR CHAT ====================
+  // ==================== ASK AI CHAT ====================
   const chatMessages = document.getElementById("chatMessages");
   const chatForm = document.getElementById("chatForm");
   const chatInput = document.getElementById("chatInput");
@@ -215,6 +190,13 @@
   const chatFileInput = document.getElementById("chatFileInput");
   const chatAttachmentBar = document.getElementById("chatAttachmentBar");
   const chatAttachmentName = document.getElementById("chatAttachmentName");
+  const starterChips = document.getElementById("starterChips");
+
+  function autoResizeChatInput() {
+    chatInput.style.height = "auto";
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 130) + "px";
+  }
+  chatInput.addEventListener("input", autoResizeChatInput);
 
   chatFileInput.addEventListener("change", function () {
     if (chatFileInput.files && chatFileInput.files[0]) {
@@ -232,20 +214,23 @@
 
   document.getElementById("clearChatBtn").addEventListener("click", function () {
     chatHistory = [];
+    starterChips.classList.remove("hidden");
     chatMessages.innerHTML = `
       <div class="msg msg-ai">
         <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
         <div class="msg-bubble">
-          <div class="msg-meta">Haroony AI &bull; Harony Physics Clinic</div>
-          <div class="msg-content"><p>Chat cleared! Ask me any Physics question or attach a photo of a Physics problem.</p></div>
+          <div class="msg-content">
+            <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want solved step-by-step.</p>
+          </div>
         </div>
       </div>`;
   });
 
-  document.getElementById("starterChips").addEventListener("click", function (e) {
+  starterChips.addEventListener("click", function (e) {
     const chip = e.target.closest(".chip");
     if (!chip) return;
     chatInput.value = chip.dataset.prompt || "";
+    autoResizeChatInput();
     chatForm.requestSubmit();
   });
 
@@ -256,7 +241,12 @@
     }
   });
 
+  function scrollChatToBottom() {
+    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: "smooth" });
+  }
+
   function appendUserMessage(text, fileObj) {
+    starterChips.classList.add("hidden");
     const div = document.createElement("div");
     div.className = "msg msg-user";
     let imgPreviewHtml = "";
@@ -264,19 +254,51 @@
       const objUrl = URL.createObjectURL(fileObj);
       imgPreviewHtml = `<img src="${objUrl}" alt="Uploaded" class="msg-uploaded-img" data-lightbox="${objUrl}" data-caption="${escapeHtml(fileObj.name)}" />`;
     } else if (fileObj) {
-      imgPreviewHtml = `<div style="margin-top:6px;font-size:0.8rem;">📄 ${escapeHtml(fileObj.name)}</div>`;
+      imgPreviewHtml = `<div style="margin-top:6px;font-size:0.82rem;opacity:0.9;">📄 ${escapeHtml(fileObj.name)}</div>`;
     }
     div.innerHTML = `
       <div class="msg-user-avatar">You</div>
       <div class="msg-bubble">
-        <div class="msg-meta">Student</div>
         <div class="msg-content">
           ${text ? `<p>${escapeHtml(text)}</p>` : ""}
           ${imgPreviewHtml}
         </div>
       </div>`;
     chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollChatToBottom();
+  }
+
+  function createThinkingBubble(hasFile) {
+    const div = document.createElement("div");
+    div.className = "msg msg-ai";
+    const step1 = hasFile ? "Reading your attached file…" : "Thinking through the physics…";
+    const step2 = "Checking formulas & notes…";
+    div.innerHTML = `
+      <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
+      <div class="msg-bubble">
+        <div class="thinking-box">
+          <div class="thinking-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="thinking-text">${step1}</span>
+        </div>
+      </div>`;
+    chatMessages.appendChild(div);
+    scrollChatToBottom();
+
+    const textEl = div.querySelector(".thinking-text");
+    const timer = setTimeout(() => {
+      if (textEl && div.isConnected) {
+        textEl.textContent = step2;
+      }
+    }, 1050);
+
+    return {
+      remove() {
+        clearTimeout(timer);
+        if (div.isConnected) div.remove();
+      },
+    };
   }
 
   function appendAiMessage(res) {
@@ -292,7 +314,7 @@
             .map(
               (v) =>
                 `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
-                  🎥 Mr. Haroony Video: ${escapeHtml((v.label || v.chapter || "Watch Solution").slice(0, 52))}
+                  🎥 Video Solution: ${escapeHtml((v.label || v.chapter || "Watch").slice(0, 48))}
                 </a>`
             )
             .join("")}
@@ -307,18 +329,18 @@
         .map((c) => {
           const imgUrl = normalizeAssetUrl(c.image_url);
           return `
-            <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Harony Notes p.${c.page || ""} — ${escapeHtml(c.unit)}: ${escapeHtml(c.topic)}">
-              <img src="${escapeHtml(imgUrl)}" alt="Harony Notes Page ${c.page || ""}" loading="lazy" />
+            <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${c.page || ""} — ${escapeHtml(c.topic)}">
+              <img src="${escapeHtml(imgUrl)}" alt="Notes Page ${c.page || ""}" loading="lazy" />
               <div class="mini-note-card-body">
                 <strong>Page ${c.page || ""} &bull; ${escapeHtml(c.topic)}</strong>
-                <span>${escapeHtml(c.unit)} (Click to enlarge)</span>
+                <span>Click to zoom</span>
               </div>
             </div>`;
         })
         .join("");
       cardsHtml = `
         <div class="msg-notes-strip">
-          <div class="msg-notes-label">📘 Illustrated Pages from Harony Notes 2026 (Click to Zoom):</div>
+          <div class="msg-notes-label">Related Notes</div>
           <div class="msg-notes-cards">${items}</div>
         </div>`;
     }
@@ -326,13 +348,12 @@
     div.innerHTML = `
       <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
       <div class="msg-bubble">
-        <div class="msg-meta">${escapeHtml(res.engine || "Haroony AI")}</div>
         <div class="msg-content">${renderMarkdown(res.reply)}</div>
         ${videosHtml}
         ${cardsHtml}
       </div>`;
     chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollChatToBottom();
   }
 
   chatForm.addEventListener("submit", async function (e) {
@@ -343,71 +364,71 @@
 
     appendUserMessage(text, fileToSend);
     chatInput.value = "";
+    chatInput.style.height = "auto";
     chatAttachedFile = null;
     chatFileInput.value = "";
     chatAttachmentBar.classList.add("hidden");
 
     chatSendBtn.disabled = true;
-    chatSendBtn.textContent = "Thinking...";
+    const thinking = createThinkingBubble(Boolean(fileToSend));
 
     try {
       if (serverAvailable === null) await loadSystemStatus();
-      if (serverAvailable) {
-        const fd = new FormData();
-        fd.append("message", text);
-        fd.append("history", JSON.stringify(chatHistory.slice(-6)));
-        if (fileToSend) fd.append("file", fileToSend);
 
-        const resp = await fetch("api/chat", { method: "POST", body: fd });
-        const data = await resp.json();
-        if (!resp.ok) {
-          appendAiMessage({
-            refused: true,
-            engine: "Haroony AI",
-            reply: data.detail || "Something went wrong. Please try again.",
-            notes_cards: [],
-          });
-        } else {
-          appendAiMessage(data);
-          if (!data.refused) {
-            chatHistory.push({ role: "user", content: text || "[Uploaded Physics image/PDF]" });
-            chatHistory.push({ role: "assistant", content: data.reply });
+      const workPromise = (async () => {
+        if (serverAvailable) {
+          const fd = new FormData();
+          fd.append("message", text);
+          fd.append("history", JSON.stringify(chatHistory.slice(-6)));
+          if (fileToSend) fd.append("file", fileToSend);
+
+          const resp = await fetch("api/chat", { method: "POST", body: fd });
+          const data = await resp.json();
+          if (!resp.ok) {
+            return {
+              refused: true,
+              reply: data.detail || "Something went wrong. Please try again.",
+              notes_cards: [],
+            };
           }
+          return data;
         }
-      } else {
-        const data = await window.HaroonyBrowserEngine.chat(text, chatHistory.slice(-6), fileToSend);
-        appendAiMessage(data);
-        if (!data.refused) {
-          chatHistory.push({ role: "user", content: text || "[Physics query]" });
-          chatHistory.push({ role: "assistant", content: data.reply });
-        }
+        return window.HaroonyBrowserEngine.chat(text, chatHistory.slice(-6), fileToSend);
+      })();
+
+      // Run AI calculation/retrieval in parallel with smooth >= 2.2s thinking animation
+      const [data] = await Promise.all([workPromise, sleep(MIN_THINK_MS)]);
+      thinking.remove();
+      appendAiMessage(data);
+
+      if (!data.refused) {
+        chatHistory.push({ role: "user", content: text || "[Uploaded Physics file]" });
+        chatHistory.push({ role: "assistant", content: data.reply });
       }
     } catch (err) {
+      thinking.remove();
       appendAiMessage({
         refused: true,
-        engine: "Haroony AI",
-        reply: "Error processing your Physics query. Please try again.",
+        reply: "Could not process your question right now. Please try again.",
         notes_cards: [],
       });
     } finally {
       chatSendBtn.disabled = false;
-      chatSendBtn.innerHTML = "Ask AI &rarr;";
     }
   });
 
-  // ==================== MARK SCHEME GRADER ====================
+  // ==================== CHECK ANSWER & MARK SCHEME ====================
   const studentFilesInput = document.getElementById("studentFilesInput");
   const studentFilesList = document.getElementById("studentFilesList");
   const studentDropzone = document.getElementById("studentDropzone");
   const msFileInput = document.getElementById("msFileInput");
   const msFilePill = document.getElementById("msFilePill");
-  const samplePreviewBox = document.getElementById("samplePreviewBox");
 
   function renderStudentFilePills() {
     studentFilesList.innerHTML = graderStudentFiles
       .map(
         (f, i) =>
-          `<span class="file-pill">📎 ${escapeHtml(f.name)} <button type="button" class="btn-icon" data-rm-stu="${i}">&times;</button></span>`
+          `<span class="file-pill">📎 ${escapeHtml(f.name)} <button type="button" class="btn-icon" data-rm-stu="${i}" aria-label="Remove">&times;</button></span>`
       )
       .join("");
   }
@@ -421,8 +442,6 @@
 
   studentFilesInput.addEventListener("change", function () {
     if (studentFilesInput.files && studentFilesInput.files.length) {
-      useSampleDemo = "";
-      samplePreviewBox.classList.add("hidden");
       for (const f of studentFilesInput.files) {
         graderStudentFiles.push(f);
       }
@@ -444,8 +463,6 @@
   });
   studentDropzone.addEventListener("drop", function (e) {
     if (e.dataTransfer && e.dataTransfer.files) {
-      useSampleDemo = "";
-      samplePreviewBox.classList.add("hidden");
       for (const f of e.dataTransfer.files) {
         graderStudentFiles.push(f);
       }
@@ -456,7 +473,7 @@
   msFileInput.addEventListener("change", function () {
     if (msFileInput.files && msFileInput.files[0]) {
       graderMsFile = msFileInput.files[0];
-      msFilePill.innerHTML = `<span class="file-pill">📑 ${escapeHtml(graderMsFile.name)}</span>`;
+      msFilePill.innerHTML = `<span class="file-pill">📄 ${escapeHtml(graderMsFile.name)}</span>`;
     }
   });
 
@@ -470,26 +487,28 @@
     });
   });
 
-  // 1-Click Harony ClassWork 2027 Sample Demo
-  document.getElementById("runSampleDemoBtn").addEventListener("click", function () {
-    useSampleDemo = "cw_u1_density";
-    graderStudentFiles = [];
-    renderStudentFilePills();
-    document.getElementById("studentTextInput").value =
-      "2023 March P4 V2 Q02 a - Density:\n" +
-      "The ship is not solid steel because there are air spaces inside the ship, " +
-      "so the overall average density of the ship is less than the density of the water.";
-    document.getElementById("msLibrarySelect").value = "harony-cw-2027-u1";
-    document.getElementById("questionIdInput").value = "2023-March-P4-V2-Q02-a";
-    samplePreviewBox.classList.remove("hidden");
-    document.querySelector('[data-ms-mode="library"]').click();
-    document.getElementById("gradeForm").requestSubmit();
-  });
+  function showGradingLoader() {
+    const area = document.getElementById("gradeResultArea");
+    area.classList.remove("hidden");
+    area.innerHTML = `
+      <div class="grading-loader-card">
+        <div class="thinking-box" style="justify-content:center;">
+          <div class="thinking-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="thinking-text" id="gradeLoaderText">Reading your answer…</span>
+        </div>
+        <div class="loader-bar-track">
+          <div class="loader-bar-fill"></div>
+        </div>
+      </div>`;
+    area.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-  document.getElementById("clearSampleDemoBtn").addEventListener("click", function () {
-    useSampleDemo = "";
-    samplePreviewBox.classList.add("hidden");
-  });
+    return setTimeout(() => {
+      const el = document.getElementById("gradeLoaderText");
+      if (el) el.textContent = "Checking against Mark Scheme criteria…";
+    }, 1050);
+  }
 
   function renderGradeReport(res) {
     const area = document.getElementById("gradeResultArea");
@@ -497,9 +516,9 @@
 
     if (!res.ok) {
       area.innerHTML = `
-        <div class="panel-card" style="border-color:#fecaca;background:#fef2f2;">
-          <h3 style="color:#b91c1c;margin-bottom:8px;">🛡️ Cannot Grade This Submission</h3>
-          <div>${renderMarkdown(res.error || res.detail || "Unable to grade submission.")}</div>
+        <div class="panel-card" style="border-color:#fecaca;background:#fef2f2;animation:fadeSlideUp 0.35s var(--ease-out);">
+          <h3 style="color:#b91c1c;margin-bottom:6px;">Unable to Check Answer</h3>
+          <div>${renderMarkdown(res.error || res.detail || "Please provide a Physics answer.")}</div>
         </div>`;
       area.scrollIntoView({ behavior: "smooth", block: "nearest" });
       return;
@@ -516,17 +535,17 @@
           )
           .join("");
         const vidBtn = q.video_url
-          ? `<a href="${escapeHtml(q.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">🎥 Watch Mr. Haroony's Video Solution</a>`
+          ? `<a href="${escapeHtml(q.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">🎥 Watch Video Solution</a>`
           : "";
         return `
           <div class="q-breakdown-card">
             <div class="q-breakdown-header">
               <strong>${escapeHtml(q.title || "Question " + q.question_id)}</strong>
-              <span class="badge badge-free">${q.awarded_marks} / ${q.max_marks} marks</span>
+              <span class="q-score-pill">${q.awarded_marks} / ${q.max_marks} marks</span>
             </div>
             ${rows}
-            <div style="margin-top:8px;font-size:0.82rem;color:#475569;">
-              <strong>Official Model Key:</strong> <code>${escapeHtml(q.model_answer)}</code>
+            <div style="margin-top:10px;font-size:0.83rem;color:#64748b;">
+              <strong>Model Key:</strong> <code>${escapeHtml(q.model_answer)}</code>
             </div>
             ${vidBtn ? `<div class="video-pills">${vidBtn}</div>` : ""}
           </div>`;
@@ -537,18 +556,18 @@
     let notesHtml = "";
     if (refsWithImg.length > 0) {
       notesHtml = `
-        <div class="panel-card" style="margin-top:14px;">
-          <h3 style="margin-bottom:10px;">📘 Revise This Topic in Harony Notes 2026</h3>
+        <div class="panel-card" style="margin-top:14px;animation:fadeSlideUp 0.44s var(--ease-out);">
+          <h3 style="margin-bottom:10px;">Related Notes</h3>
           <div class="msg-notes-cards">
             ${refsWithImg
               .map((n) => {
                 const imgUrl = normalizeAssetUrl(n.image_url);
                 return `
-                <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Harony Notes p.${n.page} — ${escapeHtml(n.topic)}">
+                <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${n.page} — ${escapeHtml(n.topic)}">
                   <img src="${escapeHtml(imgUrl)}" alt="Page ${n.page}" />
                   <div class="mini-note-card-body">
                     <strong>Page ${n.page} &bull; ${escapeHtml(n.topic)}</strong>
-                    <span>${escapeHtml(n.unit)} (Click to enlarge)</span>
+                    <span>Click to zoom</span>
                   </div>
                 </div>`;
               })
@@ -560,14 +579,14 @@
     area.innerHTML = `
       <div class="score-summary-card">
         <div>
-          <div style="font-size:0.82rem;font-weight:700;color:#475569;text-transform:uppercase;">
+          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.03em;">
             ${escapeHtml(res.mark_scheme_title)}
           </div>
-          <h3 style="margin:4px 0 0;">Cambridge Examiner Marking Report</h3>
+          <h3 style="margin:3px 0 0;">Marking Result</h3>
         </div>
         <div class="score-pill-big">
           <span class="score-numbers">${res.awarded_marks} / ${res.max_marks}</span>
-          <span style="font-weight:700;color:#475569;">(${res.percentage}%)</span>
+          <span style="font-weight:600;color:#64748b;">(${res.percentage}%)</span>
           <span class="score-grade-badge">Grade ${escapeHtml(res.grade)}</span>
         </div>
       </div>
@@ -575,9 +594,8 @@
       ${questionsHtml}
 
       <details class="ocr-details">
-        <summary>🔍 View / Edit Extracted Answer Text &amp; Re-Grade</summary>
-        <p class="panel-help" style="margin-top:8px;">You can copy or refine the extracted text in Step 1 above and click Grade again.</p>
-        <pre style="white-space:pre-wrap;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0;font-size:0.82rem;">${escapeHtml(res.extracted_student_text || "")}</pre>
+        <summary>View extracted answer text</summary>
+        <pre style="white-space:pre-wrap;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0;font-size:0.82rem;margin:10px 0 0;">${escapeHtml(res.extracted_student_text || "")}</pre>
       </details>
 
       ${notesHtml}
@@ -589,7 +607,9 @@
     e.preventDefault();
     const btn = document.getElementById("gradeSubmitBtn");
     btn.disabled = true;
-    btn.textContent = "Reading & Marking with Cambridge Rules...";
+    btn.textContent = "Checking…";
+
+    const loaderTimer = showGradingLoader();
 
     const stuText = document.getElementById("studentTextInput").value.trim();
     const msId = activeMsMode === "library" ? document.getElementById("msLibrarySelect").value : "";
@@ -603,224 +623,41 @@
 
     try {
       if (serverAvailable === null) await loadSystemStatus();
-      if (serverAvailable) {
-        const fd = new FormData();
-        fd.append("student_text", stuText);
-        fd.append("use_sample_demo", useSampleDemo);
-        graderStudentFiles.forEach((f) => fd.append("student_files", f));
-        if (activeMsMode === "library") {
-          fd.append("ms_id", msId);
-          fd.append("question_id", qId);
-        } else if (activeMsMode === "upload") {
-          if (graderMsFile) fd.append("ms_file", graderMsFile);
-          fd.append("question_id", qId);
-        } else if (activeMsMode === "paste") {
-          fd.append("ms_text", msText);
+
+      const gradePromise = (async () => {
+        if (serverAvailable) {
+          const fd = new FormData();
+          fd.append("student_text", stuText);
+          graderStudentFiles.forEach((f) => fd.append("student_files", f));
+          if (activeMsMode === "library") {
+            fd.append("ms_id", msId);
+            fd.append("question_id", qId);
+          } else if (activeMsMode === "upload") {
+            if (graderMsFile) fd.append("ms_file", graderMsFile);
+            fd.append("question_id", qId);
+          } else if (activeMsMode === "paste") {
+            fd.append("ms_text", msText);
+          }
+          const resp = await fetch("api/grade", { method: "POST", body: fd });
+          return resp.json();
         }
-        const resp = await fetch("api/grade", { method: "POST", body: fd });
-        const data = await resp.json();
-        renderGradeReport(data);
-      } else {
-        const data = await window.HaroonyBrowserEngine.grade({
+        return window.HaroonyBrowserEngine.grade({
           studentText: stuText,
           msId: msId,
           msText: msText,
           questionId: qId,
-          useSampleDemo: useSampleDemo,
         });
-        renderGradeReport(data);
-      }
+      })();
+
+      const [data] = await Promise.all([gradePromise, sleep(MIN_THINK_MS)]);
+      clearTimeout(loaderTimer);
+      renderGradeReport(data);
     } catch (err) {
-      renderGradeReport({ ok: false, error: "Error grading submission." });
+      clearTimeout(loaderTimer);
+      renderGradeReport({ ok: false, error: "Error checking submission. Please try again." });
     } finally {
       btn.disabled = false;
-      btn.textContent = "✅ Correct & Grade My Physics Answer";
-    }
-  });
-
-  // ==================== HARONY NOTES EXPLORER ====================
-  async function loadNotesExplorer() {
-    const q = document.getElementById("notesSearchInput").value.trim();
-    const unit = document.getElementById("notesUnitFilter").value;
-    const grid = document.getElementById("notesGrid");
-    grid.innerHTML = `<p style="color:#475569;">Loading illustrated notes...</p>`;
-
-    try {
-      if (serverAvailable === null) await loadSystemStatus();
-      let data;
-      if (serverAvailable) {
-        const params = new URLSearchParams();
-        if (q) params.set("q", q);
-        if (unit) params.set("unit", unit);
-        const resp = await fetch("api/notes?" + params.toString());
-        data = await resp.json();
-      } else {
-        data = await window.HaroonyBrowserEngine.searchNotes(q, unit);
-      }
-
-      const items = (data.results || []).filter((c) => c.image_url && c.page !== 1 && c.page !== 2 && c.page !== 3);
-      if (!items.length) {
-        grid.innerHTML = `<p style="color:#475569;">No matching pages found. Try another Physics keyword.</p>`;
-        return;
-      }
-      grid.innerHTML = items
-        .map((c) => {
-          const imgUrl = normalizeAssetUrl(c.image_url);
-          return `
-          <div class="note-card">
-            <img src="${escapeHtml(imgUrl)}" alt="Harony Notes Page ${c.page}" loading="lazy" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Harony Notes p.${c.page} — ${escapeHtml(c.unit)}: ${escapeHtml(c.topic)}" />
-            <div class="note-card-body">
-              <div class="note-card-unit">${escapeHtml(c.unit)} ${c.page ? "&bull; Page " + c.page : ""}</div>
-              <div class="note-card-title">${escapeHtml(c.topic)}</div>
-              <div class="note-card-snippet">${escapeHtml((c.text || "").slice(0, 180))}</div>
-            </div>
-          </div>`;
-        })
-        .join("");
-    } catch (err) {
-      grid.innerHTML = `<p style="color:#dc2626;">Could not load notes.</p>`;
-    }
-  }
-
-  document.getElementById("notesSearchBtn").addEventListener("click", loadNotesExplorer);
-  document.getElementById("notesUnitFilter").addEventListener("change", loadNotesExplorer);
-  document.getElementById("notesSearchInput").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") loadNotesExplorer();
-  });
-
-  // ==================== TEACHER TRAINING STUDIO ====================
-  function showTeacherToast(msg, isError) {
-    const el = document.getElementById("teacherStatusMsg");
-    el.textContent = msg;
-    el.style.background = isError ? "#fef2f2" : "#f0fdf4";
-    el.style.color = isError ? "#b91c1c" : "#15803d";
-    el.style.borderColor = isError ? "#fecaca" : "#86efac";
-    el.classList.remove("hidden");
-  }
-
-  document.getElementById("teacherPinForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const pin = document.getElementById("teacherPinInput").value.trim();
-    if (serverAvailable) {
-      const fd = new FormData();
-      fd.append("pin", pin);
-      const resp = await fetch("api/teacher/verify", { method: "POST", body: fd });
-      if (!resp.ok) {
-        alert("Incorrect Teacher PIN (Default is 0625).");
-        return;
-      }
-      const data = await resp.json();
-      unlockedTeacherPin = pin;
-      document.getElementById("teacherLockCard").classList.add("hidden");
-      document.getElementById("teacherStudioContent").classList.remove("hidden");
-      if (data.settings) {
-        document.getElementById("ollamaEnabledChk").checked = Boolean(data.settings.ollama_enabled);
-        document.getElementById("ollamaUrlInput").value = data.settings.ollama_base_url || "http://127.0.0.1:11434";
-        document.getElementById("ollamaModelInput").value = data.settings.ollama_model || "qwen2.5-vl:7b";
-      }
-    } else {
-      if (pin !== "0625") {
-        alert("Incorrect Teacher PIN (Default is 0625).");
-        return;
-      }
-      unlockedTeacherPin = pin;
-      document.getElementById("teacherLockCard").classList.add("hidden");
-      document.getElementById("teacherStudioContent").classList.remove("hidden");
-    }
-  });
-
-  document.getElementById("uploadNotesForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    if (serverAvailable) {
-      const fd = new FormData(e.target);
-      fd.append("pin", unlockedTeacherPin);
-      const resp = await fetch("api/teacher/upload-material", { method: "POST", body: fd });
-      const data = await resp.json();
-      if (resp.ok && data.ok) {
-        showTeacherToast(`Added ${data.chunks_added} Physics blocks & re-trained Haroony AI!`, false);
-        e.target.reset();
-        loadSystemStatus();
-      } else {
-        showTeacherToast(data.detail || "Failed to upload material.", true);
-      }
-    } else {
-      const fd = new FormData(e.target);
-      const txt = String(fd.get("text_content") || "").trim();
-      if (!txt) {
-        showTeacherToast("On static GitHub Pages mode, paste notes text directly (or run the Python/Docker server for PDF ingestion).", true);
-        return;
-      }
-      const saved = JSON.parse(localStorage.getItem("haroony_custom_chunks") || "[]");
-      saved.push({
-        id: "browser-" + Date.now(),
-        source: String(fd.get("title") || "Teacher Notes"),
-        unit: String(fd.get("unit") || "Teacher Notes"),
-        topic: String(fd.get("topic") || "Physics"),
-        text: txt,
-        formulas: [],
-        image_url: null,
-      });
-      localStorage.setItem("haroony_custom_chunks", JSON.stringify(saved));
-      showTeacherToast("Saved Physics notes to browser knowledge base!", false);
-      e.target.reset();
-    }
-  });
-
-  document.getElementById("uploadMsForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    if (serverAvailable) {
-      const fd = new FormData(e.target);
-      fd.append("pin", unlockedTeacherPin);
-      const resp = await fetch("api/teacher/upload-ms", { method: "POST", body: fd });
-      const data = await resp.json();
-      if (resp.ok && data.ok) {
-        showTeacherToast(
-          `Added "${data.mark_scheme.title}" (${data.mark_scheme.question_count} parts, ${data.mark_scheme.total_marks} marks) & re-trained!`,
-          false
-        );
-        e.target.reset();
-        loadSystemStatus();
-      } else {
-        showTeacherToast(data.detail || "Failed to parse Mark Scheme.", true);
-      }
-    } else {
-      showTeacherToast("Use Paste MS in Correct Answer & MS on static GitHub Pages, or run Docker/Spaces for full PDF MS upload.", false);
-    }
-  });
-
-  document.getElementById("retrainNowBtn").addEventListener("click", async function () {
-    if (!serverAvailable) {
-      showTeacherToast("Browser Engine is up-to-date with Harony 2026/2027 models!", false);
-      return;
-    }
-    const fd = new FormData();
-    fd.append("pin", unlockedTeacherPin);
-    const resp = await fetch("api/teacher/retrain", { method: "POST", body: fd });
-    const data = await resp.json();
-    if (resp.ok && data.ok) {
-      showTeacherToast(
-        `Re-trained Haroony AI! Guardrail Accuracy: ${(data.metrics.validation_accuracy * 100).toFixed(1)}%, Indexed Chunks: ${data.metrics.indexed_notes_chunks}`,
-        false
-      );
-      loadSystemStatus();
-    }
-  });
-
-  document.getElementById("neuralSettingsForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    if (!serverAvailable) {
-      showTeacherToast("Ollama settings apply when running the self-hosted Python/Docker server.", false);
-      return;
-    }
-    const fd = new FormData();
-    fd.append("pin", unlockedTeacherPin);
-    fd.append("ollama_enabled", document.getElementById("ollamaEnabledChk").checked ? "true" : "false");
-    fd.append("ollama_base_url", document.getElementById("ollamaUrlInput").value.trim());
-    fd.append("ollama_model", document.getElementById("ollamaModelInput").value.trim());
-    const resp = await fetch("api/teacher/settings", { method: "POST", body: fd });
-    if (resp.ok) {
-      showTeacherToast("Saved self-hosted neural engine settings!", false);
-      loadSystemStatus();
+      btn.textContent = "Check My Answer";
     }
   });
 
