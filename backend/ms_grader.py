@@ -596,6 +596,120 @@ def igcse_grade_letter(pct: float) -> str:
     return "U (Needs Revision)"
 
 
+def split_question_and_answer(raw_text: str) -> Tuple[str, str]:
+    """Separate question stem from student's answer when both are provided."""
+    txt = (raw_text or "").strip()
+    m = re.search(
+        r"(?:^|\n|\.\s+)(?:my\s+answer|student(?:'s)?\s+answer|answer|solution|working)\s*[:\-]\s*([\s\S]+)$",
+        txt,
+        re.I,
+    )
+    if m and len(m.group(1).strip()) >= 1:
+        q_part = txt[: m.start()].strip()
+        a_part = m.group(1).strip()
+        return (q_part or txt), a_part
+    return txt, txt
+
+
+def clean_revision_bullets(raw_text: str, topic: str = "", limit: int = 5) -> List[str]:
+    """Extract clean, actionable revision bullets from Harony Notes (skipping numbered slide headers)."""
+    out: List[str] = []
+    for raw in (raw_text or "").splitlines():
+        ln = raw.strip()
+        if len(ln) < 12 or re.match(r"^\d{1,3}$", ln):
+            continue
+        if topic and ln.lower() == topic.lower():
+            continue
+        # Skip slide index questions like "1- Explain evaporation in terms of..."
+        if re.match(r"^\d+\s*[-.)]\s*(?:explain|compare|how|examples|define|state|what|list)\b", ln, re.I):
+            continue
+        ln = re.sub(r"^[•o\-*]\s*", "", ln).strip()
+        if len(ln) >= 12 and ln not in out:
+            out.append(ln)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def format_note_references(note_refs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    refs = []
+    for n in note_refs:
+        topic = n.get("topic") or "IGCSE Physics"
+        rev_pts = clean_revision_bullets(n.get("text") or "", topic, limit=4)
+        refs.append({
+            "page": n.get("page"),
+            "unit": n.get("unit"),
+            "topic": topic,
+            "snippet": (n.get("text") or "")[:320],
+            "revision_points": rev_pts,
+            "image_url": n.get("image_url"),
+        })
+    return refs
+
+
+def find_auto_matching_ms_question(
+    query_text: str,
+    kb: HaronyKnowledgeBase,
+) -> Optional[Tuple[str, Dict[str, Any]]]:
+    """Find a matching Harony ClassWork/P2 MS question by paper code or strong question/topic overlap."""
+    if not kb.mark_schemes:
+        return None
+    low = query_text.lower()
+    code_m = re.search(r"\b(20\d{2})\s+(mar(?:ch)?|may|jun(?:e)?|nov(?:ember)?)\s+p([24])\s+v(\d)\s+q?0?(\d+)", low)
+    if code_m:
+        yr, mon, pp, vr, qn = code_m.groups()
+        mon_k = "jun" if mon in ("may", "jun", "june") else mon[:3]
+        for ms in kb.mark_schemes:
+            for q in ms.get("questions", []):
+                qid_low = q.get("question_id", "").lower()
+                if yr in qid_low and mon_k in qid_low and f"p{pp}" in qid_low and f"v{vr}" in qid_low and (f"q0{qn}" in qid_low or f"q{qn}" in qid_low):
+                    return ms.get("title", "Harony Mark Scheme"), q
+
+    q_words = {
+        w for w in tokenize_words(query_text)
+        if len(w) >= 4 and w not in STOPWORDS and w not in {"explain", "describe", "calculate", "state", "what", "which", "question", "answer"}
+    }
+    if len(q_words) < 2:
+        return None
+
+    best_score = 0.0
+    best_pair: Optional[Tuple[str, Dict[str, Any]]] = None
+    for ms in kb.mark_schemes:
+        if "p2" in ms.get("id", ""):
+            continue  # Avoid matching short MCQ keys unless explicit code was given
+        for q in ms.get("questions", []):
+            hay = f"{q.get('title', '')} {q.get('chapter', '')} {q.get('summary_answer', '')}".lower()
+            hits = sum(1 for w in q_words if w in hay)
+            ratio = hits / max(len(q_words), 1)
+            if hits >= 3 and ratio >= 0.45 and hits > best_score:
+                best_score = float(hits)
+                best_pair = (ms.get("title", "Harony Mark Scheme"), q)
+    return best_pair
+
+
+def build_examiner_feedback(awarded: int, max_m: int, pts: List[Dict[str, Any]], note_refs: List[Dict[str, Any]]) -> str:
+    missed = [p for p in pts if p.get("status") != "awarded"]
+    rev_hint = ""
+    if note_refs:
+        top = note_refs[0]
+        rev_hint = f" Revise **{top.get('topic')}** (Harony Notes p.{top.get('page')})."
+    if awarded == max_m and max_m > 0:
+        return f"Excellent work! You earned full marks ({awarded}/{max_m}) by hitting all required Cambridge marking points."
+    if awarded == 0:
+        first_miss = missed[0].get("expected", "") if missed else ""
+        return (
+            f"0/{max_m} marks awarded. Make sure your answer directly addresses the required physics points"
+            + (f" (such as: {first_miss})" if first_miss else "")
+            + "." + rev_hint
+        )
+    first_miss = missed[0].get("expected", "") if missed else ""
+    return (
+        f"Good start ({awarded}/{max_m} marks)! To gain full marks, also include"
+        + (f": {first_miss}" if first_miss else " the missing mark-scheme points above")
+        + "." + rev_hint
+    )
+
+
 def grade_submission(
     student_text: str,
     kb: HaronyKnowledgeBase,
@@ -618,10 +732,16 @@ def grade_submission(
         total_max = sum(gp["max_marks"] for gp in graded_parts)
         pct = round(100.0 * total_awarded / max(total_max, 1), 1)
 
-        # Pull top Harony Notes reference pages for revision
+        # Pull top Harony Notes illustrated pages for revision
         search_seed = " ".join(gp["model_answer"] for gp in graded_parts[:3]) + " " + cleaned_student[:300]
-        note_refs = kb.search(search_seed, top_k=2)
+        raw_refs = kb.search(search_seed, top_k=6)
+        note_refs = [n for n in raw_refs if n.get("source") == "Harony Notes 2026 Final"][:2] or raw_refs[:2]
+        related_vids = kb.search_videos(search_seed, top_k=3)
+        for gp in graded_parts:
+            if not gp.get("video_url") and related_vids:
+                gp["video_url"] = related_vids[0]["video_url"]
 
+        all_pts = [pt for gp in graded_parts for pt in gp.get("points", [])]
         return {
             "ok": True,
             "mode": "mark_scheme",
@@ -630,30 +750,41 @@ def grade_submission(
             "max_marks": total_max,
             "percentage": pct,
             "grade": igcse_grade_letter(pct),
+            "examiner_feedback": build_examiner_feedback(total_awarded, total_max, all_pts, note_refs),
             "questions": graded_parts,
+            "related_videos": related_vids,
             "extracted_student_text": cleaned_student,
-            "notes_references": [
-                {
-                    "page": n.get("page"),
-                    "unit": n.get("unit"),
-                    "topic": n.get("topic"),
-                    "snippet": (n.get("text") or "")[:320],
-                    "image_url": n.get("image_url"),
-                }
-                for n in note_refs
-            ],
+            "notes_references": format_note_references(note_refs),
         }
 
-    # Case 2: No Mark Scheme attached -> Grade using Symbolic Physics Solver + Harony Notes IGCSE criteria!
-    solved = try_solve_physics_problem(cleaned_student)
-    note_refs = kb.search(cleaned_student, top_k=2)
+    # Case 2: AI Auto Check -> Split Question vs Answer so question stem never falsely earns marks!
+    question_part, answer_part = split_question_and_answer(cleaned_student)
+    solved = try_solve_physics_problem(question_part) or try_solve_physics_problem(cleaned_student)
+    matched_ms = find_auto_matching_ms_question(question_part, kb)
+    notes_seed = " ".join(
+        p for p in (
+            question_part,
+            solved.topic if solved else "",
+            f"{matched_ms[1].get('title', '')} {matched_ms[1].get('chapter', '')}" if matched_ms else "",
+        )
+        if p
+    )
+    raw_refs = kb.search(notes_seed, top_k=6)
+    note_refs = [n for n in raw_refs if n.get("source") == "Harony Notes 2026 Final"][:2] or raw_refs[:2]
+    related_vids = kb.search_videos(notes_seed, top_k=3)
 
+    # 2A. Exact Calculation Check (deterministic 2-3 marks + video + notes)
     if solved is not None:
-        stu_nums = extract_numbers_from_text(cleaned_student)
+        stu_nums = extract_numbers_from_text(answer_part)
+        # Focus on the final value if student wrote "I = V / R = 18 / 6 = 3 A"
+        if "=" in answer_part:
+            final_seg = answer_part.split("=")[-1]
+            final_nums = extract_numbers_from_text(final_seg)
+            if final_nums:
+                stu_nums = final_nums
         ok_ans, matched_val, ans_reason = numbers_match_cambridge(stu_nums, solved.exact_value)
-        # Check if formula symbols appear
         formula_lhs = solved.formula_display.split("=")[0].strip().lower()
-        has_formula = "=" in cleaned_student or formula_lhs in cleaned_student.lower()
+        has_formula = "=" in answer_part or formula_lhs in answer_part.lower()
         max_m = 3
         pts = []
         earned = 0
@@ -697,6 +828,7 @@ def grade_submission(
             })
 
         pct = round(100.0 * earned / max_m, 1)
+        vid_url = matched_ms[1].get("video_url") if matched_ms and matched_ms[1].get("video_url") else (related_vids[0]["video_url"] if related_vids else None)
         return {
             "ok": True,
             "mode": "physics_solver_check",
@@ -705,37 +837,58 @@ def grade_submission(
             "max_marks": max_m,
             "percentage": pct,
             "grade": igcse_grade_letter(pct),
+            "examiner_feedback": build_examiner_feedback(earned, max_m, pts, note_refs),
             "questions": [
                 {
                     "question_id": "Calculation",
+                    "title": solved.topic,
+                    "video_url": vid_url,
                     "awarded_marks": earned,
                     "max_marks": max_m,
                     "points": pts,
                     "model_answer": f"{solved.formula_display}  ⇒  {solved.rounded_2sf} {solved.unit} ({solved.exam_tip})",
                 }
             ],
+            "related_videos": related_vids,
             "extracted_student_text": cleaned_student,
-            "notes_references": [
-                {
-                    "page": n.get("page"),
-                    "unit": n.get("unit"),
-                    "topic": n.get("topic"),
-                    "snippet": (n.get("text") or "")[:320],
-                    "image_url": n.get("image_url"),
-                }
-                for n in note_refs
-            ],
+            "notes_references": format_note_references(note_refs),
         }
 
-    # Qualitative check against Harony Notes key terms
+    # 2B. Auto-matched Official Harony Mark Scheme Question!
+    if matched_ms is not None:
+        ms_title, matched_q = matched_ms
+        gp = grade_question_part(matched_q, answer_part)
+        if not gp.get("video_url") and related_vids:
+            gp["video_url"] = related_vids[0]["video_url"]
+        max_m = max(gp["max_marks"], 1)
+        earned = gp["awarded_marks"]
+        pct = round(100.0 * earned / max_m, 1)
+        return {
+            "ok": True,
+            "mode": "auto_matched_ms",
+            "mark_scheme_title": f"{ms_title} (Auto-Matched)",
+            "awarded_marks": earned,
+            "max_marks": max_m,
+            "percentage": pct,
+            "grade": igcse_grade_letter(pct),
+            "examiner_feedback": build_examiner_feedback(earned, max_m, gp.get("points", []), note_refs),
+            "questions": [gp],
+            "related_videos": related_vids,
+            "extracted_student_text": cleaned_student,
+            "notes_references": format_note_references(note_refs),
+        }
+
+    # 2C. Qualitative check against clean Harony Notes concepts (deterministic & contradiction-aware)
     if note_refs:
         best_note = note_refs[0]
-        key_lines = [ln.strip(" •-*") for ln in (best_note.get("text") or "").splitlines() if len(ln.strip()) >= 18][:4]
-        stu_tokens = tokenize_words(cleaned_student)
+        key_lines = clean_revision_bullets(best_note.get("text") or "", best_note.get("topic", ""), limit=3)
+        if not key_lines:
+            key_lines = [ln.strip(" •-*") for ln in (best_note.get("text") or "").splitlines() if len(ln.strip()) >= 18][:3]
+        stu_tokens = tokenize_words(answer_part)
         pts = []
         earned = 0
         for idx, kl in enumerate(key_lines, 1):
-            hit = phrase_matches_student(kl, cleaned_student, stu_tokens)
+            hit = phrase_matches_student(kl, answer_part, stu_tokens)
             if hit:
                 earned += 1
             pts.append({
@@ -744,7 +897,7 @@ def grade_submission(
                 "marks_awarded": 1 if hit else 0,
                 "max_marks": 1,
                 "expected": kl,
-                "comment": f"{'✓ Matched' if hit else '💡 Key point from Harony Notes'}: `{kl}`",
+                "comment": f"{'✓ Matched' if hit else '✗ Missing key point from Harony Notes'}: `{kl}`",
             })
         max_m = max(len(pts), 1)
         pct = round(100.0 * earned / max_m, 1)
@@ -756,26 +909,21 @@ def grade_submission(
             "max_marks": max_m,
             "percentage": pct,
             "grade": igcse_grade_letter(pct),
+            "examiner_feedback": build_examiner_feedback(earned, max_m, pts, note_refs),
             "questions": [
                 {
                     "question_id": "Concept Check",
+                    "title": best_note.get("topic") or "Concept Check",
+                    "video_url": related_vids[0]["video_url"] if related_vids else None,
                     "awarded_marks": earned,
                     "max_marks": max_m,
                     "points": pts,
                     "model_answer": " ; ".join(key_lines),
                 }
             ],
+            "related_videos": related_vids,
             "extracted_student_text": cleaned_student,
-            "notes_references": [
-                {
-                    "page": n.get("page"),
-                    "unit": n.get("unit"),
-                    "topic": n.get("topic"),
-                    "snippet": (n.get("text") or "")[:320],
-                    "image_url": n.get("image_url"),
-                }
-                for n in note_refs
-            ],
+            "notes_references": format_note_references(note_refs),
         }
 
     return {

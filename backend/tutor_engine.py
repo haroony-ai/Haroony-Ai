@@ -154,7 +154,58 @@ class HaroonyTutorEngine:
             if prev_users:
                 search_query = prev_users[-1] + " " + combined_query
 
-        # 3. Check if student wants a practice / quiz question!
+        # 3. Check if student wants YouTube video solutions for a topic or question!
+        if re.search(r"\b(?:youtube|youtu\.be|videos?|video\s+solution|watch)\b", combined_query, re.I):
+            vid_hits = self.kb.search_videos(search_query, top_k=8)
+            note_hits = self.kb.search(search_query, top_k=2)
+            notes_cards = [
+                {
+                    "id": nh.get("id"),
+                    "page": nh.get("page"),
+                    "unit": nh.get("unit"),
+                    "topic": nh.get("topic"),
+                    "source": nh.get("source"),
+                    "formulas": nh.get("formulas", []),
+                    "image_url": nh.get("image_url"),
+                    "snippet": (nh.get("text") or "")[:280],
+                    "score": nh.get("score", 0.0),
+                }
+                for nh in note_hits
+                if nh.get("score", 0.0) >= 0.20
+            ]
+            if vid_hits:
+                vid_lines = []
+                for idx, v in enumerate(vid_hits, 1):
+                    loc = f"{v.get('book', 'Harony 2027')} • {v.get('chapter') or v.get('unit', '')}"
+                    if v.get("page"):
+                        loc += f" (p.{v['page']})"
+                    vid_lines.append(f"{idx}. **{v.get('label', 'Video Solution')}** *({loc})* — {v['video_url']}")
+                reply_md = (
+                    "### 🎥 Harony Physics YouTube Video Solutions\n\n"
+                    "Here are the matching Mr. Haroony video walkthroughs from **Harony ClassWork 2027** and **P2 Classified 2027**:\n\n"
+                    + "\n".join(vid_lines)
+                )
+            else:
+                reply_md = (
+                    "### 🎥 YouTube Video Solutions\n\n"
+                    "Tell me the specific IGCSE Physics topic (for example: *density, moments, thermal, waves, diffraction, electricity, transformers, half-life, astronomy*) "
+                    "or paper code (e.g. *2023 March P4 V2 Q02*) and I will send you Mr. Haroony's exact YouTube walkthrough links!"
+                )
+            return {
+                "ok": True,
+                "refused": False,
+                "category": "physics",
+                "reply": reply_md,
+                "notes_cards": notes_cards,
+                "video_links": vid_hits,
+                "ocr_text": ocr_text,
+                "rag_context": "",
+                "solved_markdown": None,
+                "neural_generated": False,
+                "engine": "Haroony Video Library (2,085 Solutions)",
+            }
+
+        # 3b. Check if student wants a practice / quiz question!
         if re.search(r"\b(?:quiz\s+me|test\s+me|practice\s+question|give\s+me\s+a\s+question)\b", combined_query, re.I):
             return self._generate_practice_question(search_query)
 
@@ -162,7 +213,7 @@ class HaroonyTutorEngine:
         solved = try_solve_physics_problem(combined_query)
         note_hits = self.kb.search(search_query, top_k=3)
         ms_tips = find_related_ms_tips(search_query, self.kb)
-        vid_hits = self.kb.search_videos(search_query, top_k=2)
+        vid_hits = self.kb.search_videos(search_query, top_k=3)
 
         # Build context block for optional neural LLM enhancement
         ctx_parts = []

@@ -1173,4 +1173,65 @@ code {
   .ms-mode-switcher {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .revision-item {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Revision Notes Card in Check Answer */
+.revision-notes-card {
+  border-color: #bfdbfe;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.revision-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.revision-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: 14px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.revision-badge {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+
+.revision-item-text h4 {
+  margin: 0 0 6px;
+  font-size: 0.96rem;
+  color: var(--text);
+}
+
+.revision-bullets {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.86rem;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.revision-snippet {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.5;
 }

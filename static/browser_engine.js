@@ -583,19 +583,27 @@
     return scored.slice(0, topK);
   }
 
+  const VIDEO_IGNORE = new Set([
+    "youtube", "video", "videos", "link", "links", "watch", "solve", "solving",
+    "solution", "solutions", "give", "send", "show", "find", "please", "any",
+    "topic", "topics", "about", "with", "from", "can", "you", "get", "me", "want", "need",
+  ]);
+
   function searchVideos(kb, query, topK) {
-    const qToks = Array.from(new Set(tokenize(query).filter((w) => !STOPWORDS.has(w) && w.length >= 3)));
+    const rawToks = tokenize(query).filter((w) => !STOPWORDS.has(w) && !VIDEO_IGNORE.has(w) && w.length >= 2);
+    const qToks = Array.from(new Set(rawToks.map((t) => (t === "may" ? "jun" : t))));
     if (!qToks.length || !kb.videos) return [];
     const scored = [];
     for (const v of kb.videos) {
       const labelLow = (v.label || "").toLowerCase();
-      const hay = `${labelLow} ${v.chapter || ""} ${v.unit || ""}`.toLowerCase();
+      const nkLow = (v.norm_key || "").toLowerCase();
+      const hay = `${labelLow} ${nkLow} ${v.chapter || ""} ${v.unit || ""}`.toLowerCase();
       let hits = 0;
       for (const t of qToks) {
-        if (labelLow.includes(t)) hits += 2.5;
-        else if (hay.includes(t)) hits += 1.0;
+        if (labelLow.includes(t) || nkLow.includes(t)) hits += 2.5;
+        else if (hay.includes(t)) hits += 1.2;
       }
-      if (hits >= 3.0 || (qToks.length === 1 && labelLow.includes(qToks[0]))) {
+      if (hits >= 2.0 || (qToks.length === 1 && hits >= 1.2)) {
         scored.push({ hits, v });
       }
     }
@@ -622,6 +630,8 @@
       ln = ln.replace(/^[•o\-*]\s*/, "").trim();
       if (!ln) continue;
       if (merged.length < 2 && ln.length < 36 && topic && ln.toLowerCase() === topic.toLowerCase()) continue;
+      // Skip slide outline header items like "1- Explain evaporation in terms of kinetic theory."
+      if (/^\d+\s*[-.)]\s*(?:explain|compare|how|examples|define|state|what|list)\b/i.test(ln)) continue;
       if (
         merged.length &&
         !/[.:?!)]$/.test(merged[merged.length - 1]) &&
@@ -633,6 +643,22 @@
       }
     }
     return merged;
+  }
+
+  function formatNoteRefs(scoredChunks) {
+    return (scoredChunks || [])
+      .map((x) => x.ch)
+      .filter((c) => c && (c.image_url || c.text))
+      .map((c) => ({
+        id: c.id,
+        page: c.page,
+        unit: c.unit,
+        topic: c.topic,
+        source: c.source,
+        image_url: c.image_url,
+        snippet: (c.text || "").slice(0, 280),
+        revision_points: cleanNoteBullets(c.text, c.topic).slice(0, 4),
+      }));
   }
 
   // ==================== NEURAL TUTOR PROMPT BUILDER ====================
@@ -903,203 +929,213 @@
     return "U (Needs Revision)";
   }
 
-  function extractJsonBlock(raw) {
-    if (!raw) return null;
-    const str = String(raw).trim();
-    const firstBrace = str.indexOf("{");
-    const lastBrace = str.lastIndexOf("}");
-    if (firstBrace === -1 || lastBrace <= firstBrace) return null;
-    try {
-      return JSON.parse(str.slice(firstBrace, lastBrace + 1));
-    } catch (_) {
-      return null;
+  function splitQuestionAndAnswer(rawText) {
+    const str = String(rawText || "").trim();
+    const m = str.match(/(?:^|\n|\.\s+)(?:my\s+answer|student(?:'s)?\s+answer|answer|solution|working)\s*[:\-]\s*([\s\S]+)$/i);
+    if (m && m[1].trim().length >= 1) {
+      const qPart = str.slice(0, m.index).trim();
+      const aPart = m[1].trim();
+      return { questionPart: qPart || str, answerPart: aPart };
     }
+    return { questionPart: str, answerPart: str };
   }
 
-  async function runNeuralAutoGrade(studentText, kb, onProgress) {
-    const solved = solvePhysicsProblem(studentText);
-    const scoredChunks = searchChunksScored(kb, studentText, 2);
-    const msTips = searchMsTips(kb, studentText, 2);
-
-    const refLines = [];
-    if (solved) {
-      refLines.push(`Verified Calculation: Formula ${solved.formula}, Exact Answer = ${fmtNum(solved.value, 3)} ${solved.unit}`);
+  function buildDeterministicFeedback(awarded, maxM, pts, noteRefs) {
+    const missed = (pts || []).filter((p) => p.status !== "awarded");
+    const topNote = noteRefs && noteRefs[0];
+    const revStr = topNote ? ` Revise **${topNote.topic}** (Harony Notes p.${topNote.page || "?"}).` : "";
+    if (awarded >= maxM && maxM > 0) {
+      return `Excellent work! You earned full marks (${awarded}/${maxM}) by hitting all required Cambridge marking points.`;
     }
-    for (const sc of scoredChunks) {
-      refLines.push(`[Harony Notes - ${sc.ch.topic}]: ${cleanNoteBullets(sc.ch.text, sc.ch.topic).slice(0, 5).join("; ")}`);
+    const hint = missed[0] ? (missed[0].expected || missed[0].comment || "").replace(/^[✓✗💡]\s*/, "") : "";
+    if (awarded === 0) {
+      return `0/${maxM} marks awarded. Make sure your answer directly covers the required physics points${hint ? ` (e.g., ${hint})` : ""}.${revStr}`;
     }
-    for (const mt of msTips) {
-      refLines.push(`[Official Harony MS (${mt.msTitle} Q${mt.q.question_id}, ${mt.q.max_marks} marks)]: ${mt.q.summary_answer}`);
-    }
+    return `Good start (${awarded}/${maxM} marks)! To gain full marks, also include${hint ? `: ${hint}` : " the missing points above"}.${revStr}`;
+  }
 
-    // Try Neural AI Examiner JSON evaluation first!
-    if (global.HaroonyNeuralAI) {
-      try {
-        const sys =
-          "You are a strict, fair Cambridge IGCSE / A-Level Physics Examiner from Harony Physics Clinic.\n" +
-          "Evaluate the student's Physics answer accurately. NEVER award marks for wrong Physics, opposite relationships, wrong units, or missing key explanations.\n" +
-          "Respond with ONLY valid JSON in this exact format:\n" +
-          "{\n" +
-          '  "topic": "Short Physics Topic Name",\n' +
-          '  "max_marks": 3,\n' +
-          '  "awarded_marks": 2,\n' +
-          '  "feedback": "1-3 clear sentences directly explaining what the student got right and any mistake or missing Physics concept.",\n' +
-          '  "points": [\n' +
-          '    {"code": "B1", "status": "awarded", "comment": "✓ Correctly stated ..."},\n' +
-          '    {"code": "B1", "status": "missed", "comment": "✗ Did not mention ..."}\n' +
-          "  ],\n" +
-          '  "model_answer": "Complete full-mark Cambridge Physics answer."\n' +
-          "}";
-
-        const usr =
-          `Student Submission:\n"""\n${studentText}\n"""\n\n` +
-          (refLines.length ? `Verified Physics Ground Truth:\n${refLines.join("\n")}\n\n` : "") +
-          "Grade this submission strictly using Cambridge Physics marking standards and return ONLY the JSON object.";
-
-        const rawJson = await global.HaroonyNeuralAI.generate(
-          [
-            { role: "system", content: sys },
-            { role: "user", content: usr },
-          ],
-          { maxTokens: 460, temperature: 0.1, onProgress }
-        );
-        const parsed = extractJsonBlock(rawJson);
-        if (parsed && typeof parsed.max_marks === "number" && typeof parsed.awarded_marks === "number") {
-          const maxM = Math.max(1, Math.min(10, Math.round(parsed.max_marks)));
-          const awdM = Math.max(0, Math.min(maxM, Math.round(parsed.awarded_marks)));
-          const pct = Math.round((1000 * awdM) / maxM) / 10;
-          const pts = Array.isArray(parsed.points) && parsed.points.length
-            ? parsed.points.map((p) => ({
-                code: p.code || "B1",
-                status: p.status === "awarded" ? "awarded" : "missed",
-                comment: p.comment || "",
-              }))
-            : [
-                {
-                  code: "B1",
-                  status: awdM > 0 ? "awarded" : "missed",
-                  comment: parsed.feedback || "Evaluated by Haroony AI Examiner.",
-                },
-              ];
-          return {
-            ok: true,
-            mode: "ai_examiner",
-            mark_scheme_title: "Haroony AI Physics Examiner",
-            awarded_marks: awdM,
-            max_marks: maxM,
-            percentage: pct,
-            grade: gradeLetter(pct),
-            examiner_feedback: parsed.feedback || "",
-            questions: [
-              {
-                question_id: "AI Check",
-                title: parsed.topic || (scoredChunks[0] ? scoredChunks[0].ch.topic : "Physics Evaluation"),
-                awarded_marks: awdM,
-                max_marks: maxM,
-                points: pts,
-                model_answer: parsed.model_answer || (solved ? `${solved.formula} => ${fmtNum(solved.value, 3)} ${solved.unit}` : ""),
-              },
-            ],
-            extracted_student_text: studentText,
-            notes_references: scoredChunks.map((x) => x.ch).filter((c) => c.image_url),
-          };
-        }
-      } catch (err) {
-        console.warn("Neural auto-grade fallback:", err);
+  function findAutoMatchedQuestion(questionPart, kb) {
+    const low = questionPart.toLowerCase();
+    const codeMatch = low.match(/\b(20\d{2})\s+(mar(?:ch)?|may|jun(?:e)?|nov(?:ember)?)\s+p([24])\s+v(\d)\s+q?0?(\d+)/i);
+    if (codeMatch && kb.mark_schemes) {
+      const yr = codeMatch[1];
+      const mon = codeMatch[2].startsWith("ma") && codeMatch[2] !== "march" ? "jun" : codeMatch[2].slice(0, 3);
+      const pp = "p" + codeMatch[3];
+      const vr = "v" + codeMatch[4];
+      const qn = codeMatch[5];
+      for (const m of kb.mark_schemes) {
+        const hit = (m.questions || []).find((q) => {
+          const idLow = (q.question_id || "").toLowerCase();
+          return (
+            idLow.includes(yr) &&
+            idLow.includes(mon) &&
+            idLow.includes(pp) &&
+            idLow.includes(vr) &&
+            (idLow.includes("q0" + qn) || idLow.includes("q" + qn))
+          );
+        });
+        if (hit) return { msTitle: m.title, q: hit };
       }
     }
 
-    // Deterministic Smart Fallback if Neural JSON unavailable:
-    // 1. If it's a calculation question, check student's answer numbers against exact symbolic solver!
+    const qToks = Array.from(new Set(tokenize(questionPart).filter((w) => !STOPWORDS.has(w) && w.length >= 4)));
+    if (qToks.length < 2 || !kb.mark_schemes) return null;
+    let best = null;
+    let bestHits = 0;
+    for (const ms of kb.mark_schemes) {
+      if ((ms.id || "").includes("p2")) continue;
+      for (const q of ms.questions || []) {
+        const hay = `${q.title || ""} ${q.chapter || ""} ${q.summary_answer || ""}`.toLowerCase();
+        const hits = qToks.reduce((acc, t) => acc + (hay.includes(t) ? 1 : 0), 0);
+        const ratio = hits / qToks.length;
+        if (hits >= 3 && ratio >= 0.45 && hits > bestHits) {
+          bestHits = hits;
+          best = { msTitle: ms.title, q };
+        }
+      }
+    }
+    return best;
+  }
+
+  function runAutoGradeDeterministic(studentText, kb) {
+    const { questionPart, answerPart } = splitQuestionAndAnswer(studentText);
+    const solved = solvePhysicsProblem(questionPart) || solvePhysicsProblem(studentText);
+    const matchedMs = findAutoMatchedQuestion(questionPart, kb);
+    const notesSeed = [
+      questionPart,
+      solved ? solved.topic : "",
+      matchedMs && matchedMs.q ? `${matchedMs.q.title || ""} ${matchedMs.q.chapter || ""}` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const scoredChunks = searchChunksScored(
+      { chunks: (kb.chunks || []).filter((c) => c.source === "Harony Notes 2026 Final") },
+      notesSeed,
+      2
+    );
+    const noteRefs = formatNoteRefs(scoredChunks.length ? scoredChunks : searchChunksScored(kb, notesSeed, 2));
+    const relatedVids = searchVideos(kb, notesSeed, 3);
+
+    // 1. Calculation Question (100% deterministic 3 marks)
     if (solved) {
-      const ansOnly = extractStudentAnswerOnly(studentText);
-      const eqParts = ansOnly.split("=");
-      const finalChunk = eqParts.length >= 2 ? eqParts[eqParts.length - 1] : ansOnly;
+      const eqParts = answerPart.split("=");
+      const finalChunk = eqParts.length >= 2 ? eqParts[eqParts.length - 1] : answerPart;
       const stuNums = extractNumbers(finalChunk);
       const hasAns = stuNums.some((n) => Math.abs(n - solved.value) <= 0.04 * Math.max(1, Math.abs(solved.value)));
-      const hasFormulaOrSub = eqParts.length >= 2 && (hasAns || /[\/×*+\-]/.test(ansOnly));
-      const awd = hasAns ? 2 : hasFormulaOrSub && !stuNums.length ? 1 : 0;
-      const pct = (awd / 2) * 100;
+      const hasFormulaOrSub = eqParts.length >= 2 || solved.formula.split("=")[0].trim().toLowerCase() === answerPart.trim().toLowerCase();
+      const maxM = 3;
+      const pts = [];
+      let awd = 0;
+      if (hasAns) {
+        awd = 3;
+        pts.push({
+          code: "A3",
+          status: "awarded",
+          expected: `${fmtNum(solved.value, 3)} ${solved.unit}`,
+          comment: `✓ Correct calculation! Matches \`${fmtNum(solved.value, 3)} ${solved.unit}\` using \`${solved.formula}\`.`,
+        });
+      } else {
+        if (hasFormulaOrSub) {
+          awd = 1;
+          pts.push({
+            code: "C1",
+            status: "awarded",
+            expected: solved.formula,
+            comment: `✓ Formula/working structure shown (\`${solved.formula}\`).`,
+          });
+        } else {
+          pts.push({
+            code: "C1",
+            status: "missed",
+            expected: solved.formula,
+            comment: `✗ Write the formula \`${solved.formula}\` first.`,
+          });
+        }
+        pts.push({
+          code: "A2",
+          status: "missed",
+          expected: `${fmtNum(solved.value, 3)} ${solved.unit}`,
+          comment: `✗ Expected final value: \`${fmtNum(solved.value, 3)} ${solved.unit}\`.`,
+        });
+      }
+      const pct = Math.round((1000 * awd) / maxM) / 10;
+      const vidUrl = (matchedMs && matchedMs.q && matchedMs.q.video_url) || (relatedVids[0] && relatedVids[0].video_url) || null;
       return {
         ok: true,
         mode: "symbolic_check",
-        mark_scheme_title: `Physics Calculation Check (${solved.topic})`,
+        mark_scheme_title: `Haroony AI Physics Examiner (${solved.topic})`,
         awarded_marks: awd,
-        max_marks: 2,
+        max_marks: maxM,
         percentage: pct,
         grade: gradeLetter(pct),
-        examiner_feedback: hasAns
-          ? `Great work! Your final answer matches the exact value (${fmtNum(solved.value, 3)} ${solved.unit}) using ${solved.formula}.`
-          : `Check your formula and substitution: using ${solved.formula}, the correct result is ${fmtNum(solved.value, 3)} ${solved.unit}.`,
+        examiner_feedback: buildDeterministicFeedback(awd, maxM, pts, noteRefs),
         questions: [
           {
-            question_id: "Calc",
+            question_id: "Calculation",
             title: solved.topic,
+            video_url: vidUrl,
             awarded_marks: awd,
-            max_marks: 2,
-            points: [
-              {
-                code: "C1",
-                status: hasAns ? "awarded" : "missed",
-                comment: `Formula required: \`${solved.formula}\``,
-              },
-              {
-                code: "A1",
-                status: hasAns ? "awarded" : "missed",
-                comment: hasAns
-                  ? `✓ Correct numerical answer matching \`${fmtNum(solved.value, 3)} ${solved.unit}\`.`
-                  : `✗ Expected final value \`${fmtNum(solved.value, 3)} ${solved.unit}\`.`,
-              },
-            ],
+            max_marks: maxM,
+            points: pts,
             model_answer: `${solved.formula} → ${fmtNum(solved.value, 3)} ${solved.unit}`,
           },
         ],
+        related_videos: relatedVids,
         extracted_student_text: studentText,
-        notes_references: scoredChunks.map((x) => x.ch).filter((c) => c.image_url),
+        notes_references: noteRefs,
       };
     }
 
-    // 2. If a closely matching MS question exists in Harony 2026/2027, grade against its real rubric!
-    if (msTips.length > 0 && msTips[0].hits >= 3) {
-      const best = msTips[0];
-      const gq = gradeAgainstQuestion(best.q, studentText);
+    // 2. Official Harony Mark Scheme Question Match (100% deterministic!)
+    if (matchedMs) {
+      const gq = gradeAgainstQuestion(matchedMs.q, answerPart);
+      if (!gq.video_url && relatedVids[0]) gq.video_url = relatedVids[0].video_url;
       const pct = Math.round((1000 * gq.awarded_marks) / Math.max(1, gq.max_marks)) / 10;
       return {
         ok: true,
         mode: "auto_matched_ms",
-        mark_scheme_title: `${best.msTitle} (Auto-Matched)`,
+        mark_scheme_title: `${matchedMs.msTitle} (Auto-Matched)`,
         awarded_marks: gq.awarded_marks,
         max_marks: gq.max_marks,
         percentage: pct,
         grade: gradeLetter(pct),
+        examiner_feedback: buildDeterministicFeedback(gq.awarded_marks, gq.max_marks, gq.points, noteRefs),
         questions: [gq],
+        related_videos: relatedVids,
         extracted_student_text: studentText,
-        notes_references: scoredChunks.map((x) => x.ch).filter((c) => c.image_url),
+        notes_references: noteRefs,
       };
     }
 
-    // 3. Evaluate key concepts from Harony Notes (checking real keyword overlap + contradictions, NEVER blind 100%!)
+    // 3. Clean Harony Notes Concept Rubric (100% deterministic & contradiction-aware!)
     if (scoredChunks.length > 0) {
       const top = scoredChunks[0].ch;
       const bullets = cleanNoteBullets(top.text, top.topic).slice(0, 3);
-      const stuToks = expandWithSynonyms(new Set(tokenize(studentText)));
+      const stuToks = expandWithSynonyms(new Set(tokenize(answerPart)));
+      const ansLow = answerPart.toLowerCase();
       const pts = [];
       let awd = 0;
       for (const b of bullets) {
         const bWords = tokenize(b).filter((w) => !STOPWORDS.has(w) && w.length >= 4);
         if (!bWords.length) continue;
-        const contradicted = hasOppositeContradiction(b.toLowerCase(), studentText.toLowerCase());
+        const contradicted = hasOppositeContradiction(b.toLowerCase(), ansLow);
         const hitCount = bWords.filter((w) => stuToks.has(w)).length;
         const ok = !contradicted && hitCount / bWords.length >= 0.35;
         if (ok) awd++;
         pts.push({
           code: "B1",
           status: ok ? "awarded" : "missed",
-          comment: ok ? `✓ Covered key concept: ${b}` : `✗ Missing/incomplete concept: ${b}`,
+          expected: b,
+          comment: ok
+            ? `✓ Covered key concept: ${b}`
+            : contradicted
+            ? `✗ Contradiction on concept: ${b}`
+            : `✗ Missing/incomplete concept: ${b}`,
         });
       }
       const maxM = Math.max(1, pts.length);
       const pct = Math.round((1000 * awd) / maxM) / 10;
+      const vidUrl = (relatedVids[0] && relatedVids[0].video_url) || null;
       return {
         ok: true,
         mode: "concept_check",
@@ -1108,18 +1144,21 @@
         max_marks: maxM,
         percentage: pct,
         grade: gradeLetter(pct),
+        examiner_feedback: buildDeterministicFeedback(awd, maxM, pts, noteRefs),
         questions: [
           {
             question_id: "Concept",
             title: top.topic,
+            video_url: vidUrl,
             awarded_marks: awd,
             max_marks: maxM,
             points: pts,
             model_answer: bullets.join(" ; "),
           },
         ],
+        related_videos: relatedVids,
         extracted_student_text: studentText,
-        notes_references: scoredChunks.map((x) => x.ch).filter((c) => c.image_url),
+        notes_references: noteRefs,
       };
     }
 
@@ -1220,10 +1259,46 @@
         }
       }
 
+      // Direct YouTube video solution requests for any topic or paper code!
+      if (/\b(?:youtube|youtu\.be|videos?|video\s+solution|watch)\b/i.test(combined)) {
+        const vidHits = searchVideos(kb, searchQuery, 8);
+        const noteHits = searchChunksScored(kb, searchQuery, 2);
+        const strongCards = noteHits
+          .filter((x) => x.s >= 4.2)
+          .slice(0, 2)
+          .map((x) => x.ch);
+        let replyMd;
+        if (vidHits.length) {
+          const lines = vidHits.map((v, idx) => {
+            const loc = `${v.book || "Harony 2027"} • ${v.chapter || v.unit || ""}${v.page ? ` (p.${v.page})` : ""}`;
+            return `${idx + 1}. **${v.label || "Video Solution"}** *(${loc})* — ${v.video_url}`;
+          });
+          replyMd =
+            "### 🎥 Harony Physics YouTube Video Solutions\n\n" +
+            "Here are the matching Mr. Haroony video walkthroughs from **Harony ClassWork 2027** and **P2 Classified 2027**:\n\n" +
+            lines.join("\n");
+        } else {
+          replyMd =
+            "### 🎥 YouTube Video Solutions\n\n" +
+            "Tell me the specific IGCSE Physics topic (e.g. *density, moments, thermal, waves, diffraction, electricity, transformers, half-life, astronomy*) " +
+            "or paper code (e.g. *2023 March P4 V2 Q02*) and I will send you Mr. Haroony's exact YouTube walkthrough links!";
+        }
+        return {
+          ok: true,
+          refused: false,
+          category: "physics",
+          reply: replyMd,
+          notes_cards: strongCards,
+          video_links: vidHits,
+          ocr_text: ocrText || null,
+          engine: "Haroony Video Library (2,085 Solutions)",
+        };
+      }
+
       const solved = solvePhysicsProblem(combined);
       const scoredChunks = searchChunksScored(kb, searchQuery, 3);
       const msTips = searchMsTips(kb, searchQuery, 2);
-      const vids = searchVideos(kb, searchQuery, 2);
+      const vids = searchVideos(kb, searchQuery, 3);
 
       // Only attach visual reference cards if strongly relevant to the question!
       const strongCards = scoredChunks
@@ -1232,11 +1307,11 @@
         .map((x) => x.ch);
 
       let finalReply = null;
-      if (global.HaroonyNeuralAI) {
+      if (global.HaroonyNeuralAI && global.HaroonyNeuralAI.isReady && global.HaroonyNeuralAI.isReady()) {
         try {
           const messages = buildTutorMessages(userMsg, history, solved, scoredChunks, msTips, ocrText);
           finalReply = await global.HaroonyNeuralAI.generate(messages, {
-            maxTokens: 560,
+            maxTokens: 480,
             temperature: 0.2,
             onProgress,
             onToken,
@@ -1317,15 +1392,18 @@
         msObj = (kb.mark_schemes || []).find((m) => m.id === msId) || null;
       } else {
         // Check if student text explicitly names a Harony paper code like "2023 March P4 V2 Q02"
-        const codeMatch = text.match(/\b(20\d{2})\s+(March|June|Nov(?:ember)?)\s+P([24])\s+V(\d)\s+Q?0?(\d+)/i);
+        const codeMatch = text.match(/\b(20\d{2})\s+(Mar(?:ch)?|May|Jun(?:e)?|Nov(?:ember)?)\s+P([24])\s+V(\d)\s+Q?0?(\d+)/i);
         if (codeMatch && kb.mark_schemes) {
+          const mon = codeMatch[2].toLowerCase().startsWith("ma") && codeMatch[2].toLowerCase() !== "march" ? "jun" : codeMatch[2].toLowerCase().slice(0, 3);
           for (const m of kb.mark_schemes) {
             const hit = (m.questions || []).find((q) => {
-              const idLow = q.question_id.toLowerCase();
+              const idLow = (q.question_id || "").toLowerCase();
               return (
                 idLow.includes(codeMatch[1]) &&
-                idLow.includes(codeMatch[2].toLowerCase().slice(0, 3)) &&
-                idLow.includes("q0" + codeMatch[5]) || idLow.includes("q" + codeMatch[5])
+                idLow.includes(mon) &&
+                idLow.includes("p" + codeMatch[3]) &&
+                idLow.includes("v" + codeMatch[4]) &&
+                (idLow.includes("q0" + codeMatch[5]) || idLow.includes("q" + codeMatch[5]))
               );
             });
             if (hit) {
@@ -1358,7 +1436,8 @@
             qs = filtered.length ? filtered.slice(0, 4) : qs.slice(0, 2);
           }
         } else if (qs.length > 1) {
-          const sToks = tokenize(text).filter((w) => !STOPWORDS.has(w) && w.length >= 3);
+          const { questionPart } = splitQuestionAndAnswer(text);
+          const sToks = tokenize(questionPart).filter((w) => !STOPWORDS.has(w) && w.length >= 3);
           const ranked = qs
             .map((q) => {
               const hay = ((q.title || "") + " " + (q.summary_answer || "")).toLowerCase();
@@ -1369,39 +1448,24 @@
           qs = ranked.slice(0, 1).map((x) => x.q);
         }
 
-        const graded = qs.map((q) => gradeAgainstQuestion(q, text));
+        const { answerPart } = splitQuestionAndAnswer(text);
+        const graded = qs.map((q) => gradeAgainstQuestion(q, answerPart));
         const awarded = graded.reduce((a, x) => a + x.awarded_marks, 0);
         const maxM = Math.max(1, graded.reduce((a, x) => a + x.max_marks, 0));
         const pct = Math.round((1000 * awarded) / maxM) / 10;
 
-        // Generate personalized AI Examiner coaching comment when Neural AI is ready!
-        let examinerFeedback = "";
-        if (global.HaroonyNeuralAI) {
-          try {
-            const rubSummary = graded
-              .map((g) => `Q ${g.title} (${g.awarded_marks}/${g.max_marks}): Expected: ${g.model_answer}`)
-              .join("\n");
-            examinerFeedback =
-              (await global.HaroonyNeuralAI.generate(
-                [
-                  {
-                    role: "system",
-                    content:
-                      "You are Mr. Haroony's IGCSE Physics Examiner. Write a concise, encouraging 2-sentence personalized coaching summary explaining why the student earned their score and how to capture any missed mark-scheme keywords.",
-                  },
-                  {
-                    role: "user",
-                    content: `Student Answer:\n${text.slice(0, 800)}\n\nMark Scheme Breakdown:\n${rubSummary}`,
-                  },
-                ],
-                { maxTokens: 160, temperature: 0.2, onProgress }
-              )) || "";
-          } catch (_) {}
+        const seedQuery = graded.map((g) => g.model_answer).join(" ") + " " + text;
+        const lectureChunks = searchChunksScored(
+          { chunks: (kb.chunks || []).filter((c) => c.source === "Harony Notes 2026 Final") },
+          seedQuery,
+          2
+        );
+        const noteRefs = formatNoteRefs(lectureChunks.length ? lectureChunks : searchChunksScored(kb, seedQuery, 2));
+        const relatedVids = searchVideos(kb, seedQuery, 3);
+        for (const gq of graded) {
+          if (!gq.video_url && relatedVids[0]) gq.video_url = relatedVids[0].video_url;
         }
-
-        const refs = searchChunksScored(kb, graded.map((g) => g.model_answer).join(" ") + " " + text, 2)
-          .map((x) => x.ch)
-          .filter((c) => c.image_url);
+        const allPts = graded.flatMap((g) => g.points || []);
 
         return {
           ok: true,
@@ -1411,15 +1475,16 @@
           max_marks: maxM,
           percentage: pct,
           grade: gradeLetter(pct),
-          examiner_feedback: examinerFeedback,
+          examiner_feedback: buildDeterministicFeedback(awarded, maxM, allPts, noteRefs),
           questions: graded,
+          related_videos: relatedVids,
           extracted_student_text: text,
-          notes_references: refs,
+          notes_references: noteRefs,
         };
       }
 
-      // Mode 1: Smart AI Examiner Auto-Check (No Mark Scheme Needed!)
-      return await runNeuralAutoGrade(text, kb, onProgress);
+      // Mode 1: Fast, Deterministic, Real Physics Examiner Auto-Check!
+      return runAutoGradeDeterministic(text, kb);
     },
 
     async searchNotes(q, unit) {

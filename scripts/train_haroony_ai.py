@@ -236,7 +236,7 @@ def export_browser_bundle(
         },
         "chunks": chunks,
         "mark_schemes": ms_data,
-        "videos": videos[:800],
+        "videos": videos,
     }
     (STATIC_DIR / "browser_kb.json").write_text(
         json.dumps(bundle, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
