@@ -85,6 +85,32 @@
     </section>
   </main>
 
+  <!-- YouTube Video Player Modal (works even inside iframes / popup-blocked browsers) -->
+  <div id="videoModal" class="lightbox hidden" role="dialog" aria-modal="true">
+    <div class="lightbox-backdrop" id="videoBackdrop"></div>
+    <div class="video-modal-card">
+      <div class="settings-modal-header">
+        <h3 id="videoModalTitle">Harony Video Solution</h3>
+        <button type="button" id="videoModalClose" class="btn-icon" aria-label="Close">&times;</button>
+      </div>
+      <div class="video-embed-wrap">
+        <iframe
+          id="videoIframe"
+          src=""
+          title="Harony Physics Video Solution"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <div class="video-modal-actions">
+        <button type="button" id="copyVideoLinkBtn" class="btn btn-ghost btn-sm">Copy YouTube Link</button>
+        <a id="openVideoExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+          Open on YouTube &nearr;
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- Zoomable Note Page / Image Lightbox Modal -->
   <div id="lightboxModal" class="lightbox hidden" role="dialog" aria-modal="true">
     <div class="lightbox-backdrop" id="lightboxBackdrop"></div>

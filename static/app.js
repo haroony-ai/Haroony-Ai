@@ -21,6 +21,17 @@
     return String(u).replace(/^\/+static\//, "static/");
   }
 
+  function extractYoutubeId(url) {
+    const s = String(url || "");
+    const m = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : "";
+  }
+
+  function toWatchUrl(url) {
+    const id = extractYoutubeId(url);
+    return id ? `https://www.youtube.com/watch?v=${id}` : String(url || "");
+  }
+
   function renderMarkdown(md) {
     if (!md) return "";
     const lines = String(md).split("\n");
@@ -41,8 +52,11 @@
       out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
       out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
       out = out.replace(
-        /(https:\/\/youtu\.be\/[A-Za-z0-9_\-]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer" class="video-pill-link">🎥 Watch Video</a>'
+        /(https:\/\/(?:youtu\.be\/|www\.youtube\.com\/watch\?v=)[A-Za-z0-9_\-]+)/g,
+        function (m) {
+          const watch = toWatchUrl(m);
+          return `<a href="${watch}" target="_blank" rel="noopener noreferrer" class="video-pill-link" data-video-url="${watch}" data-video-title="Harony Video Solution">🎥 Watch Video</a>`;
+        }
       );
       return out;
     }
@@ -89,10 +103,16 @@
     return html.join("");
   }
 
-  // ==================== LIGHTBOX ====================
+  // ==================== LIGHTBOX & VIDEO PLAYER MODAL ====================
   const lightboxModal = document.getElementById("lightboxModal");
   const lightboxImg = document.getElementById("lightboxImg");
   const lightboxCaption = document.getElementById("lightboxCaption");
+  const videoModal = document.getElementById("videoModal");
+  const videoIframe = document.getElementById("videoIframe");
+  const videoModalTitle = document.getElementById("videoModalTitle");
+  const openVideoExternalLink = document.getElementById("openVideoExternalLink");
+  const copyVideoLinkBtn = document.getElementById("copyVideoLinkBtn");
+  let activeVideoUrl = "";
 
   function openLightbox(src, caption) {
     if (!src) return;
@@ -106,11 +126,46 @@
     lightboxImg.src = "";
   }
 
+  function openVideoModal(url, title) {
+    const watch = toWatchUrl(url);
+    const id = extractYoutubeId(watch);
+    activeVideoUrl = watch;
+    if (videoModalTitle) videoModalTitle.textContent = title || "Harony Video Solution";
+    if (openVideoExternalLink) openVideoExternalLink.href = watch;
+    if (copyVideoLinkBtn) copyVideoLinkBtn.textContent = "Copy YouTube Link";
+    if (videoIframe) {
+      videoIframe.src = id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : watch;
+    }
+    if (videoModal) videoModal.classList.remove("hidden");
+  }
+
+  function closeVideoModal() {
+    if (videoModal) videoModal.classList.add("hidden");
+    if (videoIframe) videoIframe.src = "";
+  }
+
   document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
   document.getElementById("lightboxBackdrop").addEventListener("click", closeLightbox);
+  if (videoModal) {
+    document.getElementById("videoModalClose").addEventListener("click", closeVideoModal);
+    document.getElementById("videoBackdrop").addEventListener("click", closeVideoModal);
+  }
+  if (copyVideoLinkBtn) {
+    copyVideoLinkBtn.addEventListener("click", async function () {
+      if (!activeVideoUrl) return;
+      try {
+        await navigator.clipboard.writeText(activeVideoUrl);
+        copyVideoLinkBtn.textContent = "Copied!";
+      } catch (_) {
+        copyVideoLinkBtn.textContent = activeVideoUrl;
+      }
+    });
+  }
+
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       closeLightbox();
+      closeVideoModal();
     }
   });
 
@@ -118,6 +173,17 @@
     const target = e.target.closest("[data-lightbox]");
     if (target) {
       openLightbox(target.getAttribute("data-lightbox"), target.getAttribute("data-caption") || target.alt || "");
+      return;
+    }
+    const vidLink = e.target.closest("a.video-pill-link");
+    if (vidLink && !vidLink.closest("#videoModal")) {
+      const url = vidLink.getAttribute("data-video-url") || vidLink.getAttribute("href");
+      const title = vidLink.getAttribute("data-video-title") || vidLink.textContent.replace(/^🎥\s*/, "").trim();
+      const inIframe = window.self !== window.top;
+      if (inIframe) {
+        e.preventDefault();
+        openVideoModal(url, title);
+      }
     }
   });
 
@@ -358,12 +424,13 @@
           videosHtml = `
             <div class="video-pills">
               ${vids
-                .map(
-                  (v) =>
-                    `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
-                      🎥 Video Solution: ${escapeHtml((v.label || v.chapter || "Watch").slice(0, 56))}
-                    </a>`
-                )
+                .map((v) => {
+                  const watch = toWatchUrl(v.video_url);
+                  const lbl = (v.label || v.chapter || "Watch").slice(0, 56);
+                  return `<a href="${escapeHtml(watch)}" target="_blank" rel="noopener noreferrer" class="video-pill-link" data-video-url="${escapeHtml(watch)}" data-video-title="${escapeHtml(lbl)}">
+                      🎥 Video Solution: ${escapeHtml(lbl)}
+                    </a>`;
+                })
                 .join("")}
             </div>`;
         }
