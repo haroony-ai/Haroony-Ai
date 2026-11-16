@@ -60,6 +60,14 @@ async def index_page() -> FileResponse:
     return FileResponse(str(STATIC_DIR / "index.html"))
 
 
+@app.get("/favicon.ico")
+async def favicon_ico() -> FileResponse:
+    fav = ROOT_DIR / "favicon.ico"
+    if fav.exists():
+        return FileResponse(str(fav), media_type="image/x-icon")
+    return FileResponse(str(STATIC_DIR / "assets" / "favicon-64.png"), media_type="image/png")
+
+
 @app.get("/api/status")
 async def api_status() -> Dict[str, Any]:
     metrics = {}

@@ -192,9 +192,14 @@ class HaroonyTutorEngine:
                 "formulas": nh.get("formulas", []),
                 "image_url": nh.get("image_url"),
                 "snippet": (nh.get("text") or "")[:280],
+                "score": nh.get("score", 0.0),
             }
             for nh in note_hits
+            if nh.get("score", 0.0) >= 0.22
         ]
+
+        rag_context_str = "\n\n".join(ctx_parts)
+        solved_md_str = solved.to_markdown() if solved else None
 
         if neural_reply:
             return {
@@ -205,6 +210,9 @@ class HaroonyTutorEngine:
                 "notes_cards": notes_cards,
                 "video_links": vid_hits,
                 "ocr_text": ocr_text,
+                "rag_context": rag_context_str,
+                "solved_markdown": solved_md_str,
+                "neural_generated": True,
                 "engine": "Haroony AI (Neural + Harony 2026/2027 RAG)",
             }
 
@@ -285,6 +293,9 @@ class HaroonyTutorEngine:
             "notes_cards": notes_cards,
             "video_links": vid_hits,
             "ocr_text": ocr_text,
+            "rag_context": rag_context_str,
+            "solved_markdown": solved_md_str,
+            "neural_generated": False,
             "engine": "Haroony Physics AI (Harony 2026/2027 Books)",
         }
 

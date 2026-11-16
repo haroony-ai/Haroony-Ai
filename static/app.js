@@ -1,15 +1,16 @@
-/* Haroony AI — Minimal, Smooth Dual-Mode Frontend (Server API + Static Browser Engine) */
+/* Haroony AI — Smart Dual-Mode Frontend (Neural LLM + Symbolic Solver + Harony 2026/2027 RAG) */
 (function () {
   "use strict";
 
   const MIN_THINK_MS = 2200; // Minimum 2.2s smooth thinking animation
+  const AI_AVATAR = "static/assets/harony_avatar.webp";
 
   let serverAvailable = null;
   let chatHistory = [];
   let chatAttachedFile = null;
   let graderStudentFiles = [];
   let graderMsFile = null;
-  let activeMsMode = "library";
+  let activeMsMode = "auto";
 
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -70,17 +71,23 @@
         html.push("<h3>" + inlineFormat(t.slice(4)) + "</h3>");
         continue;
       }
+      if (t.startsWith("## ")) {
+        closeList();
+        html.push("<h3>" + inlineFormat(t.slice(3)) + "</h3>");
+        continue;
+      }
       if (t.startsWith("> ")) {
         closeList();
         html.push("<blockquote>" + inlineFormat(t.slice(2)) + "</blockquote>");
         continue;
       }
-      if (t.startsWith("- ") || t.startsWith("* ")) {
+      if (t.startsWith("- ") || t.startsWith("* ") || /^\d+\.\s+/.test(t)) {
         if (!inList) {
           html.push("<ul>");
           inList = true;
         }
-        html.push("<li>" + inlineFormat(t.slice(2)) + "</li>");
+        const itemTxt = t.replace(/^([-*]|\d+\.)\s+/, "");
+        html.push("<li>" + inlineFormat(itemTxt) + "</li>");
         continue;
       }
       closeList();
@@ -190,7 +197,6 @@
   const chatFileInput = document.getElementById("chatFileInput");
   const chatAttachmentBar = document.getElementById("chatAttachmentBar");
   const chatAttachmentName = document.getElementById("chatAttachmentName");
-  const starterChips = document.getElementById("starterChips");
 
   function autoResizeChatInput() {
     chatInput.style.height = "auto";
@@ -214,24 +220,15 @@
 
   document.getElementById("clearChatBtn").addEventListener("click", function () {
     chatHistory = [];
-    starterChips.classList.remove("hidden");
     chatMessages.innerHTML = `
       <div class="msg msg-ai">
-        <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
+        <img src="${AI_AVATAR}" alt="Harony Physics Clinic" class="msg-avatar" />
         <div class="msg-bubble">
           <div class="msg-content">
-            <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want solved step-by-step.</p>
+            <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want explained step-by-step.</p>
           </div>
         </div>
       </div>`;
-  });
-
-  starterChips.addEventListener("click", function (e) {
-    const chip = e.target.closest(".chip");
-    if (!chip) return;
-    chatInput.value = chip.dataset.prompt || "";
-    autoResizeChatInput();
-    chatForm.requestSubmit();
   });
 
   chatInput.addEventListener("keydown", function (e) {
@@ -246,7 +243,6 @@
   }
 
   function appendUserMessage(text, fileObj) {
-    starterChips.classList.add("hidden");
     const div = document.createElement("div");
     div.className = "msg msg-user";
     let imgPreviewHtml = "";
@@ -268,13 +264,13 @@
     scrollChatToBottom();
   }
 
-  function createThinkingBubble(hasFile) {
+  function createLiveAiBubble(hasFile) {
+    const startTs = Date.now();
     const div = document.createElement("div");
     div.className = "msg msg-ai";
     const step1 = hasFile ? "Reading your attached file…" : "Thinking through the physics…";
-    const step2 = "Checking formulas & notes…";
     div.innerHTML = `
-      <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
+      <img src="${AI_AVATAR}" alt="Harony Physics Clinic" class="msg-avatar" />
       <div class="msg-bubble">
         <div class="thinking-box">
           <div class="thinking-dots" aria-hidden="true">
@@ -282,78 +278,136 @@
           </div>
           <span class="thinking-text">${step1}</span>
         </div>
+        <div class="msg-content hidden"></div>
+        <div class="msg-extras"></div>
       </div>`;
     chatMessages.appendChild(div);
     scrollChatToBottom();
 
+    const thinkingBox = div.querySelector(".thinking-box");
     const textEl = div.querySelector(".thinking-text");
+    const contentEl = div.querySelector(".msg-content");
+    const extrasEl = div.querySelector(".msg-extras");
+    let customStatusShown = false;
+
     const timer = setTimeout(() => {
-      if (textEl && div.isConnected) {
-        textEl.textContent = step2;
+      if (textEl && div.isConnected && !customStatusShown) {
+        textEl.textContent = "Checking formulas & physics concepts…";
       }
     }, 1050);
 
     return {
-      remove() {
+      setStatus(msg) {
+        if (!msg || !textEl || !div.isConnected) return;
+        customStatusShown = true;
+        textEl.textContent = msg;
+      },
+      streamPreview(partialMd) {
+        if (!div.isConnected) return;
+        // Wait until minimum smooth thinking window has elapsed before revealing streaming text
+        if (Date.now() - startTs < MIN_THINK_MS) return;
+        if (!thinkingBox.classList.contains("hidden")) {
+          thinkingBox.classList.add("hidden");
+          contentEl.classList.remove("hidden");
+        }
+        contentEl.innerHTML = renderMarkdown(partialMd);
+        scrollChatToBottom();
+      },
+      finalize(res) {
         clearTimeout(timer);
-        if (div.isConnected) div.remove();
+        if (!div.isConnected) return;
+        if (res.refused) div.classList.add("msg-refused");
+        thinkingBox.classList.add("hidden");
+        contentEl.classList.remove("hidden");
+        contentEl.innerHTML = renderMarkdown(res.reply);
+
+        let videosHtml = "";
+        const vids = res.video_links || [];
+        if (!res.refused && vids.length > 0) {
+          videosHtml = `
+            <div class="video-pills">
+              ${vids
+                .map(
+                  (v) =>
+                    `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
+                      🎥 Video Solution: ${escapeHtml((v.label || v.chapter || "Watch").slice(0, 48))}
+                    </a>`
+                )
+                .join("")}
+            </div>`;
+        }
+
+        let cardsHtml = "";
+        const cardsWithImages = (res.notes_cards || []).filter((c) => c.image_url);
+        if (!res.refused && cardsWithImages.length > 0) {
+          const items = cardsWithImages
+            .slice(0, 2)
+            .map((c) => {
+              const imgUrl = normalizeAssetUrl(c.image_url);
+              return `
+                <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${c.page || ""} — ${escapeHtml(c.topic)}">
+                  <img src="${escapeHtml(imgUrl)}" alt="Notes Page ${c.page || ""}" loading="lazy" />
+                  <div class="mini-note-card-body">
+                    <strong>Page ${c.page || ""} &bull; ${escapeHtml(c.topic)}</strong>
+                    <span>Click to zoom</span>
+                  </div>
+                </div>`;
+            })
+            .join("");
+          cardsHtml = `
+            <div class="msg-notes-strip">
+              <div class="msg-notes-label">Related Notes</div>
+              <div class="msg-notes-cards">${items}</div>
+            </div>`;
+        }
+
+        extrasEl.innerHTML = videosHtml + cardsHtml;
+        scrollChatToBottom();
       },
     };
   }
 
-  function appendAiMessage(res) {
-    const div = document.createElement("div");
-    div.className = "msg msg-ai" + (res.refused ? " msg-refused" : "");
+  async function enhanceServerReplyWithNeural(userText, data, liveBubble) {
+    if (!window.HaroonyNeuralAI) return data;
+    if (data.refused || data.category !== "physics" || data.neural_generated) return data;
+    try {
+      const sysPrompt =
+        "You are Haroony AI, Mr. Haroony's expert, friendly IGCSE & A-Level Physics tutor from Harony Physics Clinic.\n" +
+        "STRICT RULES:\n" +
+        "1. Answer ONLY Physics questions. Answer the student's EXACT question directly, naturally, and clearly in your own words.\n" +
+        "2. NEVER copy-paste raw PDF slide lines or answer an unrelated question.\n" +
+        "3. If an exact symbolic calculation is provided in context, keep its exact formula, SI values, substitution, and final answer.\n" +
+        "4. Bold key Cambridge IGCSE 0625 marking phrases.";
 
-    let videosHtml = "";
-    const vids = res.video_links || [];
-    if (!res.refused && vids.length > 0) {
-      videosHtml = `
-        <div class="video-pills">
-          ${vids
-            .map(
-              (v) =>
-                `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
-                  🎥 Video Solution: ${escapeHtml((v.label || v.chapter || "Watch").slice(0, 48))}
-                </a>`
-            )
-            .join("")}
-        </div>`;
-    }
+      const msgs = [{ role: "system", content: sysPrompt }];
+      for (const h of chatHistory.slice(-4)) {
+        msgs.push({ role: h.role, content: String(h.content).slice(0, 700) });
+      }
+      let usr = userText || "Please solve/explain this uploaded Physics problem.";
+      if (data.ocr_text) {
+        usr += `\n\nExtracted text from uploaded image/PDF:\n${data.ocr_text.slice(0, 1400)}`;
+      }
+      if (data.rag_context) {
+        usr += `\n\n---\nReference Context (use only what directly helps answer the student's question):\n${data.rag_context.slice(0, 1800)}`;
+      }
+      msgs.push({ role: "user", content: usr });
 
-    let cardsHtml = "";
-    const cardsWithImages = (res.notes_cards || []).filter((c) => c.image_url);
-    if (!res.refused && cardsWithImages.length > 0) {
-      const items = cardsWithImages
-        .slice(0, 2)
-        .map((c) => {
-          const imgUrl = normalizeAssetUrl(c.image_url);
-          return `
-            <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${c.page || ""} — ${escapeHtml(c.topic)}">
-              <img src="${escapeHtml(imgUrl)}" alt="Notes Page ${c.page || ""}" loading="lazy" />
-              <div class="mini-note-card-body">
-                <strong>Page ${c.page || ""} &bull; ${escapeHtml(c.topic)}</strong>
-                <span>Click to zoom</span>
-              </div>
-            </div>`;
-        })
-        .join("");
-      cardsHtml = `
-        <div class="msg-notes-strip">
-          <div class="msg-notes-label">Related Notes</div>
-          <div class="msg-notes-cards">${items}</div>
-        </div>`;
-    }
-
-    div.innerHTML = `
-      <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
-      <div class="msg-bubble">
-        <div class="msg-content">${renderMarkdown(res.reply)}</div>
-        ${videosHtml}
-        ${cardsHtml}
-      </div>`;
-    chatMessages.appendChild(div);
-    scrollChatToBottom();
+      const genText = await window.HaroonyNeuralAI.generate(msgs, {
+        maxTokens: 560,
+        temperature: 0.2,
+        onProgress: (st) => liveBubble.setStatus(st),
+        onToken: (full) => liveBubble.streamPreview(full),
+      });
+      if (genText) {
+        let finalMd = genText;
+        if (data.ocr_text && !finalMd.includes("Read from")) {
+          const prev = data.ocr_text.slice(0, 240) + (data.ocr_text.length > 240 ? "…" : "");
+          finalMd = `**📷 Read from your uploaded file:**\n> ${prev.replace(/\n/g, "\n> ")}\n\n${finalMd}`;
+        }
+        data.reply = finalMd;
+      }
+    } catch (_) {}
+    return data;
   }
 
   chatForm.addEventListener("submit", async function (e) {
@@ -370,44 +424,53 @@
     chatAttachmentBar.classList.add("hidden");
 
     chatSendBtn.disabled = true;
-    const thinking = createThinkingBubble(Boolean(fileToSend));
+    const liveBubble = createLiveAiBubble(Boolean(fileToSend));
+    const minWait = sleep(MIN_THINK_MS);
 
     try {
       if (serverAvailable === null) await loadSystemStatus();
 
-      const workPromise = (async () => {
-        if (serverAvailable) {
-          const fd = new FormData();
-          fd.append("message", text);
-          fd.append("history", JSON.stringify(chatHistory.slice(-6)));
-          if (fileToSend) fd.append("file", fileToSend);
+      let data;
+      if (serverAvailable) {
+        const fd = new FormData();
+        fd.append("message", text);
+        fd.append("history", JSON.stringify(chatHistory.slice(-6)));
+        if (fileToSend) fd.append("file", fileToSend);
 
-          const resp = await fetch("api/chat", { method: "POST", body: fd });
-          const data = await resp.json();
-          if (!resp.ok) {
-            return {
-              refused: true,
-              reply: data.detail || "Something went wrong. Please try again.",
-              notes_cards: [],
-            };
-          }
-          return data;
+        const resp = await fetch("api/chat", { method: "POST", body: fd });
+        const raw = await resp.json();
+        if (!resp.ok) {
+          data = {
+            refused: true,
+            reply: raw.detail || "Something went wrong. Please try again.",
+            notes_cards: [],
+          };
+        } else {
+          data = await enhanceServerReplyWithNeural(text, raw, liveBubble);
         }
-        return window.HaroonyBrowserEngine.chat(text, chatHistory.slice(-6), fileToSend);
-      })();
+      } else {
+        data = await window.HaroonyBrowserEngine.chat(
+          text,
+          chatHistory.slice(-6),
+          fileToSend,
+          {
+            onProgress: (st) => liveBubble.setStatus(st),
+            onToken: (full) => liveBubble.streamPreview(full),
+          }
+        );
+      }
 
-      // Run AI calculation/retrieval in parallel with smooth >= 2.2s thinking animation
-      const [data] = await Promise.all([workPromise, sleep(MIN_THINK_MS)]);
-      thinking.remove();
-      appendAiMessage(data);
+      await minWait;
+      liveBubble.finalize(data);
 
       if (!data.refused) {
-        chatHistory.push({ role: "user", content: text || "[Uploaded Physics file]" });
+        const userHist = data.ocr_text ? `${text}\n[Uploaded: ${data.ocr_text.slice(0, 300)}]`.trim() : text || "[Uploaded Physics file]";
+        chatHistory.push({ role: "user", content: userHist });
         chatHistory.push({ role: "assistant", content: data.reply });
       }
     } catch (err) {
-      thinking.remove();
-      appendAiMessage({
+      await minWait;
+      liveBubble.finalize({
         refused: true,
         reply: "Could not process your question right now. Please try again.",
         notes_cards: [],
@@ -481,7 +544,7 @@
     btn.addEventListener("click", function () {
       activeMsMode = btn.dataset.msMode;
       document.querySelectorAll(".ms-mode-btn").forEach((b) => b.classList.toggle("active", b === btn));
-      ["library", "upload", "paste", "auto"].forEach((m) => {
+      ["auto", "library", "upload", "paste"].forEach((m) => {
         document.getElementById("ms-pane-" + m).classList.toggle("hidden", m !== activeMsMode);
       });
     });
@@ -496,7 +559,7 @@
           <div class="thinking-dots" aria-hidden="true">
             <span></span><span></span><span></span>
           </div>
-          <span class="thinking-text" id="gradeLoaderText">Reading your answer…</span>
+          <span class="thinking-text" id="gradeLoaderText">Reading your Physics work…</span>
         </div>
         <div class="loader-bar-track">
           <div class="loader-bar-fill"></div>
@@ -504,10 +567,20 @@
       </div>`;
     area.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-    return setTimeout(() => {
+    const timer = setTimeout(() => {
       const el = document.getElementById("gradeLoaderText");
-      if (el) el.textContent = "Checking against Mark Scheme criteria…";
+      if (el) el.textContent = "Evaluating physics steps & marking criteria…";
     }, 1050);
+
+    return {
+      setStatus(msg) {
+        const el = document.getElementById("gradeLoaderText");
+        if (el && msg) el.textContent = msg;
+      },
+      stop() {
+        clearTimeout(timer);
+      },
+    };
   }
 
   function renderGradeReport(res) {
@@ -523,6 +596,10 @@
       area.scrollIntoView({ behavior: "smooth", block: "nearest" });
       return;
     }
+
+    const feedbackHtml = res.examiner_feedback
+      ? `<div class="examiner-feedback-card"><strong>AI Examiner Feedback:</strong> ${renderMarkdown(res.examiner_feedback)}</div>`
+      : "";
 
     const questionsHtml = (res.questions || [])
       .map((q) => {
@@ -544,9 +621,13 @@
               <span class="q-score-pill">${q.awarded_marks} / ${q.max_marks} marks</span>
             </div>
             ${rows}
-            <div style="margin-top:10px;font-size:0.83rem;color:#64748b;">
-              <strong>Model Key:</strong> <code>${escapeHtml(q.model_answer)}</code>
-            </div>
+            ${
+              q.model_answer
+                ? `<div style="margin-top:10px;font-size:0.84rem;color:#475569;">
+                    <strong>Model Answer:</strong> <code>${escapeHtml(q.model_answer)}</code>
+                   </div>`
+                : ""
+            }
             ${vidBtn ? `<div class="video-pills">${vidBtn}</div>` : ""}
           </div>`;
       })
@@ -591,6 +672,7 @@
         </div>
       </div>
 
+      ${feedbackHtml}
       ${questionsHtml}
 
       <details class="ocr-details">
@@ -609,9 +691,10 @@
     btn.disabled = true;
     btn.textContent = "Checking…";
 
-    const loaderTimer = showGradingLoader();
+    const loader = showGradingLoader();
+    const minWait = sleep(MIN_THINK_MS);
 
-    const stuText = document.getElementById("studentTextInput").value.trim();
+    let stuText = document.getElementById("studentTextInput").value.trim();
     const msId = activeMsMode === "library" ? document.getElementById("msLibrarySelect").value : "";
     const qId =
       activeMsMode === "library"
@@ -624,36 +707,87 @@
     try {
       if (serverAvailable === null) await loadSystemStatus();
 
-      const gradePromise = (async () => {
-        if (serverAvailable) {
+      let data;
+      if (serverAvailable && activeMsMode !== "auto") {
+        const fd = new FormData();
+        fd.append("student_text", stuText);
+        graderStudentFiles.forEach((f) => fd.append("student_files", f));
+        if (activeMsMode === "library") {
+          fd.append("ms_id", msId);
+          fd.append("question_id", qId);
+        } else if (activeMsMode === "upload") {
+          if (graderMsFile) fd.append("ms_file", graderMsFile);
+          fd.append("question_id", qId);
+        } else if (activeMsMode === "paste") {
+          fd.append("ms_text", msText);
+        }
+        const resp = await fetch("api/grade", { method: "POST", body: fd });
+        data = await resp.json();
+
+        // Add personalized neural examiner summary on top of exact MS grading
+        if (data && data.ok && !data.examiner_feedback && window.HaroonyNeuralAI) {
+          try {
+            const rub = (data.questions || [])
+              .map((q) => `${q.title} (${q.awarded_marks}/${q.max_marks}): ${q.model_answer}`)
+              .join("\n");
+            data.examiner_feedback =
+              (await window.HaroonyNeuralAI.generate(
+                [
+                  {
+                    role: "system",
+                    content:
+                      "You are Mr. Haroony's IGCSE Physics Examiner. Write a concise, helpful 2-sentence feedback summary explaining why the student earned their score and how to capture any missed mark-scheme points.",
+                  },
+                  {
+                    role: "user",
+                    content: `Student Answer:\n${(data.extracted_student_text || stuText).slice(0, 800)}\n\nMark Scheme Breakdown:\n${rub}`,
+                  },
+                ],
+                { maxTokens: 150, temperature: 0.2, onProgress: (st) => loader.setStatus(st) }
+              )) || "";
+          } catch (_) {}
+        }
+      } else {
+        // If server is available in Auto Mode and student uploaded files, let server RapidOCR extract text fast first!
+        if (serverAvailable && graderStudentFiles.length > 0) {
           const fd = new FormData();
           fd.append("student_text", stuText);
           graderStudentFiles.forEach((f) => fd.append("student_files", f));
-          if (activeMsMode === "library") {
-            fd.append("ms_id", msId);
-            fd.append("question_id", qId);
-          } else if (activeMsMode === "upload") {
-            if (graderMsFile) fd.append("ms_file", graderMsFile);
-            fd.append("question_id", qId);
-          } else if (activeMsMode === "paste") {
-            fd.append("ms_text", msText);
-          }
           const resp = await fetch("api/grade", { method: "POST", body: fd });
-          return resp.json();
+          const srvRes = await resp.json();
+          if (srvRes && srvRes.refused) {
+            data = srvRes;
+          } else if (srvRes && srvRes.extracted_student_text) {
+            stuText = srvRes.extracted_student_text;
+          }
+        } else if (!serverAvailable && graderStudentFiles.length > 0 && window.HaroonyNeuralAI) {
+          const extractedParts = [stuText];
+          for (const f of graderStudentFiles) {
+            const txt = await window.HaroonyNeuralAI.extractDocumentText(f, (st) => loader.setStatus(st));
+            if (txt) extractedParts.push(txt);
+          }
+          stuText = extractedParts.filter(Boolean).join("\n\n");
         }
-        return window.HaroonyBrowserEngine.grade({
-          studentText: stuText,
-          msId: msId,
-          msText: msText,
-          questionId: qId,
-        });
-      })();
 
-      const [data] = await Promise.all([gradePromise, sleep(MIN_THINK_MS)]);
-      clearTimeout(loaderTimer);
+        if (!data) {
+          data = await window.HaroonyBrowserEngine.grade({
+            studentText: stuText,
+            studentFile: null, // already extracted above if multiple files
+            msId: msId,
+            msText: msText,
+            msFile: activeMsMode === "upload" ? graderMsFile : null,
+            questionId: qId,
+            onProgress: (st) => loader.setStatus(st),
+          });
+        }
+      }
+
+      await minWait;
+      loader.stop();
       renderGradeReport(data);
     } catch (err) {
-      clearTimeout(loaderTimer);
+      await minWait;
+      loader.stop();
       renderGradeReport({ ok: false, error: "Error checking submission. Please try again." });
     } finally {
       btn.disabled = false;

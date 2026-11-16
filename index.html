@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Haroony AI</title>
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="static/assets/favicon-64.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="static/assets/favicon-192.png" />
   <link rel="stylesheet" href="static/styles.css" />
 </head>
 <body>
@@ -12,7 +15,6 @@
     <div class="topbar-inner">
       <div class="brand" id="brandHome" title="Haroony AI">
         <img src="static/assets/harony_logo.webp" alt="Harony Physics Clinic" class="brand-logo" />
-        <span class="brand-name">Haroony AI</span>
       </div>
 
       <nav class="nav-tabs" role="tablist" aria-label="Modes">
@@ -32,9 +34,9 @@
       <div class="chat-card">
         <div class="chat-header">
           <div class="chat-header-left">
-            <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="mascot-avatar" />
+            <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="mascot-avatar" />
             <div>
-              <h2>Physics Tutor</h2>
+              <h2>Haroony AI</h2>
               <p>Ask any Physics question or attach a photo/PDF</p>
             </div>
           </div>
@@ -44,26 +46,13 @@
         <!-- Messages Stream -->
         <div class="chat-messages" id="chatMessages">
           <div class="msg msg-ai">
-            <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
+            <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="msg-avatar" />
             <div class="msg-bubble">
               <div class="msg-content">
-                <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want solved step-by-step.</p>
+                <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want explained step-by-step.</p>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Quiet Quick Starters (auto-hide once chatting) -->
-        <div class="starter-chips" id="starterChips">
-          <button type="button" class="chip" data-prompt="A small aircraft of mass 820 kg travels at a constant speed of 60 m/s. Calculate its kinetic energy.">
-            Calculate kinetic energy
-          </button>
-          <button type="button" class="chip" data-prompt="Explain how a split-ring commutator works in a D.C. motor.">
-            How a D.C. motor works
-          </button>
-          <button type="button" class="chip" data-prompt="Why does a transformer require alternating current (a.c.) instead of direct current (d.c.)?">
-            Why transformers need A.C.
-          </button>
         </div>
 
         <!-- Attachment Preview Bar -->
@@ -103,9 +92,9 @@
         <div class="panel-card">
           <div class="panel-card-header">
             <span class="step-pill">1</span>
-            <h3>Your Answer</h3>
+            <h3>Your Physics Work</h3>
           </div>
-          <p class="panel-help">Upload a photo/PDF of your handwritten work or type your answer below.</p>
+          <p class="panel-help">Upload a photo/PDF of your solved work or type the question &amp; your answer below.</p>
 
           <label for="studentFilesInput" class="dropzone" id="studentDropzone">
             <div class="dropzone-icon">📷</div>
@@ -116,11 +105,11 @@
           <div id="studentFilesList" class="file-pills"></div>
 
           <div class="field-group">
-            <label for="studentTextInput">Or type your working &amp; answer</label>
+            <label for="studentTextInput">Or type the question &amp; your answer</label>
             <textarea
               id="studentTextInput"
               rows="5"
-              placeholder="Write your formula, working, and final answer here..."
+              placeholder="Include the Physics question and write your formula, working, and final answer..."
             ></textarea>
           </div>
         </div>
@@ -129,21 +118,28 @@
         <div class="panel-card">
           <div class="panel-card-header">
             <span class="step-pill">2</span>
-            <h3>Mark Scheme</h3>
+            <h3>Correction Mode</h3>
           </div>
-          <p class="panel-help">Select a Mark Scheme, upload one, paste criteria, or use Auto Check.</p>
+          <p class="panel-help">Let AI grade automatically, pick a Harony Mark Scheme, or upload your own MS.</p>
 
           <div class="ms-mode-switcher" role="radiogroup" aria-label="Mark Scheme Source">
-            <button type="button" class="ms-mode-btn active" data-ms-mode="library">Saved MS</button>
+            <button type="button" class="ms-mode-btn active" data-ms-mode="auto">AI Auto Check</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="library">Harony MS</button>
             <button type="button" class="ms-mode-btn" data-ms-mode="upload">Upload MS</button>
             <button type="button" class="ms-mode-btn" data-ms-mode="paste">Paste MS</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="auto">Auto Check</button>
           </div>
 
-          <!-- Submode A: Saved Library MS -->
-          <div id="ms-pane-library" class="ms-pane">
+          <!-- Submode A: Auto Check (Default) -->
+          <div id="ms-pane-auto" class="ms-pane">
+            <div class="info-callout">
+              <strong>Smart AI Physics Examiner:</strong> Include the question with your answer (typed or photo/PDF) — Haroony AI solves it, checks your formulas, units, and physics reasoning, and gives full feedback.
+            </div>
+          </div>
+
+          <!-- Submode B: Saved Library MS -->
+          <div id="ms-pane-library" class="ms-pane hidden">
             <div class="field-group">
-              <label for="msLibrarySelect">Mark Scheme book</label>
+              <label for="msLibrarySelect">Harony Mark Scheme book</label>
               <select id="msLibrarySelect"></select>
             </div>
             <div class="field-group">
@@ -156,7 +152,7 @@
             </div>
           </div>
 
-          <!-- Submode B: Upload MS PDF / Photo -->
+          <!-- Submode C: Upload MS PDF / Photo -->
           <div id="ms-pane-upload" class="ms-pane hidden">
             <label for="msFileInput" class="dropzone dropzone-compact">
               <div class="dropzone-icon">📄</div>
@@ -171,7 +167,7 @@
             </div>
           </div>
 
-          <!-- Submode C: Paste MS Text -->
+          <!-- Submode D: Paste MS Text -->
           <div id="ms-pane-paste" class="ms-pane hidden">
             <div class="field-group">
               <label for="msTextInput">Paste Mark Scheme points</label>
@@ -180,13 +176,6 @@
                 rows="5"
                 placeholder="e.g.&#10;1(a) nuclear fusion B1&#10;hydrogen nuclei join to form helium B1"
               ></textarea>
-            </div>
-          </div>
-
-          <!-- Submode D: Auto Check (No MS) -->
-          <div id="ms-pane-auto" class="ms-pane hidden">
-            <div class="info-callout">
-              Include the Physics question with your answer — Haroony AI will solve it step-by-step and check your formula, working, and units automatically.
             </div>
           </div>
 
@@ -211,6 +200,7 @@
     </div>
   </div>
 
+  <script src="static/neural_client.js"></script>
   <script src="static/browser_engine.js"></script>
   <script src="static/app.js"></script>
 </body>

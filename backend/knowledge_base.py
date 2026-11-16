@@ -142,7 +142,18 @@ class HaronyKnowledgeBase:
             return []
 
         expanded = self.expand_query(query)
-        q_tfidf = self.tfidf.transform([expanded])
+        # Strip generic question verbs so words like "explain" or "calculate" never match unrelated slides
+        generic_verbs = {
+            "what", "how", "why", "the", "and", "for", "with", "from", "that", "this",
+            "explain", "calculate", "define", "state", "describe", "find", "show",
+            "give", "tell", "does", "when", "where", "which", "would", "could", "please",
+        }
+        q_tokens = {t for t in re.findall(r"[a-z0-9]{3,}", query.lower()) if t not in generic_verbs}
+        cleaned_expanded = " ".join(w for w in expanded.split() if re.sub(r"[^a-z0-9]", "", w.lower()) not in generic_verbs).strip()
+        if not cleaned_expanded:
+            cleaned_expanded = expanded
+
+        q_tfidf = self.tfidf.transform([cleaned_expanded])
         lex_scores = cosine_similarity(q_tfidf, self.tfidf_matrix)[0]
 
         if self.svd is not None and self.svd_matrix is not None:
@@ -151,31 +162,31 @@ class HaronyKnowledgeBase:
             if norm > 1e-9:
                 q_svd = q_svd / norm
             sem_scores = (self.svd_matrix @ q_svd[0])
-            combined = 0.68 * lex_scores + 0.32 * np.clip(sem_scores, 0.0, 1.0)
+            # Only allow semantic SVD boost when there is at least some lexical signal
+            combined = 0.70 * lex_scores + 0.30 * np.where(lex_scores > 0.025, np.clip(sem_scores, 0.0, 1.0), 0.0)
         else:
             combined = lex_scores
 
         # Topic exact-word bonus
-        q_tokens = {t for t in re.findall(r"[a-z0-9]{3,}", query.lower()) if t not in {"what", "how", "why", "the", "and", "for", "explain", "calculate", "define", "state"}}
         for i, ch in enumerate(self.chunks):
             topic_low = (ch.get("topic", "") + " " + ch.get("unit", "")).lower()
             overlap = sum(1 for tok in q_tokens if tok in topic_low)
             if overlap:
                 combined[i] += 0.09 * min(overlap, 3)
 
-        # Prefer Harony Notes 2026 slides slightly over dense MS lists when conceptual query
+        # Prefer Harony Notes 2026 slides slightly over dense MS lists ONLY when already relevant
         is_paper_code_query = bool(re.search(r"\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+", query.lower()))
         for i, ch in enumerate(self.chunks):
             src = ch.get("source", "")
-            if not is_paper_code_query and src == "Harony Notes 2026 Final":
-                combined[i] += 0.05
+            if not is_paper_code_query and src == "Harony Notes 2026 Final" and combined[i] >= 0.12:
+                combined[i] += 0.04
 
         ranked_idx = np.argsort(combined)[::-1][: top_k * 3]
         results: List[Dict[str, Any]] = []
         seen_pages = set()
         for idx in ranked_idx:
             score = float(combined[idx])
-            if score < 0.04:
+            if score < 0.16:
                 continue
             ch = dict(self.chunks[int(idx)])
             pg_key = (ch.get("source"), ch.get("page"), ch.get("id"))
