@@ -89,11 +89,10 @@
     return html.join("");
   }
 
-  // ==================== LIGHTBOX & MODALS ====================
+  // ==================== LIGHTBOX ====================
   const lightboxModal = document.getElementById("lightboxModal");
   const lightboxImg = document.getElementById("lightboxImg");
   const lightboxCaption = document.getElementById("lightboxCaption");
-  const aiSettingsModal = document.getElementById("aiSettingsModal");
 
   function openLightbox(src, caption) {
     if (!src) return;
@@ -107,16 +106,11 @@
     lightboxImg.src = "";
   }
 
-  function closeSettingsModal() {
-    if (aiSettingsModal) aiSettingsModal.classList.add("hidden");
-  }
-
   document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
   document.getElementById("lightboxBackdrop").addEventListener("click", closeLightbox);
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       closeLightbox();
-      closeSettingsModal();
     }
   });
 
@@ -127,118 +121,29 @@
     }
   });
 
-  // ==================== AI ENGINE SETTINGS MODAL ====================
-  const aiSettingsBtn = document.getElementById("aiSettingsBtn");
-  const webgpuStatusText = document.getElementById("webgpuStatusText");
-  const enableWebgpuBtn = document.getElementById("enableWebgpuBtn");
-  const customBaseUrl = document.getElementById("customBaseUrl");
-  const customModelName = document.getElementById("customModelName");
-  const customApiKey = document.getElementById("customApiKey");
-
-  function refreshSettingsModalState() {
-    if (!window.HaroonyNeuralAI) return;
-    const cfg = window.HaroonyNeuralAI.getCustomConfig();
-    if (customBaseUrl) customBaseUrl.value = cfg.baseUrl || "";
-    if (customModelName) customModelName.value = cfg.model || "";
-    if (customApiKey) customApiKey.value = cfg.apiKey || "";
-    const status = window.HaroonyNeuralAI.getStatus ? window.HaroonyNeuralAI.getStatus() : {};
-    if (webgpuStatusText) {
-      if (status.webgpuReady) {
-        webgpuStatusText.textContent = "Status: WebGPU Neural AI active";
-      } else if (status.webgpuSupported) {
-        webgpuStatusText.textContent = "Status: WebGPU supported (click to load on demand)";
-      } else {
-        webgpuStatusText.textContent = "Status: WebGPU not detected in this browser";
-      }
-    }
-    if (enableWebgpuBtn) {
-      enableWebgpuBtn.disabled = Boolean(status.webgpuReady || !status.webgpuSupported);
-      if (status.webgpuReady) enableWebgpuBtn.textContent = "Loaded";
-    }
-  }
-
-  if (aiSettingsBtn && aiSettingsModal) {
-    aiSettingsBtn.addEventListener("click", function () {
-      refreshSettingsModalState();
-      aiSettingsModal.classList.remove("hidden");
-    });
-    document.getElementById("aiSettingsClose").addEventListener("click", closeSettingsModal);
-    document.getElementById("aiSettingsBackdrop").addEventListener("click", closeSettingsModal);
-  }
-
-  if (enableWebgpuBtn) {
-    enableWebgpuBtn.addEventListener("click", async function () {
-      if (!window.HaroonyNeuralAI) return;
-      enableWebgpuBtn.disabled = true;
-      enableWebgpuBtn.textContent = "Loading…";
-      const ok = await window.HaroonyNeuralAI.enableWebGPU((msg) => {
-        if (webgpuStatusText) webgpuStatusText.textContent = msg;
-      });
-      if (ok) {
-        enableWebgpuBtn.textContent = "Loaded";
-        if (webgpuStatusText) webgpuStatusText.textContent = "Status: WebGPU Neural AI active!";
-      } else {
-        enableWebgpuBtn.disabled = false;
-        enableWebgpuBtn.textContent = "Retry WebGPU";
-      }
-    });
-  }
-
-  const saveCustomCfgBtn = document.getElementById("saveCustomCfgBtn");
-  if (saveCustomCfgBtn) {
-    saveCustomCfgBtn.addEventListener("click", function () {
-      if (!window.HaroonyNeuralAI) return;
-      window.HaroonyNeuralAI.saveCustomConfig({
-        baseUrl: customBaseUrl.value.trim(),
-        model: customModelName.value.trim(),
-        apiKey: customApiKey.value.trim(),
-      });
-      closeSettingsModal();
-    });
-  }
-
-  const clearCustomCfgBtn = document.getElementById("clearCustomCfgBtn");
-  if (clearCustomCfgBtn) {
-    clearCustomCfgBtn.addEventListener("click", function () {
-      if (!window.HaroonyNeuralAI) return;
-      window.HaroonyNeuralAI.saveCustomConfig({ baseUrl: "", model: "", apiKey: "" });
-      refreshSettingsModalState();
-    });
-  }
-
   // ==================== INITIALIZE STATUS ====================
   async function loadSystemStatus() {
-    let data = null;
     try {
       const resp = await fetch("api/status", { headers: { Accept: "application/json" } });
       if (resp.ok) {
         const ct = resp.headers.get("content-type") || "";
         if (ct.includes("application/json")) {
-          data = await resp.json();
+          const data = await resp.json();
           if (data && data.ok) {
             serverAvailable = true;
+            return;
           }
         }
       }
     } catch (_) {}
 
-    if (!data || !data.ok) {
-      serverAvailable = false;
-      if (window.HaroonyBrowserEngine) {
-        try {
-          data = await window.HaroonyBrowserEngine.getStatus();
-        } catch (err) {
-          console.error("Browser engine init error:", err);
-          return;
-        }
-      } else {
-        return;
+    serverAvailable = false;
+    if (window.HaroonyBrowserEngine) {
+      try {
+        await window.HaroonyBrowserEngine.getStatus();
+      } catch (err) {
+        console.error("Browser engine init error:", err);
       }
-    }
-
-    const kbBadge = document.getElementById("kbBadge");
-    if (kbBadge && data.notes_chunks_count) {
-      kbBadge.textContent = `${data.notes_chunks_count} Notes & MS • ${data.video_solutions_count || 0} Videos`;
     }
   }
 

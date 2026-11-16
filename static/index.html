@@ -16,9 +16,6 @@
       <div class="brand" id="brandHome" title="Haroony AI">
         <img src="static/assets/harony_logo.webp" alt="Harony Physics Clinic" class="brand-logo" />
       </div>
-      <div class="topbar-right">
-        <span id="kbBadge" class="kb-status-pill">Harony 2026/2027</span>
-      </div>
     </div>
   </header>
 
@@ -31,13 +28,10 @@
             <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="mascot-avatar" />
             <div>
               <h2>Haroony AI</h2>
-              <p>Physics Tutor &bull; Notes &bull; 2,793 Video Solutions</p>
+              <p>Ask any Physics question, attach a photo/PDF, or paste a screenshot</p>
             </div>
           </div>
           <div class="chat-header-actions">
-            <button id="aiSettingsBtn" class="btn btn-ghost btn-sm" type="button" title="Optional Neural AI & API Settings">
-              AI Engine
-            </button>
             <button id="clearChatBtn" class="btn btn-ghost btn-sm" type="button">New chat</button>
           </div>
         </div>
@@ -90,50 +84,6 @@
       </div>
     </section>
   </main>
-
-  <!-- Optional AI Engine Settings Modal (User-Initiated Only) -->
-  <div id="aiSettingsModal" class="lightbox hidden" role="dialog" aria-modal="true">
-    <div class="lightbox-backdrop" id="aiSettingsBackdrop"></div>
-    <div class="settings-modal-card">
-      <div class="settings-modal-header">
-        <h3>AI Engine Settings</h3>
-        <button type="button" id="aiSettingsClose" class="btn-icon" aria-label="Close">&times;</button>
-      </div>
-      <p class="panel-help" style="margin-bottom:12px;">
-        Haroony AI runs instantly out-of-the-box using all 5 Harony 2026/2027 books. You can also optionally enable in-browser WebGPU Neural AI or connect your own OpenAI-compatible / Ollama endpoint.
-      </p>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div>
-            <strong>In-Browser WebGPU Neural AI</strong>
-            <div id="webgpuStatusText" class="settings-sub">Status: Ready to load on demand</div>
-          </div>
-          <button type="button" id="enableWebgpuBtn" class="btn btn-primary btn-sm">Load WebGPU AI</button>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <strong>Optional Custom Endpoint (Ollama / Groq / OpenAI)</strong>
-        <div class="field-group" style="margin-top:8px;">
-          <label for="customBaseUrl">API Base URL</label>
-          <input type="text" id="customBaseUrl" placeholder="e.g. http://localhost:11434/v1 or https://api.groq.com/openai/v1" />
-        </div>
-        <div class="field-group">
-          <label for="customModelName">Model Name</label>
-          <input type="text" id="customModelName" placeholder="e.g. qwen2.5:7b or llama-3.1-8b-instant" />
-        </div>
-        <div class="field-group">
-          <label for="customApiKey">API Key <span class="muted-tag">(saved locally in browser only)</span></label>
-          <input type="password" id="customApiKey" placeholder="Optional for local Ollama" />
-        </div>
-        <div class="settings-actions">
-          <button type="button" id="clearCustomCfgBtn" class="btn btn-ghost btn-sm">Reset</button>
-          <button type="button" id="saveCustomCfgBtn" class="btn btn-primary btn-sm">Save Settings</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Zoomable Note Page / Image Lightbox Modal -->
   <div id="lightboxModal" class="lightbox hidden" role="dialog" aria-modal="true">
