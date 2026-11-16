@@ -1,0 +1,15 @@
+{
+  "model_name": "Haroony-Physics-AI-v2 (Harony 2026/2027 Books)",
+  "trained_at": "2026-11-16T19:02:10.198397+00:00",
+  "guardrail_samples": 5741,
+  "validation_accuracy": 1.0,
+  "validation_precision": 1.0,
+  "validation_recall": 1.0,
+  "validation_f1": 1.0,
+  "indexed_notes_chunks": 342,
+  "semantic_dimensions": 96,
+  "mark_schemes_loaded": 8,
+  "mark_scheme_question_parts": 1546,
+  "video_solutions_indexed": 2085,
+  "rate_limits": "None (Unlimited \u2014 100% Free Self-Hosted & GitHub Pages)"
+}
