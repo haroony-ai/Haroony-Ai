@@ -36,14 +36,17 @@ def run_all_tests() -> None:
             assert ra.status_code == 200, f"Asset {asset} failed: {ra.status_code}"
         assert "starterChips" not in r.text and "einstein_mascot" not in r.text
 
-        # 2. System Status (8 Harony 2027 Mark Scheme Books, 340+ Chunks, 2,000+ Video Solutions)
+        # 2. System Status (15 Harony 2027 Mark Scheme Books including P4 CLS 2027, 440+ Chunks, 2,750+ Video Solutions)
         st = client.get("/api/status").json()
         assert st["ok"] is True
         assert st["free_unlimited"] is True
         assert st["physics_only_guardrail"] is True
-        assert st["notes_chunks_count"] >= 300
-        assert st["video_solutions_count"] >= 2000
-        assert len(st["mark_schemes"]) >= 8
+        assert st["notes_chunks_count"] >= 440
+        assert st["video_solutions_count"] >= 2750
+        assert len(st["mark_schemes"]) >= 15
+        ms_ids = {m["id"] for m in st["mark_schemes"]}
+        assert "harony-p4-cls-2027-u1" in ms_ids
+        assert "harony-p4-cls-2027-u7" in ms_ids
 
         # 3. Physics Concept Chat + Video Solution Links
         c1 = client.post("/api/chat", data={"message": "Explain how a split-ring commutator works in a D.C. motor."}).json()
@@ -145,10 +148,28 @@ def run_all_tests() -> None:
         tv_bad = client.post("/api/teacher/verify", data={"pin": "9999"})
         assert tv_bad.status_code == 401
 
-        # 12. YouTube Video Solutions Finder in Chat + Deterministic Repeat Grading + Revision Notes
+        # 12. YouTube Video Solutions Finder + Topic/Unit-Locked Chat & Video Accuracy (Zero Cross-Unit Leaks!)
         vid_q = client.post("/api/chat", data={"message": "Give me YouTube videos for solving density"}).json()
         assert vid_q["ok"] is True and len(vid_q.get("video_links", [])) >= 5
         assert "https://youtu.be/" in vid_q["reply"]
+
+        topic_video_cases = [
+            ("Explain convection in fluids", "Unit 2: Thermal Physics", "Unit 2: Thermal Physics"),
+            ("How does a step-up transformer work?", "Unit 4: Electromagnetism", "Unit 4: Electromagnetism"),
+            ("What is Ohm law?", "Unit 3: Electricity", "Unit 3: Electricity"),
+            ("What is redshift and Big Bang?", "Unit 7: Astronomy", "Unit 7: Astronomy"),
+            ("Explain longitudinal vs transverse waves", "Unit 6: Waves", "Unit 6: Waves"),
+            ("Give me YouTube videos for waves", "Unit 6: Waves", "Unit 6: Waves"),
+        ]
+        for q_txt, exp_note_unit, exp_vid_unit in topic_video_cases:
+            res_t = client.post("/api/chat", data={"message": q_txt}).json()
+            assert res_t["ok"] is True and res_t["refused"] is False, f"Failed: {q_txt}"
+            for card in res_t.get("notes_cards", []):
+                assert card["unit"] == exp_note_unit, f"Wrong card unit for {q_txt}: {card}"
+            vids = res_t.get("video_links", [])
+            assert len(vids) >= 1, f"Expected videos for: {q_txt}"
+            for v in vids:
+                assert v["unit"] == exp_vid_unit, f"Wrong video unit for {q_txt}: {v}"
 
         auto_q = "Question: Explain why a steel ship floats on water. Answer: The ship is not solid steel and has air spaces so its overall density is less than water."
         ag1 = client.post("/api/grade", data={"student_text": auto_q}).json()
@@ -156,6 +177,27 @@ def run_all_tests() -> None:
         assert ag1["awarded_marks"] == ag2["awarded_marks"] == 2 and ag1["max_marks"] == ag2["max_marks"] == 2
         assert ag1["questions"][0]["video_url"].startswith("https://youtu.be/")
         assert len(ag1["notes_references"]) >= 1 and len(ag1["notes_references"][0].get("revision_points", [])) >= 1
+
+        # 13. Strict Answer Isolation & Honest Ambiguity Check + P4 CLS 2027 Book Question Lookup & Grading
+        leak_q = "Question: Explain why a steel ship floats on water. Answer: I do not know."
+        ag_leak = client.post("/api/grade", data={"student_text": leak_q}).json()
+        assert ag_leak["ok"] is True and ag_leak["awarded_marks"] == 0
+
+        ambig = client.post("/api/grade", data={"student_text": "Answer: 42"}).json()
+        assert ambig["ok"] is False
+
+        p4_book = client.get("/api/mark-schemes/harony-p4-cls-2027-u1").json()
+        assert p4_book["ok"] is True and len(p4_book["mark_scheme"]["questions"]) >= 200
+        p4_grade = client.post(
+            "/api/grade",
+            data={
+                "student_text": "Density = 0.25 / (3.14 * 0.03^2 * 0.1) = 890 kg/m3",
+                "ms_id": "harony-p4-cls-2027-u1",
+                "question_id": "U1Ch0Mea-2018-Nov-P4-V1-04-a.",
+            },
+        ).json()
+        assert p4_grade["ok"] is True and p4_grade["awarded_marks"] >= 1
+        assert p4_grade["questions"][0]["video_url"] == "https://youtu.be/BmUcRU4BnI4"
 
     print("ALL HAROONY AI 2026/2027 INTEGRATION TESTS PASSED PERFECTLY!")
 

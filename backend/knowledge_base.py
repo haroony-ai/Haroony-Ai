@@ -28,6 +28,12 @@ QUERY_SYNONYM_EXPANSIONS = {
     "generator": "a.c. generator slip rings electromagnetic induction alternating current",
     "motor": "electric d.c. motor fleming left hand rule coil magnetic field",
     "transformer": "step-up step-down primary secondary coil vp vs np ns soft iron core",
+    "ohm": "ohms law resistance voltage current potential difference v = ir electric circuits",
+    "newton": "newtons first second third law inertia resultant force acceleration f = ma",
+    "convection": "convection heat transmission thermal physics density warm fluid rises cool sinks",
+    "conduction": "conduction heat transmission thermal physics lattice vibration free electrons",
+    "brownian": "brownian motion kinetic particle theory smoke cells air molecules random",
+    "diffraction": "diffraction water waves gap wavelength ripple tank spread",
     "ldr": "light dependent resistor brightness resistance decreases circuit components",
     "thermistor": "temperature increases resistance decreases circuit components",
     "meniscus": "measuring cylinder volume parallax bottom of meniscus",
@@ -147,6 +153,8 @@ class HaronyKnowledgeBase:
             "what", "how", "why", "the", "and", "for", "with", "from", "that", "this",
             "explain", "calculate", "define", "state", "describe", "find", "show",
             "give", "tell", "does", "when", "where", "which", "would", "could", "please",
+            "law", "laws", "effect", "effects", "rule", "rules", "principle", "theory",
+            "work", "works", "second", "first", "third", "fluids", "fluid",
         }
         q_tokens = {t for t in re.findall(r"[a-z0-9]{3,}", query.lower()) if t not in generic_verbs}
         cleaned_expanded = " ".join(w for w in expanded.split() if re.sub(r"[^a-z0-9]", "", w.lower()) not in generic_verbs).strip()
@@ -199,39 +207,97 @@ class HaronyKnowledgeBase:
                 break
         return results
 
-    def search_videos(self, query: str, top_k: int = 3) -> List[Dict[str, Any]]:
-        """Find matching Mr. Haroony YouTube video explanations from ClassWork 2027 & P2 CLS 2027."""
+    def search_videos(
+        self,
+        query: str,
+        top_k: int = 3,
+        preferred_unit: Optional[str] = None,
+        preferred_topic: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Find strictly relevant, unit-locked Mr. Haroony YouTube video explanations."""
         if not self.videos:
             return []
         ignore_words = {
-            "what", "how", "why", "the", "and", "for", "explain", "calculate", "define",
-            "state", "physics", "question", "questions", "youtube", "video", "videos",
-            "link", "links", "watch", "solve", "solving", "solution", "solutions",
-            "give", "send", "show", "find", "please", "any", "topic", "topics",
-            "about", "with", "from", "can", "you", "get", "me", "want", "need",
+            "what", "how", "why", "the", "and", "for", "in", "on", "of", "to", "is", "it",
+            "at", "by", "as", "or", "an", "be", "do", "no", "so", "if", "up", "vs",
+            "explain", "calculate", "define", "state", "describe", "compare", "difference",
+            "between", "into", "onto", "than", "then", "physics", "question", "questions",
+            "youtube", "video", "videos", "link", "links", "watch", "solve", "solving",
+            "solution", "solutions", "give", "send", "show", "find", "please", "any",
+            "topic", "topics", "about", "with", "from", "can", "you", "get", "me", "want",
+            "need", "work", "works", "does", "make", "law", "laws", "effect", "rule",
+            "first", "second", "third", "fluid", "fluids", "step", "steps", "body",
         }
-        q_tokens = [
+        raw_tokens = [
             t for t in re.findall(r"[a-z0-9]{2,}", query.lower())
             if t not in ignore_words
         ]
-        if not q_tokens:
+        # Expand core physics aliases to exact Harony video chapter keywords
+        vid_synonyms = {
+            "convection": ["heat", "transmission"],
+            "conduction": ["heat", "transmission"],
+            "radiation": ["heat", "transmission"],
+            "transverse": ["waves", "water"],
+            "longitudinal": ["waves", "water", "sound"],
+            "transformer": ["transformers"],
+            "step-up": ["transformers"],
+            "step-down": ["transformers"],
+            "ohm": ["electric", "circuits", "resistance"],
+            "ohms": ["electric", "circuits", "resistance"],
+            "newton": ["forces", "kinematics"],
+            "inertia": ["forces"],
+            "redshift": ["universe", "redshift", "hubble"],
+            "bang": ["universe"],
+            "optical": ["refraction", "total", "internal"],
+            "fibres": ["refraction", "total", "internal"],
+            "fibre": ["refraction", "total", "internal"],
+            "tir": ["total", "internal", "reflection"],
+            "echo": ["sound"],
+            "echoes": ["sound"],
+            "ultrasound": ["sound"],
+            "half": ["half", "life"],
+            "halflife": ["half", "life"],
+            "fission": ["alpha", "beta", "gamma", "nuclear", "fission"],
+            "fusion": ["nuclear", "fusion", "stars"],
+        }
+        norm_tokens: List[str] = []
+        for t in raw_tokens:
+            nt = "jun" if t == "may" else t
+            if nt not in norm_tokens:
+                norm_tokens.append(nt)
+            for syn in vid_synonyms.get(nt, []):
+                if syn not in norm_tokens:
+                    norm_tokens.append(syn)
+        if not norm_tokens and preferred_topic:
+            norm_tokens = [t for t in re.findall(r"[a-z0-9]{3,}", preferred_topic.lower()) if t not in ignore_words]
+        if not norm_tokens:
             return []
-        # Normalize month/paper aliases like May -> Jun
-        norm_tokens = []
-        for t in q_tokens:
-            norm_tokens.append("jun" if t == "may" else t)
+
+        is_paper_code = bool(re.search(r"\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+", query.lower()))
         scored: List[Tuple[float, Dict[str, Any]]] = []
         for v in self.videos:
-            label_low = (v.get("label") or "").lower()
-            nk_low = (v.get("norm_key") or "").lower()
-            hay = f"{label_low} {nk_low} {v.get('chapter', '')} {v.get('unit', '')}".lower()
+            v_unit = v.get("unit", "")
+            # Strict Unit-Lock when we already identified the Physics Unit from Harony Notes!
+            if preferred_unit and not is_paper_code and v_unit and v_unit != preferred_unit:
+                continue
+
+            label_words = set(re.findall(r"[a-z0-9]+", (v.get("label") or "").lower()))
+            nk_words = set(re.findall(r"[a-z0-9]+", (v.get("norm_key") or "").lower()))
+            chap_words = set(re.findall(r"[a-z0-9]+", (v.get("chapter") or "").lower()))
+            unit_words = set(re.findall(r"[a-z0-9]+", v_unit.lower()))
+
             hits = 0.0
+            matched_distinct = 0
             for tok in norm_tokens:
-                if tok in label_low or tok in nk_low:
-                    hits += 2.5
-                elif tok in hay:
-                    hits += 1.2
-            if hits >= 2.0 or (len(norm_tokens) == 1 and hits >= 1.2):
+                if tok in label_words or tok in nk_words:
+                    hits += 3.0
+                    matched_distinct += 1
+                elif tok in chap_words:
+                    hits += 2.2
+                    matched_distinct += 1
+                elif tok in unit_words and len(tok) >= 4:
+                    hits += 1.0
+            if hits >= 2.2 and (matched_distinct >= 1):
                 scored.append((hits, v))
         scored.sort(key=lambda x: x[0], reverse=True)
         out: List[Dict[str, Any]] = []

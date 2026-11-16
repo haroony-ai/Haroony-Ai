@@ -1,20 +1,12 @@
-/* Haroony AI — Smart Dual-Mode Frontend (Neural LLM + Symbolic Solver + Harony 2026/2027 RAG) */
+/* Haroony AI — Clean Real-Time Chat Frontend (FastAPI Backend + Standalone GitHub Pages Engine) */
 (function () {
   "use strict";
 
-  const MIN_THINK_MS = 320; // Snappy thinking pulse without slowing down the student
   const AI_AVATAR = "static/assets/harony_avatar.webp";
 
   let serverAvailable = null;
   let chatHistory = [];
   let chatAttachedFile = null;
-  let graderStudentFiles = [];
-  let graderMsFile = null;
-  let activeMsMode = "auto";
-
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
 
   function escapeHtml(str) {
     return String(str || "")
@@ -29,10 +21,21 @@
     return String(u).replace(/^\/+static\//, "static/");
   }
 
+  function extractYoutubeId(url) {
+    const s = String(url || "");
+    const m = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : "";
+  }
+
+  function toWatchUrl(url) {
+    const id = extractYoutubeId(url);
+    return id ? `https://www.youtube.com/watch?v=${id}` : String(url || "");
+  }
+
   function renderMarkdown(md) {
     if (!md) return "";
-    let lines = String(md).split("\n");
-    let html = [];
+    const lines = String(md).split("\n");
+    const html = [];
     let inList = false;
 
     function closeList() {
@@ -49,14 +52,17 @@
       out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
       out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
       out = out.replace(
-        /(https:\/\/youtu\.be\/[A-Za-z0-9_\-]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer" class="video-pill-link">🎥 Watch Video</a>'
+        /(https:\/\/(?:youtu\.be\/|www\.youtube\.com\/watch\?v=)[A-Za-z0-9_\-]+)/g,
+        function (m) {
+          const watch = toWatchUrl(m);
+          return `<a href="${watch}" target="_blank" rel="noopener noreferrer" class="video-pill-link" data-video-url="${watch}" data-video-title="Harony Video Solution">🎥 Watch Video</a>`;
+        }
       );
       return out;
     }
 
-    for (let raw of lines) {
-      let t = raw.trim();
+    for (const raw of lines) {
+      const t = raw.trim();
       if (!t) {
         closeList();
         continue;
@@ -97,10 +103,16 @@
     return html.join("");
   }
 
-  // ==================== LIGHTBOX ====================
+  // ==================== LIGHTBOX & VIDEO PLAYER MODAL ====================
   const lightboxModal = document.getElementById("lightboxModal");
   const lightboxImg = document.getElementById("lightboxImg");
   const lightboxCaption = document.getElementById("lightboxCaption");
+  const videoModal = document.getElementById("videoModal");
+  const videoIframe = document.getElementById("videoIframe");
+  const videoModalTitle = document.getElementById("videoModalTitle");
+  const openVideoExternalLink = document.getElementById("openVideoExternalLink");
+  const copyVideoLinkBtn = document.getElementById("copyVideoLinkBtn");
+  let activeVideoUrl = "";
 
   function openLightbox(src, caption) {
     if (!src) return;
@@ -114,82 +126,95 @@
     lightboxImg.src = "";
   }
 
+  function openVideoModal(url, title) {
+    const watch = toWatchUrl(url);
+    const id = extractYoutubeId(watch);
+    activeVideoUrl = watch;
+    if (videoModalTitle) videoModalTitle.textContent = title || "Harony Video Solution";
+    if (openVideoExternalLink) openVideoExternalLink.href = watch;
+    if (copyVideoLinkBtn) copyVideoLinkBtn.textContent = "Copy YouTube Link";
+    if (videoIframe) {
+      videoIframe.src = id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : watch;
+    }
+    if (videoModal) videoModal.classList.remove("hidden");
+  }
+
+  function closeVideoModal() {
+    if (videoModal) videoModal.classList.add("hidden");
+    if (videoIframe) videoIframe.src = "";
+  }
+
   document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
   document.getElementById("lightboxBackdrop").addEventListener("click", closeLightbox);
+  if (videoModal) {
+    document.getElementById("videoModalClose").addEventListener("click", closeVideoModal);
+    document.getElementById("videoBackdrop").addEventListener("click", closeVideoModal);
+  }
+  if (copyVideoLinkBtn) {
+    copyVideoLinkBtn.addEventListener("click", async function () {
+      if (!activeVideoUrl) return;
+      try {
+        await navigator.clipboard.writeText(activeVideoUrl);
+        copyVideoLinkBtn.textContent = "Copied!";
+      } catch (_) {
+        copyVideoLinkBtn.textContent = activeVideoUrl;
+      }
+    });
+  }
+
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeLightbox();
+    if (e.key === "Escape") {
+      closeLightbox();
+      closeVideoModal();
+    }
   });
 
   document.body.addEventListener("click", function (e) {
     const target = e.target.closest("[data-lightbox]");
     if (target) {
       openLightbox(target.getAttribute("data-lightbox"), target.getAttribute("data-caption") || target.alt || "");
+      return;
+    }
+    const vidLink = e.target.closest("a.video-pill-link");
+    if (vidLink && !vidLink.closest("#videoModal")) {
+      const url = vidLink.getAttribute("data-video-url") || vidLink.getAttribute("href");
+      const title = vidLink.getAttribute("data-video-title") || vidLink.textContent.replace(/^🎥\s*/, "").trim();
+      const inIframe = window.self !== window.top;
+      if (inIframe) {
+        e.preventDefault();
+        openVideoModal(url, title);
+      }
     }
   });
 
-  // ==================== TAB NAVIGATION ====================
-  const navTabs = document.querySelectorAll(".nav-tab");
-  const tabPanels = document.querySelectorAll(".tab-panel");
-
-  function switchTab(tabName) {
-    navTabs.forEach((btn) => {
-      const active = btn.dataset.tab === tabName;
-      btn.classList.toggle("active", active);
-      btn.setAttribute("aria-selected", active ? "true" : "false");
-    });
-    tabPanels.forEach((panel) => {
-      panel.classList.toggle("active", panel.id === "tab-" + tabName);
-    });
-  }
-
-  navTabs.forEach((btn) => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-  });
-  document.getElementById("brandHome").addEventListener("click", () => switchTab("tutor"));
-
-  // ==================== INITIALIZE STATUS & MS LIST ====================
+  // ==================== INITIALIZE STATUS ====================
   async function loadSystemStatus() {
-    let data = null;
     try {
       const resp = await fetch("api/status", { headers: { Accept: "application/json" } });
       if (resp.ok) {
         const ct = resp.headers.get("content-type") || "";
         if (ct.includes("application/json")) {
-          data = await resp.json();
+          const data = await resp.json();
           if (data && data.ok) {
             serverAvailable = true;
+            return;
           }
         }
       }
     } catch (_) {}
 
-    if (!data || !data.ok) {
-      serverAvailable = false;
-      if (window.HaroonyBrowserEngine) {
-        try {
-          data = await window.HaroonyBrowserEngine.getStatus();
-        } catch (err) {
-          console.error("Browser engine init error:", err);
-          return;
-        }
-      } else {
-        return;
+    serverAvailable = false;
+    if (window.HaroonyBrowserEngine) {
+      try {
+        await window.HaroonyBrowserEngine.getStatus();
+      } catch (err) {
+        console.error("Browser engine init error:", err);
       }
-    }
-
-    const msSelect = document.getElementById("msLibrarySelect");
-    if (msSelect) {
-      msSelect.innerHTML = "";
-      (data.mark_schemes || []).forEach((ms) => {
-        const opt = document.createElement("option");
-        opt.value = ms.id;
-        opt.textContent = ms.title;
-        msSelect.appendChild(opt);
-      });
     }
   }
 
-  // ==================== ASK AI CHAT ====================
+  // ==================== ASK AI CHAT + CTRL+V SCREENSHOT PASTE ====================
+  const chatCard = document.getElementById("chatCard");
   const chatMessages = document.getElementById("chatMessages");
   const chatForm = document.getElementById("chatForm");
   const chatInput = document.getElementById("chatInput");
@@ -197,6 +222,33 @@
   const chatFileInput = document.getElementById("chatFileInput");
   const chatAttachmentBar = document.getElementById("chatAttachmentBar");
   const chatAttachmentName = document.getElementById("chatAttachmentName");
+  const chatAttachmentThumb = document.getElementById("chatAttachmentThumb");
+
+  function attachFileToChat(fileObj) {
+    if (!fileObj) return;
+    chatAttachedFile = fileObj;
+    chatAttachmentName.textContent = fileObj.name || "screenshot.png";
+    if (chatAttachmentThumb) {
+      if (fileObj.type && fileObj.type.startsWith("image/")) {
+        chatAttachmentThumb.src = URL.createObjectURL(fileObj);
+        chatAttachmentThumb.classList.remove("hidden");
+      } else {
+        chatAttachmentThumb.classList.add("hidden");
+        chatAttachmentThumb.src = "";
+      }
+    }
+    chatAttachmentBar.classList.remove("hidden");
+  }
+
+  function clearAttachedChatFile() {
+    chatAttachedFile = null;
+    chatFileInput.value = "";
+    if (chatAttachmentThumb) {
+      chatAttachmentThumb.classList.add("hidden");
+      chatAttachmentThumb.src = "";
+    }
+    chatAttachmentBar.classList.add("hidden");
+  }
 
   function autoResizeChatInput() {
     chatInput.style.height = "auto";
@@ -206,26 +258,83 @@
 
   chatFileInput.addEventListener("change", function () {
     if (chatFileInput.files && chatFileInput.files[0]) {
-      chatAttachedFile = chatFileInput.files[0];
-      chatAttachmentName.textContent = chatAttachedFile.name;
-      chatAttachmentBar.classList.remove("hidden");
+      attachFileToChat(chatFileInput.files[0]);
     }
   });
 
-  document.getElementById("removeChatAttachment").addEventListener("click", function () {
-    chatAttachedFile = null;
-    chatFileInput.value = "";
-    chatAttachmentBar.classList.add("hidden");
+  document.getElementById("removeChatAttachment").addEventListener("click", clearAttachedChatFile);
+
+  // Allow Ctrl+V / Cmd+V pasting screenshots or images directly in the text bar or anywhere in the chat!
+  function handleClipboardPaste(e) {
+    const cd = e.clipboardData || (window.clipboardData && window.clipboardData);
+    if (!cd) return;
+
+    // 1. Check clipboard items (standard screenshot / copied image)
+    if (cd.items && cd.items.length) {
+      for (const item of cd.items) {
+        if (item.kind === "file" && item.type && item.type.startsWith("image/")) {
+          const blob = item.getAsFile();
+          if (blob) {
+            e.preventDefault();
+            const ext = (blob.type.split("/")[1] || "png").replace("jpeg", "jpg");
+            const file = new File([blob], `screenshot.${ext}`, { type: blob.type });
+            attachFileToChat(file);
+            chatInput.focus();
+            return;
+          }
+        }
+      }
+    }
+
+    // 2. Fallback: cd.files
+    if (cd.files && cd.files.length) {
+      const f = cd.files[0];
+      if (f && ((f.type && f.type.startsWith("image/")) || /\.pdf$/i.test(f.name || ""))) {
+        e.preventDefault();
+        attachFileToChat(f);
+        chatInput.focus();
+      }
+    }
+  }
+
+  chatInput.addEventListener("paste", handleClipboardPaste);
+  document.addEventListener("paste", function (e) {
+    if (e.target === chatInput) return;
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    handleClipboardPaste(e);
   });
+
+  // Allow Drag & Drop onto the chat card too
+  if (chatCard) {
+    ["dragenter", "dragover"].forEach((ev) => {
+      chatCard.addEventListener(ev, (e) => {
+        e.preventDefault();
+        chatCard.classList.add("chat-dragover");
+      });
+    });
+    ["dragleave", "drop"].forEach((ev) => {
+      chatCard.addEventListener(ev, (e) => {
+        e.preventDefault();
+        chatCard.classList.remove("chat-dragover");
+      });
+    });
+    chatCard.addEventListener("drop", function (e) {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        attachFileToChat(e.dataTransfer.files[0]);
+        chatInput.focus();
+      }
+    });
+  }
 
   document.getElementById("clearChatBtn").addEventListener("click", function () {
     chatHistory = [];
+    clearAttachedChatFile();
     chatMessages.innerHTML = `
       <div class="msg msg-ai">
         <img src="${AI_AVATAR}" alt="Harony Physics Clinic" class="msg-avatar" />
         <div class="msg-bubble">
           <div class="msg-content">
-            <p>Hi! Ask me any <strong>Physics</strong> question, request <strong>YouTube video solutions</strong> for any topic, or attach a photo or PDF of a problem you want explained step-by-step.</p>
+            <p>New chat ready! Ask me any <strong>Physics</strong> question, request <strong>YouTube video solutions</strong>, or press <strong><code>Ctrl+V</code></strong> to paste a screenshot.</p>
           </div>
         </div>
       </div>`;
@@ -265,10 +374,9 @@
   }
 
   function createLiveAiBubble(hasFile) {
-    const startTs = Date.now();
     const div = document.createElement("div");
     div.className = "msg msg-ai";
-    const step1 = hasFile ? "Reading your attached file…" : "Thinking through the physics…";
+    const step1 = hasFile ? "Reading your attached image/PDF…" : "Thinking through the physics…";
     div.innerHTML = `
       <img src="${AI_AVATAR}" alt="Harony Physics Clinic" class="msg-avatar" />
       <div class="msg-bubble">
@@ -288,24 +396,14 @@
     const textEl = div.querySelector(".thinking-text");
     const contentEl = div.querySelector(".msg-content");
     const extrasEl = div.querySelector(".msg-extras");
-    let customStatusShown = false;
-
-    const timer = setTimeout(() => {
-      if (textEl && div.isConnected && !customStatusShown) {
-        textEl.textContent = "Checking formulas & physics concepts…";
-      }
-    }, 1050);
 
     return {
       setStatus(msg) {
         if (!msg || !textEl || !div.isConnected) return;
-        customStatusShown = true;
         textEl.textContent = msg;
       },
       streamPreview(partialMd) {
         if (!div.isConnected) return;
-        // Wait until minimum smooth thinking window has elapsed before revealing streaming text
-        if (Date.now() - startTs < MIN_THINK_MS) return;
         if (!thinkingBox.classList.contains("hidden")) {
           thinkingBox.classList.add("hidden");
           contentEl.classList.remove("hidden");
@@ -314,7 +412,6 @@
         scrollChatToBottom();
       },
       finalize(res) {
-        clearTimeout(timer);
         if (!div.isConnected) return;
         if (res.refused) div.classList.add("msg-refused");
         thinkingBox.classList.add("hidden");
@@ -327,12 +424,13 @@
           videosHtml = `
             <div class="video-pills">
               ${vids
-                .map(
-                  (v) =>
-                    `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
-                      🎥 Video Solution: ${escapeHtml((v.label || v.chapter || "Watch").slice(0, 48))}
-                    </a>`
-                )
+                .map((v) => {
+                  const watch = toWatchUrl(v.video_url);
+                  const lbl = (v.label || v.chapter || "Watch").slice(0, 56);
+                  return `<a href="${escapeHtml(watch)}" target="_blank" rel="noopener noreferrer" class="video-pill-link" data-video-url="${escapeHtml(watch)}" data-video-title="${escapeHtml(lbl)}">
+                      🎥 Video Solution: ${escapeHtml(lbl)}
+                    </a>`;
+                })
                 .join("")}
             </div>`;
         }
@@ -356,7 +454,7 @@
             .join("");
           cardsHtml = `
             <div class="msg-notes-strip">
-              <div class="msg-notes-label">Related Notes</div>
+              <div class="msg-notes-label">Related Harony Notes</div>
               <div class="msg-notes-cards">${items}</div>
             </div>`;
         }
@@ -373,23 +471,15 @@
     try {
       const sysPrompt =
         "You are Haroony AI, Mr. Haroony's expert, friendly IGCSE & A-Level Physics tutor from Harony Physics Clinic.\n" +
-        "STRICT RULES:\n" +
-        "1. Answer ONLY Physics questions. Answer the student's EXACT question directly, naturally, and clearly in your own words.\n" +
-        "2. NEVER copy-paste raw PDF slide lines or answer an unrelated question.\n" +
-        "3. If an exact symbolic calculation is provided in context, keep its exact formula, SI values, substitution, and final answer.\n" +
-        "4. Bold key Cambridge IGCSE 0625 marking phrases.";
+        "Answer ONLY Physics questions directly, clearly, and accurately. Stay strictly on the asked topic. Bold key Cambridge IGCSE 0625 marking phrases.";
 
       const msgs = [{ role: "system", content: sysPrompt }];
       for (const h of chatHistory.slice(-4)) {
         msgs.push({ role: h.role, content: String(h.content).slice(0, 700) });
       }
       let usr = userText || "Please solve/explain this uploaded Physics problem.";
-      if (data.ocr_text) {
-        usr += `\n\nExtracted text from uploaded image/PDF:\n${data.ocr_text.slice(0, 1400)}`;
-      }
-      if (data.rag_context) {
-        usr += `\n\n---\nReference Context (use only what directly helps answer the student's question):\n${data.rag_context.slice(0, 1800)}`;
-      }
+      if (data.ocr_text) usr += `\n\nExtracted text from uploaded file:\n${data.ocr_text.slice(0, 1400)}`;
+      if (data.rag_context) usr += `\n\n---\nReference Context:\n${data.rag_context.slice(0, 1800)}`;
       msgs.push({ role: "user", content: usr });
 
       const genText = await window.HaroonyNeuralAI.generate(msgs, {
@@ -419,13 +509,10 @@
     appendUserMessage(text, fileToSend);
     chatInput.value = "";
     chatInput.style.height = "auto";
-    chatAttachedFile = null;
-    chatFileInput.value = "";
-    chatAttachmentBar.classList.add("hidden");
+    clearAttachedChatFile();
 
     chatSendBtn.disabled = true;
     const liveBubble = createLiveAiBubble(Boolean(fileToSend));
-    const minWait = sleep(MIN_THINK_MS);
 
     try {
       if (serverAvailable === null) await loadSystemStatus();
@@ -460,16 +547,16 @@
         );
       }
 
-      await minWait;
       liveBubble.finalize(data);
 
       if (!data.refused) {
-        const userHist = data.ocr_text ? `${text}\n[Uploaded: ${data.ocr_text.slice(0, 300)}]`.trim() : text || "[Uploaded Physics file]";
+        const userHist = data.ocr_text
+          ? `${text}\n[Uploaded: ${data.ocr_text.slice(0, 300)}]`.trim()
+          : text || "[Uploaded Physics file]";
         chatHistory.push({ role: "user", content: userHist });
         chatHistory.push({ role: "assistant", content: data.reply });
       }
     } catch (err) {
-      await minWait;
       liveBubble.finalize({
         refused: true,
         reply: "Could not process your question right now. Please try again.",
@@ -477,322 +564,6 @@
       });
     } finally {
       chatSendBtn.disabled = false;
-    }
-  });
-
-  // ==================== CHECK ANSWER & MARK SCHEME ====================
-  const studentFilesInput = document.getElementById("studentFilesInput");
-  const studentFilesList = document.getElementById("studentFilesList");
-  const studentDropzone = document.getElementById("studentDropzone");
-  const msFileInput = document.getElementById("msFileInput");
-  const msFilePill = document.getElementById("msFilePill");
-
-  function renderStudentFilePills() {
-    studentFilesList.innerHTML = graderStudentFiles
-      .map(
-        (f, i) =>
-          `<span class="file-pill">📎 ${escapeHtml(f.name)} <button type="button" class="btn-icon" data-rm-stu="${i}" aria-label="Remove">&times;</button></span>`
-      )
-      .join("");
-  }
-
-  studentFilesList.addEventListener("click", function (e) {
-    const btn = e.target.closest("[data-rm-stu]");
-    if (!btn) return;
-    graderStudentFiles.splice(Number(btn.dataset.rmStu), 1);
-    renderStudentFilePills();
-  });
-
-  studentFilesInput.addEventListener("change", function () {
-    if (studentFilesInput.files && studentFilesInput.files.length) {
-      for (const f of studentFilesInput.files) {
-        graderStudentFiles.push(f);
-      }
-      renderStudentFilePills();
-    }
-  });
-
-  ["dragenter", "dragover"].forEach((ev) => {
-    studentDropzone.addEventListener(ev, (e) => {
-      e.preventDefault();
-      studentDropzone.classList.add("dragover");
-    });
-  });
-  ["dragleave", "drop"].forEach((ev) => {
-    studentDropzone.addEventListener(ev, (e) => {
-      e.preventDefault();
-      studentDropzone.classList.remove("dragover");
-    });
-  });
-  studentDropzone.addEventListener("drop", function (e) {
-    if (e.dataTransfer && e.dataTransfer.files) {
-      for (const f of e.dataTransfer.files) {
-        graderStudentFiles.push(f);
-      }
-      renderStudentFilePills();
-    }
-  });
-
-  msFileInput.addEventListener("change", function () {
-    if (msFileInput.files && msFileInput.files[0]) {
-      graderMsFile = msFileInput.files[0];
-      msFilePill.innerHTML = `<span class="file-pill">📄 ${escapeHtml(graderMsFile.name)}</span>`;
-    }
-  });
-
-  document.querySelectorAll(".ms-mode-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      activeMsMode = btn.dataset.msMode;
-      document.querySelectorAll(".ms-mode-btn").forEach((b) => b.classList.toggle("active", b === btn));
-      ["auto", "library", "upload", "paste"].forEach((m) => {
-        document.getElementById("ms-pane-" + m).classList.toggle("hidden", m !== activeMsMode);
-      });
-    });
-  });
-
-  function showGradingLoader() {
-    const area = document.getElementById("gradeResultArea");
-    area.classList.remove("hidden");
-    area.innerHTML = `
-      <div class="grading-loader-card">
-        <div class="thinking-box" style="justify-content:center;">
-          <div class="thinking-dots" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-          <span class="thinking-text" id="gradeLoaderText">Reading your Physics work…</span>
-        </div>
-        <div class="loader-bar-track">
-          <div class="loader-bar-fill"></div>
-        </div>
-      </div>`;
-    area.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-    const timer = setTimeout(() => {
-      const el = document.getElementById("gradeLoaderText");
-      if (el) el.textContent = "Evaluating physics steps & marking criteria…";
-    }, 1050);
-
-    return {
-      setStatus(msg) {
-        const el = document.getElementById("gradeLoaderText");
-        if (el && msg) el.textContent = msg;
-      },
-      stop() {
-        clearTimeout(timer);
-      },
-    };
-  }
-
-  function renderGradeReport(res) {
-    const area = document.getElementById("gradeResultArea");
-    area.classList.remove("hidden");
-
-    if (!res.ok) {
-      area.innerHTML = `
-        <div class="panel-card" style="border-color:#fecaca;background:#fef2f2;animation:fadeSlideUp 0.35s var(--ease-out);">
-          <h3 style="color:#b91c1c;margin-bottom:6px;">Unable to Check Answer</h3>
-          <div>${renderMarkdown(res.error || res.detail || "Please provide a Physics answer.")}</div>
-        </div>`;
-      area.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      return;
-    }
-
-    const feedbackHtml = res.examiner_feedback
-      ? `<div class="examiner-feedback-card"><strong>AI Examiner Feedback:</strong> ${renderMarkdown(res.examiner_feedback)}</div>`
-      : "";
-
-    const questionsHtml = (res.questions || [])
-      .map((q) => {
-        const rows = (q.points || [])
-          .map(
-            (pt) => `
-            <div class="mark-row ${escapeHtml(pt.status)}">
-              <strong>[${escapeHtml(pt.code)}]</strong> ${renderMarkdown(pt.comment)}
-            </div>`
-          )
-          .join("");
-        const vidBtn = q.video_url
-          ? `<a href="${escapeHtml(q.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">🎥 Watch Video Solution</a>`
-          : "";
-        return `
-          <div class="q-breakdown-card">
-            <div class="q-breakdown-header">
-              <strong>${escapeHtml(q.title || "Question " + q.question_id)}</strong>
-              <span class="q-score-pill">${q.awarded_marks} / ${q.max_marks} marks</span>
-            </div>
-            ${rows}
-            ${
-              q.model_answer
-                ? `<div style="margin-top:10px;font-size:0.84rem;color:#475569;">
-                    <strong>Model Answer:</strong> <code>${escapeHtml(q.model_answer)}</code>
-                   </div>`
-                : ""
-            }
-            ${vidBtn ? `<div class="video-pills">${vidBtn}</div>` : ""}
-          </div>`;
-      })
-      .join("");
-
-    const extraVideos = (res.related_videos || []).filter(
-      (v) => v && v.video_url && !(res.questions || []).some((q) => q.video_url === v.video_url)
-    );
-    const videosBlockHtml =
-      extraVideos.length > 0
-        ? `<div class="panel-card" style="margin-top:14px;animation:fadeSlideUp 0.42s var(--ease-out);">
-            <h3 style="margin-bottom:8px;">🎥 Related Harony YouTube Video Solutions</h3>
-            <div class="video-pills">
-              ${extraVideos
-                .map(
-                  (v) =>
-                    `<a href="${escapeHtml(v.video_url)}" target="_blank" rel="noopener noreferrer" class="video-pill-link">
-                      🎥 ${escapeHtml((v.label || v.chapter || "Watch Video Solution").slice(0, 56))}
-                    </a>`
-                )
-                .join("")}
-            </div>
-          </div>`
-        : "";
-
-    const noteRefs = res.notes_references || [];
-    let notesHtml = "";
-    if (noteRefs.length > 0) {
-      notesHtml = `
-        <div class="panel-card revision-notes-card" style="margin-top:14px;animation:fadeSlideUp 0.44s var(--ease-out);">
-          <h3 style="margin-bottom:10px;">📖 Part to Revise from Harony Notes</h3>
-          <div class="revision-list">
-            ${noteRefs
-              .map((n) => {
-                const pts = (n.revision_points || []).filter(Boolean);
-                const ptsHtml = pts.length
-                  ? `<ul class="revision-bullets">${pts.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>`
-                  : n.snippet
-                  ? `<p class="revision-snippet">${escapeHtml(n.snippet)}</p>`
-                  : "";
-                const imgHtml = n.image_url
-                  ? (() => {
-                      const imgUrl = normalizeAssetUrl(n.image_url);
-                      return `
-                      <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${n.page || ""} — ${escapeHtml(n.topic)}">
-                        <img src="${escapeHtml(imgUrl)}" alt="Page ${n.page || ""}" />
-                        <div class="mini-note-card-body">
-                          <strong>Page ${n.page || ""} &bull; ${escapeHtml(n.topic)}</strong>
-                          <span>Click to zoom slide</span>
-                        </div>
-                      </div>`;
-                    })()
-                  : "";
-                return `
-                  <div class="revision-item">
-                    <div class="revision-item-text">
-                      <div class="revision-badge">${escapeHtml(n.unit || "Harony Notes")} &bull; Page ${n.page || "?"}</div>
-                      <h4>${escapeHtml(n.topic || "Physics Revision")}</h4>
-                      ${ptsHtml}
-                    </div>
-                    ${imgHtml}
-                  </div>`;
-              })
-              .join("")}
-          </div>
-        </div>`;
-    }
-
-    area.innerHTML = `
-      <div class="score-summary-card">
-        <div>
-          <div style="font-size:0.78rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.03em;">
-            ${escapeHtml(res.mark_scheme_title)}
-          </div>
-          <h3 style="margin:3px 0 0;">Marking Result</h3>
-        </div>
-        <div class="score-pill-big">
-          <span class="score-numbers">${res.awarded_marks} / ${res.max_marks}</span>
-          <span style="font-weight:600;color:#64748b;">(${res.percentage}%)</span>
-          <span class="score-grade-badge">Grade ${escapeHtml(res.grade)}</span>
-        </div>
-      </div>
-
-      ${feedbackHtml}
-      ${questionsHtml}
-      ${videosBlockHtml}
-      ${notesHtml}
-
-      <details class="ocr-details">
-        <summary>View extracted answer text</summary>
-        <pre style="white-space:pre-wrap;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0;font-size:0.82rem;margin:10px 0 0;">${escapeHtml(res.extracted_student_text || "")}</pre>
-      </details>
-    `;
-    area.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  document.getElementById("gradeForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const btn = document.getElementById("gradeSubmitBtn");
-    btn.disabled = true;
-    btn.textContent = "Checking…";
-
-    const loader = showGradingLoader();
-    const minWait = sleep(MIN_THINK_MS);
-
-    let stuText = document.getElementById("studentTextInput").value.trim();
-    const msId = activeMsMode === "library" ? document.getElementById("msLibrarySelect").value : "";
-    const qId =
-      activeMsMode === "library"
-        ? document.getElementById("questionIdInput").value.trim()
-        : activeMsMode === "upload"
-        ? document.getElementById("questionIdUploadInput").value.trim()
-        : "";
-    const msText = activeMsMode === "paste" ? document.getElementById("msTextInput").value.trim() : "";
-
-    try {
-      if (serverAvailable === null) await loadSystemStatus();
-
-      let data;
-      if (serverAvailable) {
-        const fd = new FormData();
-        fd.append("student_text", stuText);
-        graderStudentFiles.forEach((f) => fd.append("student_files", f));
-        if (activeMsMode === "library") {
-          fd.append("ms_id", msId);
-          fd.append("question_id", qId);
-        } else if (activeMsMode === "upload") {
-          if (graderMsFile) fd.append("ms_file", graderMsFile);
-          fd.append("question_id", qId);
-        } else if (activeMsMode === "paste") {
-          fd.append("ms_text", msText);
-        }
-        const resp = await fetch("api/grade", { method: "POST", body: fd });
-        data = await resp.json();
-      } else {
-        if (graderStudentFiles.length > 0 && window.HaroonyNeuralAI) {
-          const extractedParts = [stuText];
-          for (const f of graderStudentFiles) {
-            const txt = await window.HaroonyNeuralAI.extractDocumentText(f, (st) => loader.setStatus(st));
-            if (txt) extractedParts.push(txt);
-          }
-          stuText = extractedParts.filter(Boolean).join("\n\n");
-        }
-
-        data = await window.HaroonyBrowserEngine.grade({
-          studentText: stuText,
-          studentFile: null,
-          msId: msId,
-          msText: msText,
-          msFile: activeMsMode === "upload" ? graderMsFile : null,
-          questionId: qId,
-          onProgress: (st) => loader.setStatus(st),
-        });
-      }
-
-      await minWait;
-      loader.stop();
-      renderGradeReport(data);
-    } catch (err) {
-      await minWait;
-      loader.stop();
-      renderGradeReport({ ok: false, error: "Error checking submission. Please try again." });
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Check My Answer";
     }
   });
 

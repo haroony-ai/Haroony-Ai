@@ -726,8 +726,9 @@ def grade_submission(
 
     # Case 1: Mark Scheme provided (saved MS or uploaded MS)
     if ms_obj and ms_obj.get("questions"):
-        relevant_qs = select_relevant_questions(ms_obj, cleaned_student, target_question_id)
-        graded_parts = [grade_question_part(q, cleaned_student) for q in relevant_qs]
+        question_part, answer_part = split_question_and_answer(cleaned_student)
+        relevant_qs = select_relevant_questions(ms_obj, question_part, target_question_id)
+        graded_parts = [grade_question_part(q, answer_part) for q in relevant_qs]
         total_awarded = sum(gp["awarded_marks"] for gp in graded_parts)
         total_max = sum(gp["max_marks"] for gp in graded_parts)
         pct = round(100.0 * total_awarded / max(total_max, 1), 1)
@@ -878,9 +879,14 @@ def grade_submission(
             "notes_references": format_note_references(note_refs),
         }
 
-    # 2C. Qualitative check against clean Harony Notes concepts (deterministic & contradiction-aware)
-    if note_refs:
-        best_note = note_refs[0]
+    # 2C. Qualitative check ONLY when there is strong topic/concept match (never fake a score on ambiguous fragments!)
+    meaningful_words = [
+        w for w in tokenize_words(cleaned_student)
+        if len(w) >= 3 and w not in STOPWORDS and w not in {"question", "answer", "my", "is", "the"}
+    ]
+    strong_notes = [n for n in note_refs if float(n.get("score") or 0.0) >= 0.24]
+    if strong_notes and len(meaningful_words) >= 4:
+        best_note = strong_notes[0]
         key_lines = clean_revision_bullets(best_note.get("text") or "", best_note.get("topic", ""), limit=3)
         if not key_lines:
             key_lines = [ln.strip(" •-*") for ln in (best_note.get("text") or "").splitlines() if len(ln.strip()) >= 18][:3]
@@ -909,7 +915,7 @@ def grade_submission(
             "max_marks": max_m,
             "percentage": pct,
             "grade": igcse_grade_letter(pct),
-            "examiner_feedback": build_examiner_feedback(earned, max_m, pts, note_refs),
+            "examiner_feedback": build_examiner_feedback(earned, max_m, pts, strong_notes),
             "questions": [
                 {
                     "question_id": "Concept Check",
@@ -923,10 +929,14 @@ def grade_submission(
             ],
             "related_videos": related_vids,
             "extracted_student_text": cleaned_student,
-            "notes_references": format_note_references(note_refs),
+            "notes_references": format_note_references(strong_notes),
         }
 
     return {
         "ok": False,
-        "error": "Could not match this response to a Physics mark scheme. Please attach the Mark Scheme (PDF/photo/text) or specify the Physics question.",
+        "extracted_student_text": cleaned_student,
+        "error": (
+            "I read your submission, but without the **question text** or a selected **Mark Scheme**, "
+            "I won't guess a score. Please include the question above your answer, or pick the exact book & question in **Harony MS** / **Upload MS** / **Paste MS**."
+        ),
     }

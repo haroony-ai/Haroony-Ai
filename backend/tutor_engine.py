@@ -54,7 +54,10 @@ def find_related_ms_tips(query: str, kb: HaronyKnowledgeBase) -> List[Dict[str, 
     """Find matching Cambridge 0625 Mark Scheme points to show students exact examiner keywords."""
     q_words = {
         w for w in re.findall(r"[a-z]{4,}", query.lower())
-        if w not in STOPWORDS and w not in {"explain", "describe", "what", "does", "work", "define", "state", "physics"}
+        if w not in STOPWORDS and w not in {
+            "explain", "describe", "what", "does", "work", "works", "define",
+            "state", "physics", "laws", "effect", "rule", "first", "second", "third", "fluid", "fluids",
+        }
     }
     if not q_words:
         return []
@@ -112,8 +115,8 @@ class HaroonyTutorEngine:
         if decision.category == "greeting" and not has_file:
             greeting_reply = (
                 "Hello! Welcome to **Haroony AI**.\n\n"
-                "Ask me any **IGCSE or A-Level Physics** question, attach a photo/PDF of a Physics problem, "
-                "or switch to **Check Answer** above to mark your work against a Mark Scheme."
+                "Ask me any **IGCSE or A-Level Physics** question, request **YouTube video solutions** for any topic, "
+                "or attach/paste (`Ctrl+V`) a photo or PDF of a Physics problem!"
             )
             return {
                 "ok": True,
@@ -156,8 +159,12 @@ class HaroonyTutorEngine:
 
         # 3. Check if student wants YouTube video solutions for a topic or question!
         if re.search(r"\b(?:youtube|youtu\.be|videos?|video\s+solution|watch)\b", combined_query, re.I):
-            vid_hits = self.kb.search_videos(search_query, top_k=8)
-            note_hits = self.kb.search(search_query, top_k=2)
+            note_hits = self.kb.search(search_query, top_k=3)
+            pref_unit = note_hits[0].get("unit") if note_hits and note_hits[0].get("score", 0.0) >= 0.25 else None
+            pref_topic = note_hits[0].get("topic") if note_hits else None
+            if pref_unit:
+                note_hits = [nh for nh in note_hits if nh.get("unit") == pref_unit][:2]
+            vid_hits = self.kb.search_videos(search_query, top_k=8, preferred_unit=pref_unit, preferred_topic=pref_topic)
             notes_cards = [
                 {
                     "id": nh.get("id"),
@@ -182,7 +189,7 @@ class HaroonyTutorEngine:
                     vid_lines.append(f"{idx}. **{v.get('label', 'Video Solution')}** *({loc})* — {v['video_url']}")
                 reply_md = (
                     "### 🎥 Harony Physics YouTube Video Solutions\n\n"
-                    "Here are the matching Mr. Haroony video walkthroughs from **Harony ClassWork 2027** and **P2 Classified 2027**:\n\n"
+                    "Here are the matching Mr. Haroony video walkthroughs from **Harony ClassWork 2027**, **P2 Classified 2027**, and **P4 Classified 2027**:\n\n"
                     + "\n".join(vid_lines)
                 )
             else:
@@ -202,7 +209,7 @@ class HaroonyTutorEngine:
                 "rag_context": "",
                 "solved_markdown": None,
                 "neural_generated": False,
-                "engine": "Haroony Video Library (2,085 Solutions)",
+                "engine": "Haroony Video Library (2,793 Solutions)",
             }
 
         # 3b. Check if student wants a practice / quiz question!
@@ -211,9 +218,12 @@ class HaroonyTutorEngine:
 
         # 4. Run Symbolic Physics Calculation Solver + Harony Notes Semantic Retrieval
         solved = try_solve_physics_problem(combined_query)
-        note_hits = self.kb.search(search_query, top_k=3)
+        raw_note_hits = self.kb.search(search_query, top_k=4)
+        primary_unit = raw_note_hits[0].get("unit") if raw_note_hits and raw_note_hits[0].get("score", 0.0) >= 0.24 else None
+        primary_topic = raw_note_hits[0].get("topic") if raw_note_hits else None
+        note_hits = [nh for nh in raw_note_hits if not primary_unit or nh.get("unit") == primary_unit][:3]
         ms_tips = find_related_ms_tips(search_query, self.kb)
-        vid_hits = self.kb.search_videos(search_query, top_k=3)
+        vid_hits = self.kb.search_videos(search_query, top_k=3, preferred_unit=primary_unit, preferred_topic=primary_topic)
 
         # Build context block for optional neural LLM enhancement
         ctx_parts = []
