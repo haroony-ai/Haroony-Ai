@@ -10,8 +10,8 @@
   let kbData = null;
 
   const REFUSAL_MSG =
-    "I'm **Haroony AI** (**Harony Physics Clinic**), and I strictly answer **Physics** questions and mark Physics exam work only!\n\n" +
-    "Ask me anything about **IGCSE / A-Level Physics** — *Mechanics, Thermal Physics, Waves, Light, Electricity, Electromagnetism, Nuclear Physics, or Space Physics* — or open **Correct Answer & MS** to grade your Physics work.";
+    "I'm **Haroony AI**, and I only answer **Physics** questions and mark Physics exam work.\n\n" +
+    "Feel free to ask about *Mechanics, Thermal Physics, Waves, Light, Electricity, Electromagnetism, Nuclear Physics, or Space Physics*, or open **Check Answer** to grade your work.";
 
   const JAILBREAK_RE =
     /\b(ignore\s+(?:all\s+|previous\s+|prior\s+)?instructions|disregard\s+(?:your\s+)?rules|pretend\s+you\s+are|act\s+as\s+a\s+general|bypass\s+guardrail|system\s+prompt)\b/i;
@@ -356,13 +356,11 @@
           refused: false,
           category: "greeting",
           reply:
-            "Hello! Welcome to **Haroony AI** (**Harony Physics Clinic**).\n\n" +
-            "I am powered by **Mr. Haroony's 2026 IGCSE Physics Notes (243 pages)**, **Harony ClassWork 2027**, and **Harony P2 Classified 2027** — running **100% free with zero rate limits**!\n\n" +
-            "- Ask any Physics concept, formula, or calculation.\n" +
-            "- Switch to **Correct Answer & MS** to grade your answers against Mr. Haroony's 2027 Mark Schemes & watch video solutions!",
+            "Hello! Welcome to **Haroony AI**.\n\n" +
+            "Ask me any **IGCSE or A-Level Physics** question, attach a photo/PDF of a Physics problem, or switch to **Check Answer** above to mark your work against a Mark Scheme.",
           notes_cards: [],
           video_links: [],
-          engine: "Haroony Physics AI",
+          engine: "Haroony AI",
         };
       }
 
@@ -431,7 +429,7 @@
       if (!text) {
         return {
           ok: false,
-          error: "Please type your Physics working/answer in Step 1 (or click the Sample ClassWork Demo button above).",
+          error: "Please enter your Physics answer in Step 1 first.",
         };
       }
 

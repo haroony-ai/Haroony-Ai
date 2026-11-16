@@ -3,207 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Haroony AI — Harony Physics Clinic | Free Physics Tutor &amp; 2027 MS Examiner</title>
+  <title>Haroony AI</title>
   <link rel="stylesheet" href="static/styles.css" />
 </head>
 <body>
-  <!-- Top Navigation Header -->
+  <!-- Minimal Top Header -->
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand" id="brandHome" title="Harony Physics Clinic — Haroony AI">
+      <div class="brand" id="brandHome" title="Haroony AI">
         <img src="static/assets/harony_logo.webp" alt="Harony Physics Clinic" class="brand-logo" />
-        <div class="brand-meta">
-          <div class="brand-title-row">
-            <span class="brand-name">Haroony AI</span>
-            <span class="badge badge-free">FREE &bull; NO RATE LIMITS</span>
-          </div>
-          <p class="brand-sub">Harony Notes 2026 &bull; ClassWork 2027 &bull; P2/P4 Classified &bull; Strictly Physics Only</p>
-        </div>
+        <span class="brand-name">Haroony AI</span>
       </div>
 
-      <nav class="nav-tabs" role="tablist" aria-label="Haroony AI Modes">
-        <button class="nav-tab active" data-tab="tutor" role="tab" aria-selected="true">
-          <span class="tab-icon">💬</span>
-          <span>Ask Physics AI</span>
+      <nav class="nav-tabs" role="tablist" aria-label="Modes">
+        <button class="nav-tab active" data-tab="tutor" role="tab" aria-selected="true" type="button">
+          Ask AI
         </button>
-        <button class="nav-tab" data-tab="grader" role="tab" aria-selected="false">
-          <span class="tab-icon">✅</span>
-          <span>Correct Answer &amp; MS</span>
-        </button>
-        <button class="nav-tab" data-tab="notes" role="tab" aria-selected="false">
-          <span class="tab-icon">📘</span>
-          <span>Harony Notes</span>
-        </button>
-        <button class="nav-tab" data-tab="teacher" role="tab" aria-selected="false">
-          <span class="tab-icon">🎓</span>
-          <span>Teacher Studio</span>
+        <button class="nav-tab" data-tab="grader" role="tab" aria-selected="false" type="button">
+          Check Answer
         </button>
       </nav>
     </div>
   </header>
 
   <main class="container">
-    <!-- ==================== TAB 1: ASK PHYSICS TUTOR ==================== -->
+    <!-- ==================== TAB 1: ASK AI ==================== -->
     <section id="tab-tutor" class="tab-panel active" role="tabpanel">
-      <div class="tutor-layout">
-        <div class="chat-card">
-          <div class="chat-header">
-            <div class="chat-header-left">
-              <img src="static/assets/einstein_mascot.webp" alt="Haroony AI Mascot" class="mascot-avatar" />
-              <div>
-                <h2>Ask Haroony Physics AI</h2>
-                <p>Trained on Mr. Haroony's 2026 Notes, 2027 ClassWork &amp; 2027 Classified Books + 2,085 video solutions. Non-Physics is strictly refused.</p>
-              </div>
-            </div>
-            <button id="clearChatBtn" class="btn btn-ghost btn-sm" type="button" title="Start fresh chat">Clear Chat</button>
-          </div>
-
-          <!-- Quick Starter Chips -->
-          <div class="starter-chips" id="starterChips">
-            <button type="button" class="chip" data-prompt="A small aircraft of mass 820 kg travels at a constant speed of 60 m/s. Calculate its kinetic energy.">
-              ⚡ Calculate Kinetic Energy (820 kg, 60 m/s)
-            </button>
-            <button type="button" class="chip" data-prompt="Explain how a split-ring commutator works in a D.C. motor.">
-              🧲 D.C. Motor &amp; Split-Ring Commutator
-            </button>
-            <button type="button" class="chip" data-prompt="Why does a transformer require alternating current (a.c.) instead of direct current (d.c.)?">
-              🔌 Why Transformers Need A.C.
-            </button>
-            <button type="button" class="chip" data-prompt="How do I measure the volume of an irregular solid accurately and avoid parallax error?">
-              📏 Irregular Volume &amp; Parallax
-            </button>
-            <button type="button" class="chip" data-prompt="Quiz me with an IGCSE Physics practice question!">
-              📝 Quiz Me!
-            </button>
-            <button type="button" class="chip chip-guardrail" data-prompt="Write a recipe for chocolate cake and a poem about summer.">
-              🛡️ Test Non-Physics Refusal
-            </button>
-          </div>
-
-          <!-- Messages Stream -->
-          <div class="chat-messages" id="chatMessages">
-            <div class="msg msg-ai">
-              <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
-              <div class="msg-bubble">
-                <div class="msg-meta">Haroony AI &bull; Harony Physics Clinic</div>
-                <div class="msg-content">
-                  <p>Welcome to <strong>Haroony AI</strong>! I am built on <strong>Mr. Haroony's 2026 IGCSE Physics Notes (243 pages)</strong>, <strong>Harony ClassWork 2027 (674 pages)</strong>, and <strong>Harony P2 Classified 2027 (656 pages)</strong> — including <strong>1,546 official Mark Scheme questions</strong> and <strong>2,085 video solutions</strong>.</p>
-                  <ul>
-                    <li><strong>Ask any Physics question or past-paper code</strong> — definitions, formulas, step-by-step calculations, or exam precautions.</li>
-                    <li><strong>Attach a photo or PDF</strong> (📷 button below) of a Physics question or diagram and I will read &amp; solve it.</li>
-                    <li>Need your written answer marked against Mr. Haroony's <strong>2027 Mark Schemes (MS)</strong>? Open the <strong>✅ Correct Answer &amp; MS</strong> tab above!</li>
-                  </ul>
-                </div>
-              </div>
+      <div class="chat-card">
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="mascot-avatar" />
+            <div>
+              <h2>Physics Tutor</h2>
+              <p>Ask any Physics question or attach a photo/PDF</p>
             </div>
           </div>
-
-          <!-- Attachment Preview Bar -->
-          <div id="chatAttachmentBar" class="attachment-bar hidden">
-            <div class="attachment-info">
-              <span class="attachment-badge">📎 Attached</span>
-              <span id="chatAttachmentName" class="attachment-name"></span>
-            </div>
-            <button type="button" id="removeChatAttachment" class="btn-icon" title="Remove file">&times;</button>
-          </div>
-
-          <!-- Chat Input Form -->
-          <form id="chatForm" class="chat-input-bar">
-            <label for="chatFileInput" class="btn btn-attach" title="Upload Photo or PDF of a Physics question">
-              📷 <span>Photo / PDF</span>
-            </label>
-            <input type="file" id="chatFileInput" accept="image/*,.pdf" hidden />
-            <textarea
-              id="chatInput"
-              rows="1"
-              placeholder="Ask any Physics question or paper code (e.g. 2023 March P4 V2 Q02 Density)..."
-            ></textarea>
-            <button type="submit" id="chatSendBtn" class="btn btn-primary">
-              Ask AI &rarr;
-            </button>
-          </form>
+          <button id="clearChatBtn" class="btn btn-ghost btn-sm" type="button">New chat</button>
         </div>
+
+        <!-- Messages Stream -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg msg-ai">
+            <img src="static/assets/einstein_mascot.webp" alt="Haroony AI" class="msg-avatar" />
+            <div class="msg-bubble">
+              <div class="msg-content">
+                <p>Hi! Ask me any <strong>Physics</strong> question, or attach a photo or PDF of a problem you want solved step-by-step.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiet Quick Starters (auto-hide once chatting) -->
+        <div class="starter-chips" id="starterChips">
+          <button type="button" class="chip" data-prompt="A small aircraft of mass 820 kg travels at a constant speed of 60 m/s. Calculate its kinetic energy.">
+            Calculate kinetic energy
+          </button>
+          <button type="button" class="chip" data-prompt="Explain how a split-ring commutator works in a D.C. motor.">
+            How a D.C. motor works
+          </button>
+          <button type="button" class="chip" data-prompt="Why does a transformer require alternating current (a.c.) instead of direct current (d.c.)?">
+            Why transformers need A.C.
+          </button>
+        </div>
+
+        <!-- Attachment Preview Bar -->
+        <div id="chatAttachmentBar" class="attachment-bar hidden">
+          <div class="attachment-info">
+            <span class="attachment-badge">Attached</span>
+            <span id="chatAttachmentName" class="attachment-name"></span>
+          </div>
+          <button type="button" id="removeChatAttachment" class="btn-icon" aria-label="Remove attachment">&times;</button>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <form id="chatForm" class="chat-input-bar">
+          <label for="chatFileInput" class="btn btn-attach" title="Upload Photo or PDF">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+            </svg>
+            <span>Photo / PDF</span>
+          </label>
+          <input type="file" id="chatFileInput" accept="image/*,.pdf" hidden />
+          <textarea
+            id="chatInput"
+            rows="1"
+            placeholder="Ask a Physics question..."
+          ></textarea>
+          <button type="submit" id="chatSendBtn" class="btn btn-primary">
+            Send
+          </button>
+        </form>
       </div>
     </section>
 
-    <!-- ==================== TAB 2: CORRECT ANSWER + MARK SCHEME ==================== -->
+    <!-- ==================== TAB 2: CHECK ANSWER ==================== -->
     <section id="tab-grader" class="tab-panel" role="tabpanel">
-      <!-- 1-Click Harony ClassWork 2027 Demo Banner -->
-      <div class="demo-banner">
-        <div class="demo-banner-text">
-          <strong>✨ Instant Harony ClassWork 2027 Demo:</strong>
-          Test Haroony AI on <code>Harony ClassWork 2027</code> Unit 1 (<code>2023 March P4 V2 Q02a — Density</code>) + Official Mark Scheme + Mr. Haroony Video Solution!
-        </div>
-        <button type="button" id="runSampleDemoBtn" class="btn btn-accent btn-sm">
-          ▶ Try ClassWork 2027 Sample + MS
-        </button>
-      </div>
-
       <form id="gradeForm" class="grader-grid">
-        <!-- Box 1: Student Answer -->
+        <!-- Step 1: Student Answer -->
         <div class="panel-card">
           <div class="panel-card-header">
-            <span class="step-pill">Step 1</span>
-            <h3>Your Physics Answer (Photo, PDF, or Text)</h3>
+            <span class="step-pill">1</span>
+            <h3>Your Answer</h3>
           </div>
-          <p class="panel-help">Upload smartphone photo(s) or a scanned PDF of your handwritten/typed Physics work, or type your answer below.</p>
+          <p class="panel-help">Upload a photo/PDF of your handwritten work or type your answer below.</p>
 
           <label for="studentFilesInput" class="dropzone" id="studentDropzone">
-            <div class="dropzone-icon">📸</div>
-            <div class="dropzone-title">Click or drag &amp; drop Student Answer Photo(s) / PDF</div>
-            <div class="dropzone-sub">Supports JPG, PNG, WebP, or Scanned PDF (handwritten or printed)</div>
+            <div class="dropzone-icon">📷</div>
+            <div class="dropzone-title">Upload answer photo or PDF</div>
+            <div class="dropzone-sub">Drag &amp; drop or click to browse</div>
             <input type="file" id="studentFilesInput" accept="image/*,.pdf" multiple hidden />
           </label>
           <div id="studentFilesList" class="file-pills"></div>
 
-          <!-- Sample ClassWork Preview Thumbnail -->
-          <div id="samplePreviewBox" class="sample-preview-box hidden">
-            <div class="sample-preview-header">
-              <span>📄 Loaded <code>Harony ClassWork 2027</code> Page 8 (Unit 1 Ch 0 — Density <code>2023 March P4 V2 Q02a</code>):</span>
-              <button type="button" id="clearSampleDemoBtn" class="btn btn-ghost btn-xs">Clear Sample</button>
-            </div>
-            <div class="sample-thumbs">
-              <img src="static/samples/classwork_u1_p8.webp" alt="Harony ClassWork 2027 Page 8" class="sample-thumb" data-lightbox="static/samples/classwork_u1_p8.webp" data-caption="Harony ClassWork 2027 — Unit 1 Ch 0: Measurements &amp; Density (Page 8)" />
-            </div>
-          </div>
-
           <div class="field-group">
-            <label for="studentTextInput">Or Type / Edit Your Physics Working &amp; Answer:</label>
+            <label for="studentTextInput">Or type your working &amp; answer</label>
             <textarea
               id="studentTextInput"
               rows="5"
-              placeholder="Example:&#10;2023 March P4 V2 Q02a:&#10;The ship is not solid steel (it contains air spaces), so the overall average density of the ship is less than the density of water."
+              placeholder="Write your formula, working, and final answer here..."
             ></textarea>
           </div>
         </div>
 
-        <!-- Box 2: Mark Scheme (MS) -->
+        <!-- Step 2: Mark Scheme -->
         <div class="panel-card">
           <div class="panel-card-header">
-            <span class="step-pill">Step 2</span>
-            <h3>Mark Scheme ("MS")</h3>
+            <span class="step-pill">2</span>
+            <h3>Mark Scheme</h3>
           </div>
-          <p class="panel-help">Choose a built-in Harony 2027 ClassWork / P2 Classified Mark Scheme, upload any MS PDF/photo, paste MS text, or use Auto Solver.</p>
+          <p class="panel-help">Select a Mark Scheme, upload one, paste criteria, or use Auto Check.</p>
 
           <div class="ms-mode-switcher" role="radiogroup" aria-label="Mark Scheme Source">
-            <button type="button" class="ms-mode-btn active" data-ms-mode="library">📚 Harony 2027 MS</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="upload">📄 Upload MS File</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="paste">✍️ Paste MS</button>
-            <button type="button" class="ms-mode-btn" data-ms-mode="auto">🤖 Auto Solver (No MS)</button>
+            <button type="button" class="ms-mode-btn active" data-ms-mode="library">Saved MS</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="upload">Upload MS</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="paste">Paste MS</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="auto">Auto Check</button>
           </div>
 
           <!-- Submode A: Saved Library MS -->
-          <div id="ms-pane-library" class="ms-pane active">
+          <div id="ms-pane-library" class="ms-pane">
             <div class="field-group">
-              <label for="msLibrarySelect">Select Harony 2027 Mark Scheme Book:</label>
+              <label for="msLibrarySelect">Mark Scheme book</label>
               <select id="msLibrarySelect"></select>
             </div>
             <div class="field-group">
-              <label for="questionIdInput">Past Paper Question Filter (optional — e.g. <code>2023 March P4 V2 Q02</code>, <code>Q09 d</code>, or leave blank):</label>
+              <label for="questionIdInput">Question filter <span class="muted-tag">(optional)</span></label>
               <input
                 type="text"
                 id="questionIdInput"
-                placeholder="e.g. 2023 March P4 V2 Q02, 2025 Nov P4 V1, Density, or leave blank"
+                placeholder="e.g. 2023 March P4 V2 Q02 or leave blank"
               />
             </div>
           </div>
@@ -211,14 +159,14 @@
           <!-- Submode B: Upload MS PDF / Photo -->
           <div id="ms-pane-upload" class="ms-pane hidden">
             <label for="msFileInput" class="dropzone dropzone-compact">
-              <div class="dropzone-icon">📑</div>
-              <div class="dropzone-title">Upload Mark Scheme PDF or Screenshot Photo</div>
-              <div class="dropzone-sub">Official Cambridge/Edexcel MS PDF or photo of marking points</div>
+              <div class="dropzone-icon">📄</div>
+              <div class="dropzone-title">Upload Mark Scheme PDF or photo</div>
+              <div class="dropzone-sub">Official MS PDF or screenshot</div>
               <input type="file" id="msFileInput" accept="image/*,.pdf" hidden />
             </label>
             <div id="msFilePill" class="file-pills"></div>
             <div class="field-group">
-              <label for="questionIdUploadInput">Question Number Filter (optional):</label>
+              <label for="questionIdUploadInput">Question filter <span class="muted-tag">(optional)</span></label>
               <input type="text" id="questionIdUploadInput" placeholder="e.g. 2(b) or leave blank" />
             </div>
           </div>
@@ -226,143 +174,30 @@
           <!-- Submode C: Paste MS Text -->
           <div id="ms-pane-paste" class="ms-pane hidden">
             <div class="field-group">
-              <label for="msTextInput">Paste Mark Scheme Criteria:</label>
+              <label for="msTextInput">Paste Mark Scheme points</label>
               <textarea
                 id="msTextInput"
-                rows="6"
-                placeholder="Example:&#10;1(a) (nuclear) fusion B1 CON fission&#10;hydrogen nuclei join B1&#10;to form helium B1"
+                rows="5"
+                placeholder="e.g.&#10;1(a) nuclear fusion B1&#10;hydrogen nuclei join to form helium B1"
               ></textarea>
             </div>
           </div>
 
-          <!-- Submode D: Auto Physics Solver (No MS) -->
+          <!-- Submode D: Auto Check (No MS) -->
           <div id="ms-pane-auto" class="ms-pane hidden">
             <div class="info-callout">
-              <strong>No Mark Scheme handy? No problem!</strong>
-              <p>Include the Physics question (in your photo or text) alongside your answer. Haroony AI will solve the Physics equation symbolically and check your formula, working, units, and significant figures.</p>
+              Include the Physics question with your answer — Haroony AI will solve it step-by-step and check your formula, working, and units automatically.
             </div>
           </div>
 
           <button type="submit" id="gradeSubmitBtn" class="btn btn-primary btn-lg btn-block">
-            ✅ Correct &amp; Grade My Physics Answer
+            Check My Answer
           </button>
         </div>
       </form>
 
-      <!-- Grading Output Report -->
+      <!-- Grading Output Area -->
       <div id="gradeResultArea" class="grade-result-area hidden"></div>
-    </section>
-
-    <!-- ==================== TAB 3: HARONY NOTES EXPLORER ==================== -->
-    <section id="tab-notes" class="tab-panel" role="tabpanel">
-      <div class="panel-card">
-        <div class="notes-toolbar">
-          <div>
-            <h2>📘 Harony Physics Clinic Notes (2026 Final — All 243 Illustrated Pages)</h2>
-            <p class="panel-help">Search or browse all 7 IGCSE Physics units indexed inside Haroony AI. Click any page card to zoom in.</p>
-          </div>
-          <div class="notes-search-row">
-            <select id="notesUnitFilter">
-              <option value="">All 7 Units</option>
-            </select>
-            <input type="search" id="notesSearchInput" placeholder="Search topic, formula, or experiment (e.g. lenses, moments, half-life)..." />
-            <button type="button" id="notesSearchBtn" class="btn btn-primary">Search</button>
-          </div>
-        </div>
-        <div id="notesGrid" class="notes-grid"></div>
-      </div>
-    </section>
-
-    <!-- ==================== TAB 4: TEACHER TRAINING STUDIO ==================== -->
-    <section id="tab-teacher" class="tab-panel" role="tabpanel">
-      <!-- Model Metrics Banner (visible always) -->
-      <div class="metrics-strip" id="metricsStrip">
-        <div class="metric-box">
-          <span class="metric-label">AI Engine Status</span>
-          <strong class="metric-val text-success" id="metricEngineMode">100% Free &bull; Unlimited</strong>
-        </div>
-        <div class="metric-box">
-          <span class="metric-label">Harony Books Indexed</span>
-          <strong class="metric-val" id="metricNotesCount">342 Chunks (243 Slides)</strong>
-        </div>
-        <div class="metric-box">
-          <span class="metric-label">2027 MS &amp; Video Links</span>
-          <strong class="metric-val" id="metricMsCount">1,546 Qs &bull; 2,085 Videos</strong>
-        </div>
-        <div class="metric-box">
-          <span class="metric-label">Physics Guardrail Accuracy</span>
-          <strong class="metric-val" id="metricAccuracy">100.0%</strong>
-        </div>
-      </div>
-
-      <!-- PIN Unlock Card -->
-      <div id="teacherLockCard" class="panel-card teacher-lock-card">
-        <h3>🔐 Teacher Training &amp; Material Studio</h3>
-        <p class="panel-help">Unlock to upload additional books (such as <code>Harony P4 CLS 2027 Deep final New.pdf</code>), add Mark Schemes to the student library, re-train Haroony AI, or connect a local Ollama VLM.</p>
-        <form id="teacherPinForm" class="pin-row">
-          <input type="password" id="teacherPinInput" placeholder="Enter Teacher PIN (default: 0625)" required />
-          <button type="submit" class="btn btn-primary">Unlock Studio</button>
-        </form>
-        <p class="tiny-hint">Default PIN is <code>0625</code> (override anytime via <code>HAROONY_TEACHER_PIN</code> environment variable).</p>
-      </div>
-
-      <!-- Unlocked Studio Controls -->
-      <div id="teacherStudioContent" class="teacher-grid hidden">
-        <div class="panel-card">
-          <h3>📚 Train on New Physics Books / Notes (PDF / Text)</h3>
-          <p class="panel-help">Upload additional handouts, classified books (e.g. <code>Harony P4 CLS 2027</code>), or revision PDFs. Haroony AI extracts, indexes, and re-trains immediately.</p>
-          <form id="uploadNotesForm" class="stack-form">
-            <input type="text" name="title" placeholder="Material Title (e.g. Harony P4 CLS 2027)" required />
-            <div class="two-col">
-              <input type="text" name="unit" placeholder="Unit (e.g. Unit 1: Mechanics)" value="Harony P4 Classified 2027" />
-              <input type="text" name="topic" placeholder="Topic (e.g. Classified Paper 4)" />
-            </div>
-            <input type="file" name="file" accept=".pdf,.txt,.md,image/*" />
-            <textarea name="text_content" rows="4" placeholder="Or paste Physics notes / formulas / definitions here..."></textarea>
-            <button type="submit" class="btn btn-primary">Upload &amp; Re-Train Haroony AI</button>
-          </form>
-        </div>
-
-        <div class="panel-card">
-          <h3>📑 Add Mark Scheme (MS) to Student Library</h3>
-          <p class="panel-help">Upload any Cambridge / Edexcel / Harony Classified Mark Scheme PDF so students can select it in 1 click when grading their work.</p>
-          <form id="uploadMsForm" class="stack-form">
-            <input type="text" name="title" placeholder="Optional Title (auto-detected from PDF header)" />
-            <input type="file" name="file" accept=".pdf,image/*" />
-            <textarea name="ms_text" rows="4" placeholder="Or paste Mark Scheme text here..."></textarea>
-            <button type="submit" class="btn btn-primary">Add Mark Scheme &amp; Re-Train</button>
-          </form>
-        </div>
-
-        <div class="panel-card">
-          <h3>⚙️ Self-Hosted Neural Vision Boost (Optional — Still 100% Free)</h3>
-          <p class="panel-help">Haroony AI runs 100% standalone (both on Python server &amp; GitHub Pages!). If you also run open-source <strong>Ollama</strong> (e.g. <code>qwen2.5-vl:7b</code>), link it here with zero rate limits.</p>
-          <form id="neuralSettingsForm" class="stack-form">
-            <label class="checkbox-row">
-              <input type="checkbox" id="ollamaEnabledChk" />
-              <span>Enable Self-Hosted Ollama Neural Model</span>
-            </label>
-            <div class="two-col">
-              <input type="text" id="ollamaUrlInput" value="http://127.0.0.1:11434" placeholder="Ollama URL" />
-              <input type="text" id="ollamaModelInput" value="qwen2.5-vl:7b" placeholder="Model (e.g. qwen2.5-vl:7b)" />
-            </div>
-            <div class="btn-row">
-              <button type="submit" class="btn btn-primary">Save Engine Settings</button>
-              <button type="button" id="retrainNowBtn" class="btn btn-accent">🔄 Re-Train Local ML Models</button>
-            </div>
-          </form>
-          <div id="teacherStatusMsg" class="status-toast hidden"></div>
-        </div>
-
-        <div class="panel-card">
-          <h3>🚀 Free GitHub Pages + Hugging Face Spaces Hosting</h3>
-          <ul class="deploy-list">
-            <li><strong>GitHub Pages Ready:</strong> Includes root <code>index.html</code> + <code>static/browser_kb.json</code> + <code>.github/workflows/deploy-pages.yml</code> so the full Physics Tutor, Guardrail, Notes Explorer, and 2027 MS Grader work 100% free on GitHub Pages!</li>
-            <li><strong>Full Vision OCR Server Hosting:</strong> Includes a ready-to-deploy <code>Dockerfile</code> for <strong>Hugging Face Spaces (Free 16 GB RAM CPU Tier)</strong> for server-side RapidOCR handwriting &amp; PDF extraction.</li>
-            <li><strong>LoRA Fine-Tuning Dataset:</strong> <code>data/training/haroony_sft_dataset.jsonl</code> (791 examples built from Mr. Haroony's 2026/2027 books) + <code>training/Train_Haroony_AI_Colab.ipynb</code>.</li>
-          </ul>
-        </div>
-      </div>
     </section>
   </main>
 
@@ -371,7 +206,7 @@
     <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
     <div class="lightbox-content">
       <button type="button" id="lightboxClose" class="lightbox-close" aria-label="Close">&times;</button>
-      <img id="lightboxImg" src="" alt="Enlarged Physics Page" />
+      <img id="lightboxImg" src="" alt="Physics Slide" />
       <div id="lightboxCaption" class="lightbox-caption"></div>
     </div>
   </div>

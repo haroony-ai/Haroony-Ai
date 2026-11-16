@@ -12,7 +12,9 @@ ENV HOME=/home/user \
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /app/requirements.txt
+    pip install --no-cache-dir -r /app/requirements.txt && \
+    pip uninstall -y opencv-python && \
+    pip install --no-cache-dir --force-reinstall opencv-python-headless
 
 COPY --chown=user:user . /app
 

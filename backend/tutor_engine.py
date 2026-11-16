@@ -111,14 +111,9 @@ class HaroonyTutorEngine:
 
         if decision.category == "greeting" and not has_file:
             greeting_reply = (
-                "Hello! Welcome to **Haroony AI** (**Harony Physics Clinic**).\n\n"
-                "I am trained on **Mr. Haroony's 2026 IGCSE Physics Notes (243 pages)**, **Harony ClassWork 2027 (674 pages)**, "
-                "and **Harony P2 Classified 2027 (656 pages)** — including **1,546 official Mark Scheme questions** and **2,085 video solutions**, "
-                "running **100% free with zero rate limits**.\n\n"
-                "Here is how I can help you right now:\n"
-                "- **Ask any Physics concept, past paper code, or calculation** (Mechanics, Thermal, Waves, Light, Electricity, Electromagnetism, Nuclear, or Astronomy).\n"
-                "- **Upload a photo or PDF of a Physics question** and I will read it and solve it step-by-step.\n"
-                "- Switch to **Correct Answer & MS** above to upload your handwritten work + select from Mr. Haroony's 2027 ClassWork / P2 Mark Schemes (or upload any MS)!"
+                "Hello! Welcome to **Haroony AI**.\n\n"
+                "Ask me any **IGCSE or A-Level Physics** question, attach a photo/PDF of a Physics problem, "
+                "or switch to **Check Answer** above to mark your work against a Mark Scheme."
             )
             return {
                 "ok": True,
@@ -128,7 +123,7 @@ class HaroonyTutorEngine:
                 "notes_cards": [],
                 "video_links": [],
                 "ocr_text": None,
-                "engine": "Haroony Physics AI",
+                "engine": "Haroony AI",
             }
 
         # 2. If student attached a photo or PDF, run local Vision OCR!
