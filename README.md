@@ -1,45 +1,65 @@
-# Haroony AI — Harony Physics Clinic ⚡📘
+# Haroony AI — Harony Physics Clinic (Cambridge IGCSE 0625)
 
-**Haroony AI** is a **100% free, zero-rate-limit IGCSE & A-Level Physics AI Tutor and Cambridge Mark Scheme ("MS") Examiner** built exclusively on **Mr. Haroony's 2026 & 2027 Physics Books** for **Harony Physics Clinic** students.
-
----
-
-## 📚 Built-In Harony Physics Clinic Corpus
-
-1. **`Harony Notes 2026 Final.pdf` (243 Illustrated Pages)** — Full IGCSE Physics (0625) syllabus across Units 1–7, rendered as zoomable WebP slide cards and indexed in a hybrid TF-IDF + SVD semantic retriever.
-2. **`Harony ClassWork 2027 Deep Final.pdf` (674 Pages)** — **520 Official Paper 4 & Paper 2 Mark Scheme questions** across Units 1–7 (extracted via coordinate-aligned ONNX OCR) paired with **772 Mr. Haroony YouTube video explanations**.
-3. **`Harony P2 CLS 2027 Deep final New.pdf` (656 Pages)** — **1,026 Classified Paper 2 MCQ Answer Keys** (2016–Nov 2025) paired with **1,313 Mr. Haroony YouTube video explanations**.
-4. **Teacher Studio Upload Support** — Upload additional books (including **`Harony P4 CLS 2027 Deep final New.pdf`**) or new Mark Schemes directly from the web UI and re-train in seconds.
+**Haroony AI** is a clean, unified single-chat **Cambridge IGCSE Physics (0625 — Core & Extended)** AI Tutor and Mark Scheme Grader built on Mr. Haroony's 2026 & 2027 Physics books, classified papers, mark schemes, and YouTube video solutions.
 
 ---
 
-## ✨ Key Features
+## Repository Structure (Organized for Google AI Studio & Self-Hosting)
 
-- **💬 Strict Physics-Only AI Tutor (`100.0%` Validation F1 Guardrail)** — Answers Physics concepts, past-paper codes, and calculations step-by-step with visual slide citations and **🎥 Mr. Haroony YouTube solution links**, while strictly refusing any non-Physics prompt.
-- **✅ Photo + Mark Scheme ("MS") Examiner** — Grade handwritten exam photos, PDFs, or typed answers against all **8 built-in Harony 2027 Mark Scheme books (1,546 questions)**, uploaded MS PDFs/screenshots, or pasted criteria using authentic Cambridge `B`, `M`, `C`, `A`, `CON`, and `TV` rules.
-- **📘 Interactive 243-Page Harony Notes Explorer** — Browse and search all 7 Units of *Harony Notes 2026 Final*.
-- **🎓 Teacher Training Studio (PIN `0625`)** — Upload PDFs/notes/Mark Schemes, re-train models, or connect local **Ollama** (`qwen2.5-vl:7b`).
+```text
+Haroony-Ai/
+├── index.html                  # Single-screen Haroony AI student chat UI (root for GitHub Pages)
+├── favicon.ico / .nojekyll     # Site icon & static hosting marker
+├── backend/                    # FastAPI server, 0625 Physics solver/reasoner, guardrail, OCR & MS grader
+├── static/                     # Frontend CSS/JS, Harony slide pages (243 WebP), browser KB & QA bundles
+├── data/
+│   ├── harony_concept_atlas.json   # 35 structured Cambridge 0625 Concept Atlas modules
+│   ├── harony_notes_chunks.json    # 445 indexed Harony 2026/2027 Notes chunks + page citations
+│   ├── harony_question_bank.json   # 1,731 indexed Question Bank pages
+│   ├── mark_schemes.json           # 15 Mark Scheme books (2,103 question parts)
+│   ├── video_solutions.json        # 2,793 indexed YouTube video solution links
+│   └── training/
+│       ├── gemini_sft_dataset.jsonl    # 2,915 formatted Q&A instruction pairs for Google AI Studio / Gemini
+│       ├── harony_sft_dataset.jsonl    # Full Harony SFT corpus
+│       ├── haroony_sft_dataset.jsonl   # Student-tutor conversational pairs
+│       └── openai_sft_dataset.jsonl    # Chat-format SFT export
+├── models/                     # Pretrained local ML models (<100 MB each)
+│   ├── neural_subtopic_mlp.joblib      # 2-layer Neural Network (35-topic classifier)
+│   ├── physics_guardrail.joblib        # Strict 0625 Physics-only guardrail (14,603 samples, 1.0 F1)
+│   ├── topic_classifier.joblib         # Cambridge Unit classifier (98.31% acc)
+│   ├── question_bank_retriever.joblib  # Past-paper retriever
+│   ├── qa_intent_classifier.joblib     # Intent router
+│   └── model_metrics.json              # Verified training metrics
+├── scripts/                    # Dataset builders, OCR ingestion, local & cloud fine-tuning scripts
+├── training/                   # Colab fine-tuning notebook & Modelfile
+└── tests/                      # 17 end-to-end integration test suites (`test_haroony_ai.py`)
+```
 
 ---
 
-## 🌐 Dual-Mode Free Deployment (GitHub Pages + Docker / Hugging Face Spaces)
+## Importing & Training in Google AI Studio
 
-### Option A: GitHub Pages (Instant $0 Static Hosting — Zero Server Needed!)
-This repository includes a root `index.html`, `.nojekyll`, `static/browser_engine.js`, `static/browser_kb.json`, and `.github/workflows/deploy-pages.yml`:
-1. In your GitHub repo (`toolautomation2-droid/Haroony-Ai`), go to **Settings → General** (make repository **Public** if on GitHub Free).
-2. Go to **Settings → Pages** → under **Build and deployment**, select **GitHub Actions** (or **Deploy from a branch → `main` / `/ (root)`**).
-3. Your live student app publishes at: **`https://toolautomation2-droid.github.io/Haroony-Ai/`**
+1. **Import Repository / Files:** Connect this repository (or upload `data/training/gemini_sft_dataset.jsonl` plus the JSON files in `data/`) into Google AI Studio.
+2. **Fine-Tune / Ground on 0625 Materials:** Use `data/training/gemini_sft_dataset.jsonl` (or run `scripts/tune_gemini.py`) and attach your Harony 2026/2027 PDFs so the model grounds every answer in Harony's Cambridge 0625 notes, mark schemes, and video solutions.
+3. **Keep Secrets Server-Side:** Store API keys in `.env` (see `.env.example`) or hosting environment variables — never commit keys or expose third-party provider names in student-facing HTML/JS.
 
-### Option B: Full Python + Vision OCR Server (Local / Hugging Face Spaces Free Docker Tier)
+---
+
+## Running Locally or Via Docker
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Train / refresh local ML models & browser bundle
+# Retrain local models & rebuild browser KB
 python3 scripts/train_haroony_ai.py
 
-# Start the website on http://0.0.0.0:8000
+# Start server
 uvicorn backend.app:app --host 0.0.0.0 --port 8000
+
+# Run integration tests
+python3 tests/test_haroony_ai.py
 ```
-To host the full Python + `RapidOCR` server 24/7 for `$0/month`, connect this repository to a free **Hugging Face Docker Space** (uses the included `Dockerfile` on port `7860`).
+
+Or double-click `START_HAROONY_AI.bat` (Windows) / `START_HAROONY_AI.command` (macOS).

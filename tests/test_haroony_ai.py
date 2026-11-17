@@ -25,8 +25,6 @@ def run_all_tests() -> None:
             "/static/styles.css",
             "/static/app.js",
             "/static/neural_client.js",
-            "/static/llm_worker.js",
-            "/static/wasm_llm_worker.js",
             "/static/browser_engine.js",
             "/static/browser_kb.json",
             "/static/assets/harony_logo.webp",
