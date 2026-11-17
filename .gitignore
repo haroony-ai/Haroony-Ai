@@ -10,6 +10,7 @@ __pycache__/
 # Raw large source PDFs from Google Drive (extracted & indexed into data/ and static/notes_pages/)
 google_drive/
 uploads_tmp/
+data/extracted_questions.jsonl
 models/harony_retriever.joblib
 
 # Secrets & local runtime configs (NEVER commit real API keys!)

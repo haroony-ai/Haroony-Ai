@@ -350,6 +350,7 @@
               <button type="button" class="quick-chip" data-prompt="Explain convection in fluids">Convection</button>
               <button type="button" class="quick-chip" data-prompt="Explain A.C. generator 1st and 2nd half cycle">A.C. Generator</button>
               <button type="button" class="quick-chip" data-prompt="YouTube videos for diffraction and waves">Wave Videos</button>
+              <button type="button" class="quick-chip" data-prompt="Give me a practice question on moments">Practice Question</button>
             </div>
           </div>
         </div>

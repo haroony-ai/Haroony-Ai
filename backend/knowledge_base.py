@@ -18,6 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from backend.config import DATA_DIR, MODELS_DIR
 
 RETRIEVER_MODEL_PATH = MODELS_DIR / "harony_retriever.joblib"
+QB_RETRIEVER_MODEL_PATH = MODELS_DIR / "question_bank_retriever.joblib"
 TOPIC_MODEL_PATH = MODELS_DIR / "topic_classifier.joblib"
 INTENT_MODEL_PATH = MODELS_DIR / "qa_intent_classifier.joblib"
 CONCEPT_ATLAS_PATH = DATA_DIR / "harony_concept_atlas.json"
@@ -25,6 +26,7 @@ NOTES_CHUNKS_PATH = DATA_DIR / "harony_notes_chunks.json"
 CUSTOM_MATERIALS_PATH = DATA_DIR / "custom_materials.json"
 MARK_SCHEMES_PATH = DATA_DIR / "mark_schemes.json"
 VIDEO_SOLUTIONS_PATH = DATA_DIR / "video_solutions.json"
+QUESTION_BANK_PATH = DATA_DIR / "harony_question_bank.json"
 
 QUERY_SYNONYM_EXPANSIONS = {
     "commutator": "split ring commutator d.c. motor current reverses half turn",
@@ -60,10 +62,13 @@ class HaronyKnowledgeBase:
         self.mark_schemes: List[Dict[str, Any]] = []
         self.videos: List[Dict[str, Any]] = []
         self.concept_atlas: List[Dict[str, Any]] = []
+        self.question_bank: List[Dict[str, Any]] = []
         self.tfidf = None
         self.svd = None
         self.tfidf_matrix = None
         self.svd_matrix = None
+        self.qb_tfidf = None
+        self.qb_matrix = None
         self.topic_clf = None
         self.intent_clf = None
         self.reload()
@@ -102,6 +107,34 @@ class HaronyKnowledgeBase:
                 self.concept_atlas = json.loads(CONCEPT_ATLAS_PATH.read_text(encoding="utf-8"))
             except Exception:
                 self.concept_atlas = []
+
+        if QUESTION_BANK_PATH.exists():
+            try:
+                self.question_bank = json.loads(QUESTION_BANK_PATH.read_text(encoding="utf-8"))
+            except Exception:
+                self.question_bank = []
+
+        if self.question_bank and QB_RETRIEVER_MODEL_PATH.exists():
+            try:
+                qbundle = joblib.load(QB_RETRIEVER_MODEL_PATH)
+                if qbundle.get("qb_count") == len(self.question_bank):
+                    self.qb_tfidf = qbundle["tfidf"]
+                    self.qb_matrix = qbundle["matrix"]
+            except Exception:
+                self.qb_tfidf = None
+                self.qb_matrix = None
+        if self.question_bank and self.qb_tfidf is None:
+            try:
+                from sklearn.feature_extraction.text import TfidfVectorizer
+                qb_docs = [
+                    f"{q.get('unit', '')} {q.get('chapter', '')} {' '.join(q.get('paper_codes', []))} {q.get('question_text', '')} "
+                    + " ".join(m.get("answer", "") for m in q.get("ms_answers", []))
+                    for q in self.question_bank
+                ]
+                self.qb_tfidf = TfidfVectorizer(ngram_range=(1, 2), stop_words="english", sublinear_tf=True, max_features=30000)
+                self.qb_matrix = self.qb_tfidf.fit_transform(qb_docs)
+            except Exception:
+                pass
 
         if TOPIC_MODEL_PATH.exists():
             try:
@@ -377,6 +410,34 @@ class HaronyKnowledgeBase:
                 best_score = sc
                 best_entry = entry
         return best_entry if best_score >= 2.0 else None
+
+    def search_question_bank(
+        self,
+        query: str,
+        top_k: int = 2,
+        preferred_unit: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Match student queries / uploaded exam problems against 1,731 real Harony ClassWork/P4/P2 pages."""
+        if not self.question_bank or self.qb_tfidf is None or self.qb_matrix is None or not query.strip():
+            return []
+        expanded = self.expand_query(query)
+        q_vec = self.qb_tfidf.transform([expanded])
+        scores = cosine_similarity(q_vec, self.qb_matrix)[0]
+        is_paper_code = bool(re.search(r"\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+", query.lower()))
+        ranked_idx = np.argsort(scores)[::-1][: top_k * 6]
+        out: List[Dict[str, Any]] = []
+        for idx in ranked_idx:
+            sc = float(scores[idx])
+            if sc < 0.22:
+                break
+            item = dict(self.question_bank[int(idx)])
+            if preferred_unit and not is_paper_code and item.get("unit") and item.get("unit") != preferred_unit:
+                continue
+            item["score"] = round(sc, 4)
+            out.append(item)
+            if len(out) >= top_k:
+                break
+        return out
 
     def get_mark_scheme(self, ms_id: str) -> Optional[Dict[str, Any]]:
         for ms in self.mark_schemes:

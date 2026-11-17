@@ -79,10 +79,35 @@ def try_reason_physics_variation(query: str) -> Optional[str]:
             )
         if ("alpha" in low or "beta" in low or "gamma" in low) and sum(k in low for k in ("alpha", "beta", "gamma")) >= 2:
             return (
-                "### ⚡ Alpha (α), Beta (β) and Gamma (γ) Radiation *(Unit 7 — Nuclear Physics)*\n\n"
+                "### ⚡ Alpha (α), Beta (β) and Gamma (γ) Radiation *(Unit 5 — Nuclear Physics)*\n\n"
                 "- **Alpha (α, ⁴₂He):** High mass, `+2` charge → **strongest ionisation**, **least penetrating** (stopped by paper / few cm of air).\n"
                 "- **Beta (β⁻, fast electron):** Small mass, `-1` charge → **moderate ionisation**, stopped by **few mm of aluminium**.\n"
                 "- **Gamma (γ, EM wave):** No mass, no charge → **weakest ionisation**, **most penetrating** (reduced by thick lead/concrete)."
+            )
+        if "conduction" in low and ("convection" in low or "radiation" in low):
+            return (
+                "### ⚡ Conduction, Convection & Infrared Radiation *(Unit 2 — Thermal Physics)*\n\n"
+                "- **Conduction (solids):** Particles vibrate and pass energy to neighbours; metals conduct fastest via **delocalised (free) electrons**.\n"
+                "- **Convection (liquids & gases only):** Heated fluid expands, becomes **less dense and rises**, while cooler denser fluid sinks (**convection current**).\n"
+                "- **Infrared Radiation (no medium needed):** Electromagnetic wave transfer — works through a **vacuum**; dull black surfaces are best emitters/absorbers."
+            )
+        if "transverse" in low and "longitudinal" in low:
+            return (
+                "### ⚡ Transverse vs Longitudinal Waves *(Unit 6 — Waves)*\n\n"
+                "- **Transverse:** Vibrations are **perpendicular (at 90°)** to wave direction (peaks & troughs) — e.g. light, water waves, all electromagnetic waves.\n"
+                "- **Longitudinal:** Vibrations are **parallel** to wave direction (**compressions and rarefactions**) — e.g. sound waves, ultrasound."
+            )
+        if "soft iron" in low and "steel" in low:
+            return (
+                "### ⚡ Soft Iron vs Steel *(Unit 4 — Electromagnetism)*\n\n"
+                "- **Soft Iron:** Magnetises and demagnetises **easily** (temporary magnet) → used for **electromagnet cores & transformer cores**.\n"
+                "- **Steel:** Hard to magnetise and **retains magnetism** (permanent magnet) → used for bar magnets & compass needles."
+            )
+        if ("real" in low and "virtual" in low) and ("image" in low or "lens" in low or "mirror" in low):
+            return (
+                "### ⚡ Real Image vs Virtual Image *(Unit 6 — Light & Lenses)*\n\n"
+                "- **Real Image:** Formed where real light rays **actually converge/intersect**; **can be projected onto a screen** (inverted).\n"
+                "- **Virtual Image:** Light rays only **appear to diverge** from behind the mirror/lens; **cannot be formed on a screen** (upright)."
             )
 
     # 2. Proportionality / "What happens if ..."

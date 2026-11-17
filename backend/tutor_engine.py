@@ -271,8 +271,23 @@ class HaroonyTutorEngine:
         concept_entry = self.kb.match_concept_atlas(search_query, preferred_unit=primary_unit)
         if not concept_entry:
             concept_entry = self.kb.match_concept_atlas(search_query)
+        qb_hits = self.kb.search_question_bank(search_query, top_k=2, preferred_unit=primary_unit)
         ms_tips = find_related_ms_tips(search_query, self.kb)
         vid_hits = self.kb.search_videos(search_query, top_k=3, preferred_unit=primary_unit, preferred_topic=primary_topic)
+        # Supplement videos from matched ClassWork / P4 / P2 question pages if needed
+        existing_vurls = {v.get("video_url") for v in vid_hits if v.get("video_url")}
+        for qb in qb_hits:
+            for yt_u in qb.get("youtube_links", []):
+                if yt_u and yt_u not in existing_vurls and len(vid_hits) < 3:
+                    existing_vurls.add(yt_u)
+                    vid_hits.append({
+                        "book": qb.get("book", "Harony 2027"),
+                        "unit": qb.get("unit", ""),
+                        "chapter": qb.get("chapter", ""),
+                        "page": qb.get("page"),
+                        "label": (qb.get("paper_codes") or [qb.get("chapter") or "Past Paper Walkthrough"])[0],
+                        "video_url": yt_u,
+                    })
 
         # Build rich context block for neural LLM generation
         ctx_parts = []
@@ -293,6 +308,13 @@ class HaroonyTutorEngine:
             )
         for nh in note_hits:
             ctx_parts.append(f"[Harony Notes p.{nh.get('page')} - {nh.get('unit')} / {nh.get('topic')}]:\n{nh.get('text')}")
+        for qb in qb_hits:
+            ms_txt = " | ".join(f"{m.get('title')}: {m.get('answer')}" for m in qb.get("ms_answers", []) if m.get("answer"))
+            ctx_parts.append(
+                f"[Matched Past Paper ({qb.get('book')} p.{qb.get('page')} - {qb.get('chapter')})]:\n"
+                f"Question: {qb.get('question_text', '')[:600]}"
+                + (f"\nOfficial Mark Scheme: {ms_txt}" if ms_txt else "")
+            )
         for mt in ms_tips:
             qobj = mt["question"]
             ctx_parts.append(f"[{mt['ms_title']} Q{qobj['question_id']}]: {qobj['summary_answer']}")
@@ -428,6 +450,16 @@ class HaroonyTutorEngine:
                 fm_md = "\n".join(f"- `{fm}`" for fm in all_formulas[:4])
                 sections.append(f"**Key Equations & Relations:**\n{fm_md}")
 
+        if qb_hits and (has_file or qb_hits[0].get("score", 0.0) >= 0.34) and not solved:
+            qb0 = qb_hits[0]
+            ms_list = [m for m in qb0.get("ms_answers", []) if m.get("answer")]
+            if ms_list:
+                ms_lines = [f"- **{m.get('title') or m.get('question_id')}** *({m.get('max_marks', 0)} marks)*: {m['answer']}" for m in ms_list[:2]]
+                sections.append(
+                    f"### 📝 Matched Harony 2027 Past-Paper & Official Mark Scheme *({qb0.get('book')} — {qb0.get('chapter')})*\n"
+                    + "\n".join(ms_lines)
+                )
+
         if ms_tips and not solved:
             tip = ms_tips[0]
             qobj = tip["question"]
@@ -489,22 +521,10 @@ class HaroonyTutorEngine:
 
     def _generate_practice_question(self, query: str) -> Dict[str, Any]:
         hits = self.kb.search(query, top_k=3)
-        ms_list = self.kb.mark_schemes
-        chosen_q = None
-        if ms_list:
-            qs = ms_list[0].get("questions", [])
-            # Try matching topic keywords to MS questions
-            q_tokens = set(re.findall(r"[a-z]{4,}", query.lower())) - STOPWORDS - {"quiz", "test", "practice", "question", "give"}
-            if q_tokens:
-                best = [
-                    q for q in qs
-                    if any(t in q.get("summary_answer", "").lower() for t in q_tokens)
-                ]
-                if best:
-                    chosen_q = random.choice(best)
-            if chosen_q is None and qs:
-                chosen_q = random.choice(qs)
-
+        qb_candidates = [
+            qb for qb in self.kb.search_question_bank(query, top_k=5)
+            if qb.get("ms_answers") and len(qb.get("question_text", "")) >= 60
+        ]
         topic_label = hits[0]["topic"] if hits else "IGCSE Physics"
         notes_cards = [
             {
@@ -519,6 +539,38 @@ class HaroonyTutorEngine:
             }
             for nh in hits[:2]
         ]
+
+        if qb_candidates:
+            picked = random.choice(qb_candidates)
+            q_preview = re.sub(r"https?://\S+", "", picked["question_text"]).strip()[:480]
+            pc = (picked.get("paper_codes") or [picked.get("chapter") or "Cambridge 0625"])[0]
+            vids = [
+                {
+                    "book": picked.get("book", "Harony 2027"),
+                    "unit": picked.get("unit", ""),
+                    "chapter": picked.get("chapter", ""),
+                    "page": picked.get("page"),
+                    "label": pc,
+                    "video_url": u,
+                }
+                for u in picked.get("youtube_links", [])[:2]
+            ]
+            reply = (
+                f"### 📝 IGCSE Physics Past-Paper Practice — {picked.get('chapter') or topic_label}\n"
+                f"**Source:** `{picked.get('book')}` *(p.{picked.get('page')} — {pc})*\n\n"
+                f"> {q_preview}\n\n"
+                f"*Reply here with your working and answer and I will walk you through the official Cambridge 0625 mark scheme!*"
+            )
+            return {
+                "ok": True,
+                "refused": False,
+                "category": "physics",
+                "reply": reply,
+                "notes_cards": notes_cards,
+                "video_links": vids,
+                "ocr_text": None,
+                "engine": "Haroony Physics AI Examiner (Full 2027 Bank)",
+            }
 
         practice_bank = [
             ("Kinematics & Kinetic Energy", "A small aircraft of mass **820 kg** travels at a constant speed of **60 m/s**. Calculate the energy in the kinetic store of the aircraft. **[2 marks]**"),
