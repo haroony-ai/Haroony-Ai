@@ -1,0 +1,5 @@
+# Optional Free Open-Weights Local Transformer + LoRA Fine-Tuning Dependencies (Zero API Keys)
+torch>=2.3.0
+transformers>=4.46.0
+peft>=0.13.0
+accelerate>=1.0.0
