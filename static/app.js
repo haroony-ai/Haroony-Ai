@@ -4,6 +4,26 @@
 
   const AI_AVATAR = "static/assets/harony_avatar.webp";
 
+  // Optional external FastAPI backend override for GitHub Pages (`?api=https://your-backend.example`)
+  const API_BASE = (() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get("api");
+      if (p !== null) {
+        const clean = p.trim().replace(/\/+$/, "");
+        if (clean) localStorage.setItem("harony_api_base", clean);
+        else localStorage.removeItem("harony_api_base");
+      }
+      return (localStorage.getItem("harony_api_base") || "").replace(/\/+$/, "");
+    } catch (_) {
+      return "";
+    }
+  })();
+
+  function apiUrl(path) {
+    const clean = String(path || "").replace(/^\/+/, "");
+    return API_BASE ? `${API_BASE}/${clean}` : clean;
+  }
+
   let serverAvailable = null;
   let chatHistory = [];
   let chatAttachedFile = null;
@@ -199,7 +219,7 @@
   // ==================== INITIALIZE STATUS ====================
   async function loadSystemStatus() {
     try {
-      const resp = await fetch("api/status", { headers: { Accept: "application/json" } });
+      const resp = await fetch(apiUrl("api/status"), { headers: { Accept: "application/json" } });
       if (resp.ok) {
         const ct = resp.headers.get("content-type") || "";
         if (ct.includes("application/json")) {
@@ -517,7 +537,7 @@
         fd.append("helpful", helpful ? "true" : "false");
         fd.append("query", query);
         fd.append("unit", unit);
-        await fetch("api/feedback", { method: "POST", body: fd });
+        await fetch(apiUrl("api/feedback"), { method: "POST", body: fd });
       } else if (window.HaroonyBrowserEngine && window.HaroonyBrowserEngine.recordFeedback) {
         window.HaroonyBrowserEngine.recordFeedback(iid, helpful, query, unit);
       }
@@ -548,7 +568,7 @@
         fd.append("history", JSON.stringify(chatHistory.slice(-6)));
         if (fileToSend) fd.append("file", fileToSend);
 
-        const resp = await fetch("api/chat", { method: "POST", body: fd });
+        const resp = await fetch(apiUrl("api/chat"), { method: "POST", body: fd });
         const raw = await resp.json();
         data = !resp.ok
           ? { refused: true, reply: raw.detail || "Something went wrong. Please try again.", notes_cards: [] }

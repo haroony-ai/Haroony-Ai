@@ -21,10 +21,10 @@
     /^(?:hi+|hello+|hey+|yo|good\s+(?:morning|afternoon|evening)|salam|assalamu\s*alaikum|who\s+are\s+you|what\s+can\s+you\s+do|help|thanks|thank\s+you)\s*[!?.]*$/i;
 
   const HARD_NON_PHYSICS_RE =
-    /\b(recipe|bake|cake|pasta|pizza|biryani|chicken|burger|poem|poetry|haiku|sonnet|romeo|juliet|shakespeare|fifa|world\s+cup|football\s+match|basketball|oscar|netflix|movie\s+review|horoscope|zodiac|astrology|bitcoin|crypto|ethereum|stock\s+market|forex|makeup|skincare|mitosis|meiosis|photosynthesis|chloroplast|digestive\s+system|nephron|auxin|enzyme|dna\s+replication|titration|haber\s+process|alkane|alkene|polymerisation|covalent\s+bond|electrolysis\s+of\s+brine|scrape|beautifulsoup|flexbox|react\s+component|sql\s+query|discord\s+bot|roman\s+empire|french\s+revolution|world\s+war|capital\s+of)\b/i;
+    /\b(recipe|bake|cake|pasta|pizza|biryani|chicken|burger|how\s+to\s+cook|poem|poetry|haiku|sonnet|romeo|juliet|shakespeare|fifa|world\s+cup|football\s+match|basketball|oscar|netflix|movie\s+review|horoscope|zodiac|astrology|bitcoin|crypto|ethereum|stock\s+market|forex|makeup|skincare|mitosis|meiosis|photosynthesis|chloroplast|digestive\s+system|nephron|auxin|enzyme|dna\s+replication|titration|haber\s+process|alkane|alkene|polymerisation|covalent\s+bond|electrolysis\s+of\s+brine|scrape|beautifulsoup|flexbox|react\s+component|sql\s+query|discord\s+bot|roman\s+empire|french\s+revolution|world\s+war|capital\s+of)\b/i;
 
   const STRONG_PHYSICS_RE =
-    /\b(physics|forces?|newtons?|velocit(?:y|ies)|accelerations?|decelerations?|speeds?|distance|displacement|scalar|vector|free\s*fall|terminal\s+velocity|momentum|impulse|collisions?|kinetic|potential\s+energy|gravitational|gpe|work\s+done|power|watts?|joules?|efficiency|densit(?:y|ies)|mass|volume|weight|gravity|moments?|torque|pivot|equilibrium|centre\s+of\s+gravity|center\s+of\s+mass|hooke|spring\s+constant|extension|limit\s+of\s+proportionality|pressures?|pascal|barometer|manometer|hydraulic|boyle|kelvin|absolute\s+zero|brownian|evaporation|boiling|melting|thermal|conduction|convection|infrared|radiation|emitter|absorber|specific\s+heat|latent\s+heat|waves?|transverse|longitudinal|wavelengths?|frequenc(?:y|ies)|amplitude|period|hertz|wavefronts?|diffraction|refraction|reflection|total\s+internal|critical\s+angle|snell|refractive\s+index|lens(?:es)?|focal\s+length|converging|diverging|principal\s+focus|dispersion|monochromatic|electromagnetic\s+spectrum|microwaves?|ultraviolet|x-rays|gamma|ultrasound|echo(?:es)?|sonar|pitch|loudness|charges?|coulombs?|electrostatic|electric\s+field|currents?|amperes?|amps|voltages?|volts?|emf|potential\s+difference|resistance|ohms?|resistors?|filament\s+lamp|diode|ldr|thermistor|series\s+circuit|parallel\s+circuit|circuits?|potential\s+divider|kilowatt|kwh|fuse|earth\s+wire|circuit\s+breaker|magnets?|magnetic|solenoid|electromagnets?|fleming|motor\s+effect|commutator|electromagnetic\s+induction|lenz|faraday|generators?|slip\s+ring|transformers?|step-up|step-down|national\s+grid|atoms?|nucle(?:us|i)|protons?|neutrons?|electrons?|isotopes?|nuclide|alpha|beta|radioactive|radioactivity|ionising|ionizing|background\s+radiation|geiger|half-life|decay|fission|fusion|rutherford|gold\s+foil|solar\s+system|orbits?|orbital\s+speed|planets?|comets?|satellites?|geostationary|protostar|main\s+sequence|red\s+giant|supergiant|white\s+dwarf|supernova|neutron\s+star|black\s+hole|galax(?:y|ies)|milky\s+way|light-year|redshift|big\s+bang|cosmic\s+microwave|hubble|0625|9702|igcse|mark\s+scheme|harony|haroony)\b/i;
+    /\b(physics|forces?|newtons?|velocit(?:y|ies)|accelerations?|decelerations?|speeds?|distance|displacement|scalar|vector|free\s*fall|terminal\s+velocity|momentum|impulse|collisions?|kinetic|potential\s+energy|gravitational|gpe|work\s+done|power|watts?|joules?|efficiency|densit(?:y|ies)|mass|volume|weight|gravity|moments?|torque|pivot|equilibrium|centre\s+of\s+gravity|center\s+of\s+mass|hooke|spring\s+constant|extension|limit\s+of\s+proportionality|pressures?|pressure\s+cooker|pascal|barometer|manometer|hydraulic|boyle|kelvin|absolute\s+zero|brownian|evaporation|evaporate|boiling|melting|thermal|conduction|convection|infrared|radiation|emitter|absorber|specific\s+heat|latent\s+heat|swimming\s+pool|windy|sweat|feel\s+cold|winter\s+coat|double\s+glazing|vacuum\s+flask|sea\s+breeze|land\s+breeze|waves?|transverse|longitudinal|wavelengths?|frequenc(?:y|ies)|amplitude|period|hertz|wavefronts?|diffraction|refraction|reflection|total\s+internal|critical\s+angle|snell|refractive\s+index|lens(?:es)?|focal\s+length|converging|diverging|principal\s+focus|dispersion|monochromatic|electromagnetic\s+spectrum|microwaves?|ultraviolet|x-rays|gamma|ultrasound|echo(?:es)?|sonar|pitch|loudness|charges?|coulombs?|electrostatic|electric\s+field|currents?|amperes?|amps|voltages?|volts?|emf|potential\s+difference|resistance|ohms?|resistors?|filament\s+lamp|diode|ldr|thermistor|series\s+circuit|parallel\s+circuit|circuits?|potential\s+divider|kilowatt|kwh|fuse|earth\s+wire|circuit\s+breaker|magnets?|magnetic|solenoid|electromagnets?|fleming|motor\s+effect|commutator|electromagnetic\s+induction|lenz|faraday|generators?|slip\s+ring|transformers?|step-up|step-down|national\s+grid|atoms?|nucle(?:us|i)|protons?|neutrons?|electrons?|isotopes?|nuclide|alpha|beta|radioactive|radioactivity|ionising|ionizing|background\s+radiation|geiger|half-life|decay|fission|fusion|rutherford|gold\s+foil|solar\s+system|orbits?|orbital\s+speed|planets?|comets?|satellites?|geostationary|protostar|main\s+sequence|red\s+giant|supergiant|white\s+dwarf|supernova|neutron\s+star|black\s+hole|galax(?:y|ies)|milky\s+way|light-year|redshift|big\s+bang|cosmic\s+microwave|hubble|0625|9702|igcse|mark\s+scheme|harony|haroony)\b/i;
 
   const FOLLOWUP_PHYSICS_RE =
     /\b(example|another|explain\s+more|simpler|why|how\s+come|what\s+if|formula|equation|unit|units|step|steps|rearrange|double|halve|increase|decrease|graph|diagram|quiz|question|solve|calculate|check)\b/i;
@@ -287,8 +287,10 @@
 
   // ==================== 25+ EQUATION SYMBOLIC PHYSICS SOLVER ====================
   function parseQty(text) {
+    const supMap = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁻": "-", "⁺": "+" };
     const q = String(text || "")
-      .replace(/×\s*10\s*\^?\s*([+-]?\d+)/gi, "e$1")
+      .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]/g, (c) => supMap[c] || c)
+      .replace(/\s*[×x*]\s*10\s*\^?\s*([+-]?\d+)/gi, "e$1")
       .replace(/−/g, "-");
 
     function allMatches(re, scale = 1) {
@@ -356,12 +358,14 @@
       ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*hz\b/gi, 1),
     ];
     const areas = [
-      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*m\s*(?:2|²|\^2)\b/gi, 1),
-      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*cm\s*(?:2|²|\^2)\b/gi, 1e-4),
+      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(?<![a-zA-Z/])m\s*(?:2|²|\^2)\b/gi, 1),
+      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(?<![a-zA-Z/])cm\s*(?:2|²|\^2)\b/gi, 1e-4),
     ];
     const volumes = [
-      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*m\s*(?:3|³|\^3)\b/gi, 1),
-      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*cm\s*(?:3|³|\^3)\b/gi, 1e-6),
+      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(?<![a-zA-Z/])km\s*(?:3|³|\^3)\b/gi, 1e9),
+      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(?<![a-zA-Z/])m\s*(?:3|³|\^3)\b/gi, 1),
+      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(?<![a-zA-Z/])cm\s*(?:3|³|\^3)\b/gi, 1e-6),
+      ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(?<![a-zA-Z/])mm\s*(?:3|³|\^3)\b/gi, 1e-9),
     ];
     const pressures = [
       ...allMatches(/([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*mpa\b/gi, 1e6),
@@ -549,11 +553,19 @@
       }
     }
     if (/\bdensity\b/i.test(low)) {
-      const rawG = text.match(/(\d+(?:\.\d+)?)\s*g\b/i);
-      const rawCm3 = text.match(/(\d+(?:\.\d+)?)\s*cm\s*(?:3|³|\^3)\b/i);
-      if (rawG && rawCm3 && !/\bkg\/m/i.test(low)) {
+      const rawG = text.match(/(\d+(?:\.\d+)?)\s*g\b(?!\s*\/)/i);
+      const rawCm3 = text.match(/(\d+(?:\.\d+)?)\s*(?<![a-zA-Z/])cm\s*(?:3|³|\^3)\b/i);
+      if (rawG && rawCm3 && !/\bkg\/m/i.test(low) && /\b(calculate|find|what\s+is)\s+(?:the\s+)?density\b/i.test(low)) {
         const mg = parseFloat(rawG[1]), vc = parseFloat(rawCm3[1]);
         return makeStepCard("Density", "ρ = m / V", `m = ${mg} g, V = ${vc} cm³`, `ρ = ${mg} / ${vc}`, mg / vc, "g/cm³", `Equivalent SI density = ${fmtNum((mg / vc) * 1000)} kg/m³.`);
+      }
+      if (u.densities.length && u.volumes.length && /\bmass\b/i.test(low)) {
+        const rho = u.densities[0], v = u.volumes[0];
+        return makeStepCard("Mass from Density & Volume", "m = ρ × V", `ρ = ${fmtNum(rho)} kg/m³, V = ${fmtNum(v)} m³`, `m = ${fmtNum(rho)} × ${fmtNum(v)}`, rho * v, "kg", "Converted km³/cm³ to m³ (`1 km³ = 10⁹ m³`).");
+      }
+      if (u.densities.length && u.masses.length && /\bvolume\b/i.test(low)) {
+        const rho = u.densities[0], m = u.masses[0];
+        return makeStepCard("Volume from Mass & Density", "V = m / ρ", `m = ${fmtNum(m)} kg, ρ = ${fmtNum(rho)} kg/m³`, `V = ${fmtNum(m)} / ${fmtNum(rho)}`, m / rho, "m³");
       }
       if (u.masses.length && u.volumes.length) {
         const m = u.masses[0], v = u.volumes[0];
@@ -616,7 +628,44 @@
       const m = u.masses[0], a = u.accels[0];
       return makeStepCard("Newton's Second Law (Resultant Force)", "F = m × a", `m = ${fmtNum(m)} kg, a = ${fmtNum(a)} m/s²`, `F = ${fmtNum(m)} × ${fmtNum(a)}`, m * a, "N");
     }
-    if (/\b(average\s+speed|speed)\b/i.test(low) && u.dists.length && u.times.length && !u.freqs.length) {
+    // Multi-segment Average Speed vs Average Velocity (e.g. "100 m north then 100 m south in 20 s")
+    const dirMatches = [...text.matchAll(/([+-]?\d+(?:\.\d+)?)\s*(km|cm|mm|m)\s+(north|south|east|west|up|down|forward|forwards|back|backward|backwards|left|right)\b/gi)];
+    if (dirMatches.length >= 2 && u.times.length && /\b(speed|velocity)\b/i.test(low)) {
+      let dx = 0, dy = 0, totalD = 0;
+      const segs = [];
+      for (const dm of dirMatches) {
+        const val = parseFloat(dm[1]);
+        const ul = dm[2].toLowerCase();
+        const dM = ul === "km" ? val * 1000 : ul === "cm" ? val / 100 : ul === "mm" ? val / 1000 : val;
+        totalD += dM;
+        const dl = dm[3].toLowerCase();
+        if (dl === "north" || dl === "up" || dl === "forward" || dl === "forwards") dy += dM;
+        else if (dl === "south" || dl === "down" || dl === "back" || dl === "backward" || dl === "backwards") dy -= dM;
+        else if (dl === "east" || dl === "right") dx += dM;
+        else if (dl === "west" || dl === "left") dx -= dM;
+        segs.push(`${fmtNum(dM)} m ${dl}`);
+      }
+      const netDisp = Math.hypot(dx, dy);
+      const tTot = u.times[u.times.length - 1];
+      if (tTot > 0) {
+        const avgSpd = totalD / tTot;
+        const avgVel = netDisp / tTot;
+        const askVelOnly = /\bvelocity\b/i.test(low) && !/\bspeed\b/i.test(low);
+        return {
+          topic: "Average Speed vs Average Velocity",
+          formula: "Average Speed = Total Distance / Time | Average Velocity = Net Displacement / Time",
+          value: askVelOnly ? avgVel : avgSpd,
+          unit: "m/s",
+          markdown:
+            `### ⚡ Verified Physics Calculation — Average Speed & Average Velocity\n` +
+            `- **1. Given:** ${segs.join(", ")}, total time = \`${fmtNum(tTot)} s\`\n` +
+            `- **2. Average Speed *(scalar — total path length)*:** \`Total distance = ${fmtNum(totalD)} m\` → \`${fmtNum(totalD)} / ${fmtNum(tTot)}\` = **\`${fmtNum(avgSpd, 3)} m/s\`**\n` +
+            `- **3. Average Velocity *(vector — net displacement)*:** \`Net displacement = ${fmtNum(netDisp)} m\` → \`${fmtNum(netDisp)} / ${fmtNum(tTot)}\` = **\`${fmtNum(avgVel, 3)} m/s\`**\n` +
+            `- *Note:* Speed adds all distances regardless of direction; opposite directions cancel in displacement.`,
+        };
+      }
+    }
+    if (/\b(average\s+speed|speed)\b/i.test(low) && u.dists.length === 1 && u.times.length && !u.freqs.length && !u.speeds.length && !/\bvelocity\b/i.test(low)) {
       const d = u.dists[0], t = u.times[0];
       return makeStepCard("Average Speed", "v = d / t", `d = ${fmtNum(d)} m, t = ${fmtNum(t)} s`, `v = ${fmtNum(d)} / ${fmtNum(t)}`, d / t, "m/s");
     }
@@ -862,23 +911,28 @@
     const atlas = kb && Array.isArray(kb.concept_atlas) ? kb.concept_atlas : [];
     if (!atlas.length || !query) return null;
     const low = String(query).toLowerCase();
-    const qWords = new Set(tokenize(low));
+    const qWords = tokenize(low);
+    const stem = (w) => (w.length >= 5 && w.endsWith("s") ? w.slice(0, -1) : w);
+    const qStems = new Set(qWords.map(stem));
     let best = null;
     let bestScore = 0;
     for (const entry of atlas) {
       let sc = 0;
       for (const kw of entry.keywords || []) {
-        if (low.includes(kw)) sc += kw.includes(" ") ? 3.2 : 2.1;
+        if (low.includes(kw)) {
+          const wc = kw.split(/\s+/).length;
+          sc += wc >= 2 ? 3.8 * wc : 2.6;
+        }
       }
       for (const tw of tokenize(entry.topic || "")) {
-        if (qWords.has(tw) && tw.length >= 3) sc += 1.3;
+        if (tw.length >= 4 && (qStems.has(tw) || qStems.has(stem(tw)))) sc += 1.6;
       }
       if (sc > bestScore) {
         bestScore = sc;
         best = entry;
       }
     }
-    return bestScore >= 2.0 ? best : null;
+    return bestScore >= 3.0 ? best : null;
   }
 
   // ==================== NEURAL TUTOR PROMPT BUILDER ====================
@@ -937,6 +991,61 @@
 
   function tryReasonPhysicsVariation(query) {
     const low = String(query || "").toLowerCase();
+
+    // Everyday & Core Causal Physics ("Why does...", "Explain why...")
+    if (low.includes("pressure cooker")) {
+      return (
+        "### ⚡ Why a Pressure Cooker Cooks Food Faster *(Unit 2: Thermal Physics)*\n\n" +
+        "- A pressure cooker seals in steam so the **gas pressure above the water rises** above atmospheric pressure.\n" +
+        "- Higher pressure **raises the boiling point of water** above `100 °C` (typically `~120 °C`).\n" +
+        "- Water and steam reach a **higher temperature**, transferring thermal energy into food faster so it cooks in less time."
+      );
+    }
+    if ((/\b(swimming|pool|sweat|wet|out\s+of\s+water|step\s+out)\b/.test(low) && /\b(cold|cool|wind|windy|breeze)\b/.test(low)) || (low.includes("wind") && low.includes("evaporat"))) {
+      return (
+        "### ⚡ Evaporation Cooling & Effect of Wind *(Unit 2: Thermal Physics)*\n\n" +
+        "- Water on your skin **evaporates**: the **fastest, highest-kinetic-energy molecules** overcome intermolecular forces and escape from the liquid surface.\n" +
+        "- This lowers the **average kinetic energy** of the remaining water molecules (absorbing latent heat from your skin), causing **cooling**.\n" +
+        "- **Wind** sweeps away humid water vapour above the skin, **increasing the rate of evaporation** and cooling you faster."
+      );
+    }
+    if ((low.includes("ice") && low.includes("float")) || (low.includes("ice") && low.includes("dense"))) {
+      return (
+        "### ⚡ Why Ice Floats on Water *(Unit 1 & 2)*\n\n" +
+        "- When water freezes, its molecules form an open lattice taking up **more volume** for the same mass.\n" +
+        "- Ice therefore has a **lower density** (`≈ 0.92 g/cm³`) than liquid water (`1.0 g/cm³`), so it floats."
+      );
+    }
+    if ((low.includes("spoon") || low.includes("metal")) && (low.includes("wood") || low.includes("plastic")) && /\b(cold|colder|warm|hot|touch|feel)\b/.test(low)) {
+      return (
+        "### ⚡ Why Metal Feels Colder Than Wood at Room Temperature *(Unit 2: Conduction)*\n\n" +
+        "- Both are at the **same room temperature**, but metal has **delocalised (free) electrons** making it a **good thermal conductor**.\n" +
+        "- Metal conducts thermal energy **away from your warm hand much faster** than wood (an insulator)."
+      );
+    }
+    if (/\b(coat|sweater|blanket|jacket|double\s+glazing|fur|feathers)\b/.test(low) && /\b(warm|heat|insulat|cold)\b/.test(low)) {
+      return (
+        "### ⚡ How Coats & Double Glazing Reduce Heat Loss *(Unit 2: Thermal Physics)*\n\n" +
+        "- Wool, feathers, and double glazing **trap small pockets of air**.\n" +
+        "- **Air is a poor thermal conductor** (reduces conduction) and trapped pockets prevent air circulating (**reduces convection**)."
+      );
+    }
+    if (low.includes("bulb") && low.includes("parallel") && /\b(bright|brightness|same|add)\b/.test(low)) {
+      return (
+        "### ⚡ Adding a Bulb in Parallel *(Unit 3: Electric Circuits)*\n\n" +
+        "- In a **parallel circuit**, every branch sits directly across the **full supply potential difference (voltage)**.\n" +
+        "- Adding another bulb in parallel leaves the p.d. across existing bulbs **unchanged**, so they keep the **same brightness** (while total battery current increases)."
+      );
+    }
+    if (low.includes("total internal reflection") || (/\btir\b/.test(low) && low.includes("condition"))) {
+      return (
+        "### ⚡ Total Internal Reflection (TIR) *(Unit 6: Light & Optics)*\n\n" +
+        "- **Definition:** Complete reflection of light back inside a denser medium at the boundary with a less dense medium.\n" +
+        "- **Two Conditions:** (1) Light travels from an **optically denser to a less dense medium** (e.g. glass → air), AND (2) **angle of incidence > critical angle (`i > c`)**, where `sin c = 1 / n`.\n" +
+        "- **Uses:** Optical fibres (telecommunications & medical endoscopes) and reflecting prisms."
+      );
+    }
+
     if (/\b(?:difference|compare|distinguish|contrast|vs\.?|versus)\b/.test(low)) {
       if (low.includes("evaporat") && low.includes("boil")) {
         return (
@@ -958,6 +1067,13 @@
           "### ⚡ Scalar vs Vector Quantities *(Unit 1 — Mechanics)*\n\n" +
           "- **Scalar:** Magnitude only (e.g. distance, speed, mass, time, energy).\n" +
           "- **Vector:** Both magnitude **and direction** (e.g. displacement, velocity, acceleration, force, weight, momentum)."
+        );
+      }
+      if (low.includes("speed") && low.includes("velocity")) {
+        return (
+          "### ⚡ Speed vs Velocity & Distance vs Displacement *(Unit 1 — Mechanics)*\n\n" +
+          "- **Distance / Speed** are **scalars** (magnitude only). **Displacement / Velocity** are **vectors** (magnitude **and direction**).\n" +
+          "- An object moving in a **circle at constant speed** has **changing velocity** because its **direction** is continuously changing (so it is accelerating towards the centre)."
         );
       }
       if (low.includes("series") && low.includes("parallel")) {
@@ -1073,7 +1189,7 @@
         const fams = matchedCore.formulas.map((f) => `- \`${f}\``).join("\n");
         const pts = matchedCore.points.map((p) => `- ${p}`).join("\n");
         sections.push(`### 📘 ${matchedCore.title}\n\n${matchedCore.summary}\n\n**Key Equations:**\n${fams}\n\n**Key Exam Points:**\n${pts}`);
-      } else if (scoredChunks.length && (!(solved || reasoned) || scoredChunks[0].s >= 5.5)) {
+      } else if (scoredChunks.length && !(solved || reasoned)) {
         const qWords = new Set(tokenize(query).filter((w) => w.length >= 3 && !STOPWORDS.has(w)));
         let bestTop = scoredChunks[0].ch;
         let bestBullets = cleanNoteBullets(bestTop.text, bestTop.topic);
@@ -1092,7 +1208,7 @@
             bestBullets = bList;
           }
         }
-        if (!solved) {
+        if (bestMaxHit >= 1) {
           for (const item of scoredChunks) {
             if (item.ch !== bestTop && item.ch.unit === bestTop.unit) {
               for (const b of cleanNoteBullets(item.ch.text, item.ch.topic)) {
@@ -1100,23 +1216,24 @@
               }
             }
           }
+          const ranked = bestBullets
+            .map((b, idx) => {
+              const bl = b.toLowerCase();
+              let h = 0;
+              for (const w of qWords) if (bl.includes(w)) h++;
+              return { h, idx, b };
+            })
+            .sort((a, b) => b.h - a.h || a.idx - b.idx)
+            .slice(0, 6)
+            .map((x) => `- ${x.b}`)
+            .join("\n");
+          const cite = bestTop.page ? `${bestTop.source} p.${bestTop.page}` : bestTop.source;
+          sections.push(`### 📘 ${bestTop.topic} *(${bestTop.unit} — ${cite})*\n\n${ranked}`);
         }
-        const ranked = bestBullets
-          .map((b, idx) => {
-            const bl = b.toLowerCase();
-            let h = 0;
-            for (const w of qWords) if (bl.includes(w)) h++;
-            return { h, idx, b };
-          })
-          .sort((a, b) => b.h - a.h || a.idx - b.idx)
-          .slice(0, (solved || reasoned) ? 4 : 7)
-          .map((x) => `- ${x.b}`)
-          .join("\n");
-        const cite = bestTop.page ? `${bestTop.source} p.${bestTop.page}` : bestTop.source;
-        sections.push(`### 📘 ${bestTop.topic} *(${bestTop.unit} — ${cite})*\n\n${ranked}`);
       }
     }
-    if (qbHits && qbHits.length && !solved && !reasoned && (ocrText || qbHits[0].s >= 0.72)) {
+    const isPaperCodeQ = /\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+/i.test(query);
+    if (qbHits && qbHits.length && !solved && !reasoned && (ocrText || isPaperCodeQ || qbHits[0].s >= 0.85)) {
       const qb0 = qbHits[0].item;
       const msRows = (qb0.ms || []).filter((m) => m.a).map((m) => `- **${m.id}** *(${m.mk} marks)*: ${m.a}`);
       if (msRows.length) {
@@ -1125,7 +1242,7 @@
         );
       }
     }
-    if (msTips.length && !solved && !reasoned) {
+    if (msTips.length && !solved && !reasoned && isPaperCodeQ) {
       const tip = msTips[0];
       const pts = (tip.q.points || [])
         .slice(0, 3)

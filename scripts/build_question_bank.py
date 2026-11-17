@@ -119,12 +119,17 @@ def main() -> None:
                 if nk in ms_by_nkey:
                     ms_matches.append(ms_by_nkey[nk])
 
-        # Deduplicate MS matches
+        # Only keep MS matches whose answer/question keywords actually overlap this page's text
+        page_words = set(re.findall(r"[a-z0-9]{4,}", clean_txt.lower()))
         uniq_ms = []
         seen_qid = set()
         for m in ms_matches:
             qid = m["question_id"] + "::" + (m.get("summary_answer") or "")[:40]
-            if qid not in seen_qid:
+            if qid in seen_qid:
+                continue
+            ms_words = set(re.findall(r"[a-z0-9]{4,}", ((m.get("title") or "") + " " + (m.get("summary_answer") or "")).lower()))
+            overlap = len(page_words & ms_words)
+            if overlap >= 2 or len(ms_matches) == 1:
                 seen_qid.add(qid)
                 uniq_ms.append(m)
 
