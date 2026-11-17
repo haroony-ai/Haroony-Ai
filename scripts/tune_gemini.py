@@ -19,7 +19,7 @@ import httpx
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-from backend.config import TRAINING_DIR
+from backend.config import TRAINING_DIR  # also loads .env into os.environ
 
 
 def main() -> None:
@@ -28,11 +28,19 @@ def main() -> None:
     ap.add_argument("--display-name", default="Haroony-Physics-AI-2027")
     ap.add_argument("--epochs", type=int, default=3)
     ap.add_argument("--max-examples", type=int, default=1200)
+    ap.add_argument("--status", default="", help="Check status of an existing tunedModels/... resource")
     args = ap.parse_args()
 
     api_key = (os.environ.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEYS", "").split(",")[0]).strip()
     if not api_key:
-        raise SystemExit("Set GEMINI_API_KEY in your environment or .env before launching Gemini tuning.")
+        raise SystemExit("Set GEMINI_API_KEY / GEMINI_API_KEYS in .env before launching Gemini tuning.")
+
+    if args.status:
+        path = args.status if args.status.startswith("tunedModels/") else f"tunedModels/{args.status}"
+        r = httpx.get(f"https://generativelanguage.googleapis.com/v1beta/{path}?key={api_key}", timeout=30.0)
+        print("Status:", r.status_code)
+        print(r.text[:2000])
+        return
 
     ds_path = TRAINING_DIR / "gemini_sft_dataset.jsonl"
     if not ds_path.exists():

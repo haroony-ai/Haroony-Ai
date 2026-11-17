@@ -1,21 +1,20 @@
-"""Hybrid Multi-Key / Multi-Model Neural Bridge for Haroony AI.
+"""Dual Gemini + OpenAI Neural Engine for Haroony AI (Grounded in Harony 2026/2027 RAG).
 
 100% server-side & secure:
 - Reads credentials ONLY from server environment variables (.env gitignored / hosting Secrets).
-- Supports MULTI-KEY ROUND-ROBIN + AUTOMATIC FAILOVER POOLS (comma/newline-separated)
-  so multiple free-tier official API keys scale capacity seamlessly without rate limits:
-  - GROQ_API_KEYS (or GROQ_API_KEY)         — fast open-source Llama-3.3-70B / Qwen / Llama-3.1-8B
-  - GEMINI_API_KEYS (or GEMINI_API_KEY)     — multimodal vision + reasoning
-  - CEREBRAS_API_KEYS (or CEREBRAS_API_KEY) — ultra-fast open-source Llama-3.3-70B / Qwen
-  - OPENROUTER_API_KEYS (or OPENROUTER_API_KEY) — free/open-source model pool
-  - HF_TOKENS (or HF_TOKEN / HUGGINGFACE_API_KEY) — HuggingFace Inference Router
-  - MISTRAL_API_KEYS (or MISTRAL_API_KEY)   — Mistral free-tier pool
-  - OPENAI_API_KEYS (or OPENAI_API_KEY)     — optional cloud multimodal
-  - OLLAMA_BASE_URL                         — unlimited local open-source Ollama models
-- NEVER exposes third-party provider names or API keys to the frontend UI.
+- Supports MULTI-KEY ROUND-ROBIN + AUTOMATIC FAILOVER POOLS (comma/newline-separated):
+  - GEMINI_API_KEYS / GEMINI_API_KEY   — Google Gemini (supports tunedModels/... + Vision)
+  - OPENAI_API_KEYS / OPENAI_API_KEY   — OpenAI (supports ft:... fine-tuned models + Vision)
+- Supports `HAROONY_LLM_MODE`:
+  - `dual` (default when both Gemini & OpenAI keys are set): runs Gemini & OpenAI concurrently,
+    verifies numerical/mark-scheme consistency against Harony RAG context, and fails over seamlessly.
+  - `gemini_first`: tries Gemini first, fails over to OpenAI.
+  - `openai_first`: tries OpenAI first, fails over to Gemini.
+- NEVER exposes third-party provider names or API keys to the frontend UI or /api/status.
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import os
 import re
@@ -30,34 +29,21 @@ HAROONY_SYSTEM_PROMPT = (
     "You are Haroony AI, the official Cambridge IGCSE (0625) & A-Level (9702) Physics AI Assistant "
     "for Mr. Haroony's Harony Physics Clinic. Never mention third-party model names or API providers.\n\n"
     "STRICT RULES:\n"
-    "1. PHYSICS ONLY: Answer ONLY Physics questions. Refuse non-physics requests politely.\n"
+    "1. PHYSICS ONLY: Answer ONLY Physics questions. Politely refuse non-physics requests.\n"
     "2. REASON FROM FIRST PRINCIPLES FOR ANY QUESTION: Answer the student's EXACT question directly and accurately, "
-    "even if it is a novel scenario or 'why/what happens if' question not word-for-word in the context. "
+    "even if it is a novel everyday scenario or 'why/what happens if' question not word-for-word in the reference context. "
     "NEVER force an unrelated snippet into your reply, and NEVER repeat an earlier turn's answer when the student switches topic.\n"
     "3. ALIGN WITH HARONY NOTES & CAMBRIDGE 0625 MARK SCHEMES: Use exact definitions, formulas, and bold key marking phrases.\n"
-    "4. 4-STEP CALCULATION FORMAT: Formula -> Substitution -> Calculation -> Final Answer with Units (2-3 sig figs).\n"
+    "4. 4-STEP CALCULATION FORMAT: Formula -> Given & SI Unit Conversions -> Substitution -> Final Answer with Units (2-3 sig figs).\n"
     "5. IMAGE ACCURACY: When an image is attached, read every label, graph axis, circuit symbol, and number carefully.\n"
 )
-
-PREFERRED_OLLAMA_MODELS = [
-    "qwen2.5-vl:7b",
-    "qwen2.5:7b",
-    "qwen2.5:3b",
-    "llama3.2:3b",
-    "llama3.1:8b",
-    "deepseek-r1:7b",
-    "mistral:7b",
-    "phi4:latest",
-    "gemma2:9b",
-]
 
 _POOL_LOCK = threading.Lock()
 _POOL_CURSORS: Dict[str, int] = {}
 
 
 def _get_key_pool(*env_names: str) -> List[str]:
-    """Collect unique non-empty API keys from one or more env vars (comma/semicolon/newline-separated)
-    and rotate the starting index round-robin so multiple free-tier keys share load evenly."""
+    """Collect unique non-empty API keys from one or more env vars and rotate round-robin."""
     raw_keys: List[str] = []
     seen = set()
     for name in env_names:
@@ -83,12 +69,13 @@ async def _call_gemini(
     messages: List[Dict[str, str]],
     image_bytes: Optional[bytes],
     image_mime: str,
-    max_tokens: int = 900,
+    max_tokens: int = 1100,
 ) -> Optional[str]:
     keys = _get_key_pool("GEMINI_API_KEYS", "GEMINI_API_KEY")
     if not keys:
         return None
-    model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+    primary_model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+    candidate_models = list(dict.fromkeys([primary_model, "gemini-2.5-flash", "gemini-2.0-flash"]))
 
     system_parts = []
     contents = []
@@ -121,23 +108,24 @@ async def _call_gemini(
         payload["systemInstruction"] = {"parts": system_parts}
 
     for api_key in keys:
-        model_path = model if model.startswith(("models/", "tunedModels/")) else f"models/{model}"
-        url = f"https://generativelanguage.googleapis.com/v1beta/{model_path}:generateContent?key={api_key}"
-        try:
-            async with httpx.AsyncClient(timeout=26.0) as client:
-                resp = await client.post(url, json=payload)
-                if resp.status_code != 200:
-                    continue
-                data = resp.json()
-                cands = data.get("candidates") or []
-                if not cands:
-                    continue
-                parts = cands[0].get("content", {}).get("parts") or []
-                out = "\n".join(p.get("text", "") for p in parts if p.get("text")).strip()
-                if out:
-                    return out
-        except Exception:
-            continue
+        for model in candidate_models:
+            model_path = model if model.startswith(("models/", "tunedModels/")) else f"models/{model}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/{model_path}:generateContent?key={api_key}"
+            try:
+                async with httpx.AsyncClient(timeout=28.0) as client:
+                    resp = await client.post(url, json=payload)
+                    if resp.status_code != 200:
+                        continue
+                    data = resp.json()
+                    cands = data.get("candidates") or []
+                    if not cands:
+                        continue
+                    parts = cands[0].get("content", {}).get("parts") or []
+                    out = "\n".join(p.get("text", "") for p in parts if p.get("text")).strip()
+                    if out:
+                        return out
+            except Exception:
+                continue
     return None
 
 
@@ -148,7 +136,7 @@ async def _call_openai_style(
     messages: List[Dict[str, str]],
     image_bytes: Optional[bytes],
     image_mime: str,
-    max_tokens: int = 900,
+    max_tokens: int = 1100,
     supports_vision: bool = True,
 ) -> Optional[str]:
     if not endpoint_url or not model:
@@ -172,7 +160,7 @@ async def _call_openai_style(
             oai_msgs.append({"role": m.get("role", "user"), "content": m.get("content", "")})
 
     try:
-        async with httpx.AsyncClient(timeout=24.0) as client:
+        async with httpx.AsyncClient(timeout=28.0) as client:
             resp = await client.post(
                 endpoint_url,
                 headers=headers,
@@ -194,190 +182,31 @@ async def _call_openai_style(
     return None
 
 
-async def _call_openai_pool(
-    endpoint_url: str,
-    keys: List[str],
-    models: List[str],
+async def _call_openai(
     messages: List[Dict[str, str]],
-    image_bytes: Optional[bytes] = None,
-    image_mime: str = "image/jpeg",
-    max_tokens: int = 900,
-    supports_vision: bool = False,
+    image_bytes: Optional[bytes],
+    image_mime: str,
+    max_tokens: int = 1100,
 ) -> Optional[str]:
+    keys = _get_key_pool("OPENAI_API_KEYS", "OPENAI_API_KEY")
     if not keys:
         return None
+    primary_model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
+    candidate_models = list(dict.fromkeys([primary_model, "gpt-4o-mini", "gpt-4o"]))
     for api_key in keys:
-        for model in models:
-            if not model:
-                continue
+        for model in candidate_models:
             res = await _call_openai_style(
-                endpoint_url,
+                "https://api.openai.com/v1/chat/completions",
                 api_key,
                 model,
                 messages,
                 image_bytes,
                 image_mime,
                 max_tokens=max_tokens,
-                supports_vision=supports_vision,
+                supports_vision=True,
             )
             if res:
                 return res
-    return None
-
-
-async def _call_openai(
-    messages: List[Dict[str, str]],
-    image_bytes: Optional[bytes],
-    image_mime: str,
-    max_tokens: int = 900,
-) -> Optional[str]:
-    keys = _get_key_pool("OPENAI_API_KEYS", "OPENAI_API_KEY")
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
-    return await _call_openai_pool(
-        "https://api.openai.com/v1/chat/completions",
-        keys,
-        [model],
-        messages,
-        image_bytes,
-        image_mime,
-        max_tokens=max_tokens,
-        supports_vision=True,
-    )
-
-
-async def _call_groq_opensource(
-    messages: List[Dict[str, str]],
-    max_tokens: int = 900,
-) -> Optional[str]:
-    keys = _get_key_pool("GROQ_API_KEYS", "GROQ_API_KEY")
-    primary = os.environ.get("GROQ_MODEL", "").strip() or "llama-3.3-70b-versatile"
-    models = list(dict.fromkeys([primary, "llama-3.3-70b-versatile", "qwen-qwq-32b", "llama-3.1-8b-instant"]))
-    return await _call_openai_pool(
-        "https://api.groq.com/openai/v1/chat/completions",
-        keys,
-        models,
-        messages,
-        max_tokens=max_tokens,
-        supports_vision=False,
-    )
-
-
-async def _call_cerebras_opensource(
-    messages: List[Dict[str, str]],
-    max_tokens: int = 900,
-) -> Optional[str]:
-    keys = _get_key_pool("CEREBRAS_API_KEYS", "CEREBRAS_API_KEY")
-    primary = os.environ.get("CEREBRAS_MODEL", "").strip() or "llama-3.3-70b"
-    models = list(dict.fromkeys([primary, "llama-3.3-70b", "qwen-3-32b", "llama3.1-8b"]))
-    return await _call_openai_pool(
-        "https://api.cerebras.ai/v1/chat/completions",
-        keys,
-        models,
-        messages,
-        max_tokens=max_tokens,
-        supports_vision=False,
-    )
-
-
-async def _call_huggingface_opensource(
-    messages: List[Dict[str, str]],
-    max_tokens: int = 900,
-) -> Optional[str]:
-    keys = _get_key_pool("HF_TOKENS", "HF_TOKEN", "HUGGINGFACE_API_KEY")
-    primary = os.environ.get("HF_MODEL", "").strip() or "Qwen/Qwen2.5-72B-Instruct"
-    models = list(dict.fromkeys([primary, "Qwen/Qwen2.5-72B-Instruct", "meta-llama/Llama-3.3-70B-Instruct"]))
-    return await _call_openai_pool(
-        "https://router.huggingface.co/v1/chat/completions",
-        keys,
-        models,
-        messages,
-        max_tokens=max_tokens,
-        supports_vision=False,
-    )
-
-
-async def _call_openrouter_opensource(
-    messages: List[Dict[str, str]],
-    max_tokens: int = 900,
-) -> Optional[str]:
-    keys = _get_key_pool("OPENROUTER_API_KEYS", "OPENROUTER_API_KEY")
-    primary = os.environ.get("OPENROUTER_MODEL", "").strip() or "meta-llama/llama-3.3-70b-instruct:free"
-    models = list(dict.fromkeys([primary, "meta-llama/llama-3.3-70b-instruct:free", "qwen/qwen-2.5-72b-instruct:free"]))
-    return await _call_openai_pool(
-        "https://openrouter.ai/api/v1/chat/completions",
-        keys,
-        models,
-        messages,
-        max_tokens=max_tokens,
-        supports_vision=False,
-    )
-
-
-async def _call_mistral_opensource(
-    messages: List[Dict[str, str]],
-    max_tokens: int = 900,
-) -> Optional[str]:
-    keys = _get_key_pool("MISTRAL_API_KEYS", "MISTRAL_API_KEY")
-    primary = os.environ.get("MISTRAL_MODEL", "").strip() or "mistral-small-latest"
-    models = list(dict.fromkeys([primary, "mistral-small-latest", "open-mistral-nemo"]))
-    return await _call_openai_pool(
-        "https://api.mistral.ai/v1/chat/completions",
-        keys,
-        models,
-        messages,
-        max_tokens=max_tokens,
-        supports_vision=False,
-    )
-
-
-async def _call_ollama(
-    settings: Dict[str, Any],
-    messages: List[Dict[str, str]],
-    image_bytes: Optional[bytes],
-) -> Optional[str]:
-    base = (os.environ.get("OLLAMA_BASE_URL") or settings.get("ollama_base_url") or "http://127.0.0.1:11434").rstrip("/")
-    enabled = bool(settings.get("ollama_enabled") or os.environ.get("OLLAMA_ENABLED", "").lower() == "true" or os.environ.get("OLLAMA_BASE_URL"))
-    if not enabled:
-        return None
-
-    primary_model = (os.environ.get("OLLAMA_MODEL") or settings.get("ollama_model") or "qwen2.5-vl:7b").strip()
-    candidate_models = [primary_model]
-
-    try:
-        async with httpx.AsyncClient(timeout=2.5) as client:
-            tags_resp = await client.get(f"{base}/api/tags")
-            if tags_resp.status_code == 200:
-                installed = [m.get("name", "") for m in tags_resp.json().get("models", []) if m.get("name")]
-                for pm in PREFERRED_OLLAMA_MODELS:
-                    if pm in installed and pm not in candidate_models:
-                        candidate_models.append(pm)
-                for im in installed:
-                    if im not in candidate_models:
-                        candidate_models.append(im)
-    except Exception:
-        return None
-
-    for model in candidate_models[:3]:
-        ollama_msgs: List[Dict[str, Any]] = []
-        is_vision_model = any(v in model.lower() for v in ("vl", "vision", "llava", "minicpm-v"))
-        for idx, m in enumerate(messages):
-            item: Dict[str, Any] = {"role": m.get("role", "user"), "content": m.get("content", "")}
-            if is_vision_model and idx == len(messages) - 1 and image_bytes and m.get("role") == "user":
-                item["images"] = [base64.b64encode(image_bytes).decode("ascii")]
-            ollama_msgs.append(item)
-
-        try:
-            async with httpx.AsyncClient(timeout=25.0) as client:
-                resp = await client.post(
-                    f"{base}/api/chat",
-                    json={"model": model, "messages": ollama_msgs, "stream": False},
-                )
-                if resp.status_code == 200:
-                    content = resp.json().get("message", {}).get("content", "").strip()
-                    if content:
-                        return content
-        except Exception:
-            continue
     return None
 
 
@@ -386,7 +215,7 @@ async def _call_openai_compat(
     messages: List[Dict[str, str]],
     image_bytes: Optional[bytes],
     image_mime: str,
-    max_tokens: int = 900,
+    max_tokens: int = 1100,
 ) -> Optional[str]:
     if not settings.get("openai_compat_enabled"):
         return None
@@ -411,13 +240,30 @@ def _sanitize_provider_mentions(text: str) -> str:
     """Ensure internal model/vendor names never leak into student-facing text."""
     if not text:
         return text
-    text = re.sub(
-        r"\b(?:Gemini|OpenAI|ChatGPT|GPT-4o?|Claude|Groq|Cerebras|OpenRouter|Llama|Qwen|Mistral|DeepSeek)\b",
+    return re.sub(
+        r"\b(?:Gemini|OpenAI|ChatGPT|GPT-4o?|GPT-3\.5|Claude|Anthropic|Google\s+AI)\b",
         "Haroony AI",
         text,
         flags=re.I,
     )
-    return text
+
+
+def _score_candidate_answer(ans: str, context_block: str) -> float:
+    """Prefer answers that preserve verified solver numbers/units and clear Markdown structure."""
+    if not ans:
+        return -1.0
+    score = min(len(ans), 1400) / 400.0
+    if "**" in ans:
+        score += 1.0
+    if "`" in ans:
+        score += 0.5
+    # Check if verified solver final answer appears in candidate
+    m = re.search(r"Final Answer\*?\*?:?\s*`?([0-9.+\-eE×^ ]+)", context_block)
+    if m:
+        num_match = re.search(r"[-+]?\d+(?:\.\d+)?", m.group(1))
+        if num_match and num_match.group(0) in ans:
+            score += 3.0
+    return score
 
 
 async def try_neural_generation(
@@ -427,7 +273,7 @@ async def try_neural_generation(
     image_bytes: Optional[bytes] = None,
     image_mime: str = "image/jpeg",
 ) -> Optional[str]:
-    """Cascade across multi-key server-side free-tier, cloud, and local open-source LLM pools."""
+    """Run Gemini + OpenAI grounded in Harony 2026/2027 RAG & Cambridge 0625 Mark Schemes."""
     settings = load_settings()
 
     messages: List[Dict[str, str]] = [{"role": "system", "content": HAROONY_SYSTEM_PROMPT}]
@@ -441,25 +287,48 @@ async def try_neural_generation(
     prompt_with_ctx = (
         f"HARONY PHYSICS REFERENCE CONTEXT:\n{context_block}\n\n"
         f"STUDENT QUESTION:\n{user_prompt}\n\n"
-        f"Respond clearly in Markdown grounded ONLY in Physics & the Harony context above."
+        f"Respond clearly in Markdown grounded in Physics & the Harony context above. "
+        f"If the reference context does not directly answer an everyday Physics 'why' question, "
+        f"reason cleanly from first principles using Cambridge 0625 Physics."
     )
     messages.append({"role": "user", "content": prompt_with_ctx})
 
-    for caller in (
-        lambda: _call_gemini(messages, image_bytes, image_mime),
-        lambda: _call_groq_opensource(messages),
-        lambda: _call_cerebras_opensource(messages),
-        lambda: _call_openrouter_opensource(messages),
-        lambda: _call_huggingface_opensource(messages),
-        lambda: _call_mistral_opensource(messages),
-        lambda: _call_openai(messages, image_bytes, image_mime),
-        lambda: _call_ollama(settings, messages, image_bytes),
-        lambda: _call_openai_compat(settings, messages, image_bytes, image_mime),
-    ):
-        res = await caller()
-        if res:
-            return _sanitize_provider_mentions(res)
+    has_gemini = bool(_get_key_pool("GEMINI_API_KEYS", "GEMINI_API_KEY"))
+    has_openai = bool(_get_key_pool("OPENAI_API_KEYS", "OPENAI_API_KEY"))
+    mode = os.environ.get("HAROONY_LLM_MODE", "dual").strip().lower()
 
+    if has_gemini and has_openai and mode == "dual":
+        gem_res, oai_res = await asyncio.gather(
+            _call_gemini(messages, image_bytes, image_mime),
+            _call_openai(messages, image_bytes, image_mime),
+        )
+        if gem_res and oai_res:
+            best = gem_res if _score_candidate_answer(gem_res, context_block) >= _score_candidate_answer(oai_res, context_block) else oai_res
+            return _sanitize_provider_mentions(best)
+        if gem_res:
+            return _sanitize_provider_mentions(gem_res)
+        if oai_res:
+            return _sanitize_provider_mentions(oai_res)
+    elif mode == "openai_first":
+        for caller in (
+            lambda: _call_openai(messages, image_bytes, image_mime),
+            lambda: _call_gemini(messages, image_bytes, image_mime),
+        ):
+            res = await caller()
+            if res:
+                return _sanitize_provider_mentions(res)
+    else:
+        for caller in (
+            lambda: _call_gemini(messages, image_bytes, image_mime),
+            lambda: _call_openai(messages, image_bytes, image_mime),
+        ):
+            res = await caller()
+            if res:
+                return _sanitize_provider_mentions(res)
+
+    compat_res = await _call_openai_compat(settings, messages, image_bytes, image_mime)
+    if compat_res:
+        return _sanitize_provider_mentions(compat_res)
     return None
 
 
@@ -468,16 +337,14 @@ async def try_neural_vision_ocr(
     image_mime: str = "image/jpeg",
     purpose: str = "physics_question",
 ) -> Optional[str]:
-    """Optional high-accuracy vision transcription for Physics problem screenshots."""
+    """High-accuracy vision transcription for Physics problem screenshots via Gemini + OpenAI."""
     if not image_bytes:
         return None
     prompt = "Transcribe ALL text, numbers, units, and diagram/graph labels from this Physics problem image cleanly."
     msgs = [{"role": "user", "content": prompt}]
-    settings = load_settings()
     for caller in (
         lambda: _call_gemini(msgs, image_bytes, image_mime, max_tokens=700),
         lambda: _call_openai(msgs, image_bytes, image_mime, max_tokens=700),
-        lambda: _call_ollama(settings, msgs, image_bytes),
     ):
         res = await caller()
         if res:
@@ -486,16 +353,11 @@ async def try_neural_vision_ocr(
 
 
 async def has_active_server_llm() -> bool:
-    """Return True if at least one multi-key server LLM or local Ollama LLM is configured/reachable."""
+    """Return True if Gemini or OpenAI API keys are configured on the server."""
     if any(
         os.environ.get(k, "").strip()
         for k in (
             "GEMINI_API_KEYS", "GEMINI_API_KEY",
-            "GROQ_API_KEYS", "GROQ_API_KEY",
-            "CEREBRAS_API_KEYS", "CEREBRAS_API_KEY",
-            "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY",
-            "HF_TOKENS", "HF_TOKEN", "HUGGINGFACE_API_KEY",
-            "MISTRAL_API_KEYS", "MISTRAL_API_KEY",
             "OPENAI_API_KEYS", "OPENAI_API_KEY",
         )
     ):
@@ -503,13 +365,4 @@ async def has_active_server_llm() -> bool:
     settings = load_settings()
     if settings.get("openai_compat_enabled") and settings.get("openai_compat_base_url") and settings.get("openai_compat_model"):
         return True
-    ollama_enabled = bool(settings.get("ollama_enabled") or os.environ.get("OLLAMA_ENABLED", "").lower() == "true" or os.environ.get("OLLAMA_BASE_URL"))
-    if ollama_enabled:
-        base = (os.environ.get("OLLAMA_BASE_URL") or settings.get("ollama_base_url") or "http://127.0.0.1:11434").rstrip("/")
-        try:
-            async with httpx.AsyncClient(timeout=1.5) as client:
-                r = await client.get(f"{base}/api/tags")
-                return r.status_code == 200
-        except Exception:
-            return False
     return False
