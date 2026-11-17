@@ -12,7 +12,12 @@ google_drive/
 uploads_tmp/
 models/harony_retriever.joblib
 
+# Secrets & local runtime configs (NEVER commit real API keys!)
+.env
+.env.*
+!.env.example
+data/runtime_settings.json
+
 # OS / Editor
 .DS_Store
 Thumbs.db
-.env

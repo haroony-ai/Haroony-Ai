@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 
 from backend.guardrail import PhysicsGuardrail
 from backend.knowledge_base import HaronyKnowledgeBase
-from backend.llm_bridge import try_neural_generation
+from backend.llm_bridge import try_neural_generation, try_neural_vision_ocr
 from backend.ms_grader import STOPWORDS
 from backend.ocr_engine import extract_from_file_bytes
 from backend.physics_solver import try_solve_physics_problem
@@ -129,11 +129,16 @@ class HaroonyTutorEngine:
                 "engine": "Haroony AI",
             }
 
-        # 2. If student attached a photo or PDF, run local Vision OCR!
+        # 2. If student attached a photo or PDF, run enhanced local Vision OCR (+ optional server vision boost)!
         ocr_text = None
+        is_image_upload = bool(has_file and not (attachment_name or "").lower().endswith(".pdf"))
         if has_file and attachment_bytes is not None:
             ocr_info = extract_from_file_bytes(attachment_bytes, attachment_name or "upload.jpg", max_pages=4)
             ocr_text = (ocr_info.get("text") or "").strip()
+            if is_image_upload and (len(ocr_text) < 45 or float(ocr_info.get("avg_confidence") or 0.0) < 0.75):
+                vision_txt = await try_neural_vision_ocr(attachment_bytes, attachment_mime, purpose="physics_question")
+                if vision_txt and len(vision_txt) > len(ocr_text):
+                    ocr_text = vision_txt
             combined_query = f"{user_msg}\n{ocr_text}".strip()
             # Re-verify Physics Guardrail after reading the photo so non-physics images are also refused!
             post_ocr_check = self.guardrail.check(combined_query, has_attachment=False, has_prior_physics_context=False)

@@ -1414,3 +1414,35 @@ code {
   gap: 8px;
   margin-top: 12px;
 }
+
+.quick-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.quick-chip {
+  border: 1px solid #bfdbfe;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-family: inherit;
+  font-size: 0.79rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.16s ease, transform 0.14s ease, border-color 0.16s ease;
+}
+
+.quick-chip:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.question-search-input {
+  margin-top: 8px;
+  font-size: 0.85rem !important;
+}
+

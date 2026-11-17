@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.config import MODELS_DIR, ROOT_DIR, STATIC_DIR, load_settings, save_settings
 from backend.guardrail import PhysicsGuardrail
 from backend.knowledge_base import HaronyKnowledgeBase
+from backend.llm_bridge import try_neural_examiner_feedback, try_neural_vision_ocr
 from backend.ms_grader import grade_submission
 from backend.ms_parser import parse_cambridge_ms_pdf, parse_freeform_ms_text
 from backend.ocr_engine import extract_from_file_bytes
@@ -100,7 +101,6 @@ async def api_status() -> Dict[str, Any]:
         ],
         "curriculum": kb.curriculum_overview(),
         "metrics": metrics,
-        "neural_boost_active": bool(settings.get("ollama_enabled") or settings.get("openai_compat_enabled")),
     }
 
 
@@ -197,8 +197,18 @@ async def api_grade(
             raw = await sf.read()
             if raw:
                 res = extract_from_file_bytes(raw, sf.filename, max_pages=10)
-                if res.get("text"):
-                    ocr_segments.append(res["text"])
+                extracted = (res.get("text") or "").strip()
+                is_img = res.get("kind") == "image"
+                if is_img and (len(extracted) < 45 or float(res.get("avg_confidence") or 0.0) < 0.76):
+                    vtxt = await try_neural_vision_ocr(
+                        raw,
+                        sf.content_type or "image/jpeg",
+                        purpose="physics_answer",
+                    )
+                    if vtxt and len(vtxt) >= max(len(extracted), 12):
+                        extracted = vtxt
+                if extracted:
+                    ocr_segments.append(extracted)
                 ocr_meta.append({
                     "filename": sf.filename,
                     "kind": res.get("kind"),
@@ -256,6 +266,20 @@ async def api_grade(
         ms_obj=ms_obj,
         target_question_id=question_id.strip() or None,
     )
+    if result.get("ok") and result.get("questions"):
+        q_summary = "\n".join(
+            f"- {q.get('question_id')}: {q.get('model_answer', '')}"
+            for q in result["questions"][:3]
+        )
+        neural_fb = await try_neural_examiner_feedback(
+            student_text=combined_student,
+            ms_title=result.get("mark_scheme_title", "Physics Mark Scheme"),
+            ms_summary=q_summary,
+            awarded=int(result.get("awarded_marks", 0)),
+            max_marks=int(result.get("max_marks", 1)),
+        )
+        if neural_fb:
+            result["examiner_feedback"] = neural_fb
     result["ocr_files"] = ocr_meta
     return result
 

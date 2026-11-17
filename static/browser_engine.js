@@ -1522,13 +1522,26 @@
       };
     },
 
-    async grade({ studentText, studentFile, msId, msText, msFile, questionId, onProgress }) {
+    async getMarkSchemeById(msId) {
       const kb = await ensureKB();
+      return (kb.mark_schemes || []).find((m) => m.id === msId) || null;
+    },
+
+    async grade({ studentText, studentFile, studentFiles, msId, msText, msFile, questionId, onProgress }, progressCb) {
+      const kb = await ensureKB();
+      const prog = onProgress || progressCb;
 
       let text = String(studentText || "").trim();
-      if (studentFile && global.HaroonyNeuralAI) {
-        const stuOcr = await global.HaroonyNeuralAI.extractDocumentText(studentFile, onProgress);
-        if (stuOcr) text = `${text}\n${stuOcr}`.trim();
+      const filesToRead = Array.isArray(studentFiles) && studentFiles.length
+        ? studentFiles
+        : studentFile
+        ? [studentFile]
+        : [];
+      for (const sf of filesToRead) {
+        if (sf && global.HaroonyNeuralAI) {
+          const stuOcr = await global.HaroonyNeuralAI.extractDocumentText(sf, prog);
+          if (stuOcr) text = `${text}\n${stuOcr}`.trim();
+        }
       }
       if (!text) {
         return {
@@ -1539,7 +1552,7 @@
 
       let customMsContent = String(msText || "").trim();
       if (msFile && global.HaroonyNeuralAI) {
-        const msOcr = await global.HaroonyNeuralAI.extractDocumentText(msFile, onProgress);
+        const msOcr = await global.HaroonyNeuralAI.extractDocumentText(msFile, prog);
         if (msOcr) customMsContent = `${customMsContent}\n${msOcr}`.trim();
       }
 

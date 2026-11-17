@@ -58043,7 +58043,7 @@
             "marks": 1,
             "code": "B1",
             "answer": "(Force is a) vector quantity.Forces have both magnitude (size) and direction extension and compression being opposite question)",
-            "guidance": "accept ananswerexpressed intermsof",
+            "guidance": "accept an answer expressed intermsof",
             "flags": {
               "accept": [
                 "ananswerexpressed intermsof"
@@ -90952,7 +90952,7 @@
             "mark_type": "B",
             "marks": 1,
             "code": "B1",
-            "answer": "(thickness gauge/detector) needs high activity to differentiatebetween",
+            "answer": "(thickness gauge/detector) needs high activity to different i a te between",
             "guidance": "accept answers in terms of a drop offin",
             "flags": {
               "accept": [
@@ -90966,7 +90966,7 @@
             }
           }
         ],
-        "summary_answer": "[B1] 9(b)() (beta (β) particles) can penetrate thin metal OR (beta (β)particles) are stopped by thick metal rays ; [B1] There willbe ameasurable difference incount rate with different thicknesses ; [B1] of metal OR amount of β-particles detected varies with thickness rays Use of Fig.9.1 to identify %of strontium-90remaining after about 10 years ORafter10yearsless than75%of strontium-90remaining ORafter10 years activity below 75% of maximum. ; [B1] (thickness gauge/detector) needs high activity to differentiatebetween"
+        "summary_answer": "[B1] 9(b)() (beta (β) particles) can penetrate thin metal OR (beta (β)particles) are stopped by thick metal rays ; [B1] There willbe ameasurable difference incount rate with different thicknesses ; [B1] of metal OR amount of β-particles detected varies with thickness rays Use of Fig.9.1 to identify %of strontium-90remaining after about 10 years ORafter10yearsless than75%of strontium-90remaining ORafter10 years activity below 75% of maximum. ; [B1] (thickness gauge/detector) needs high activity to different i a te between"
       },
       {
         "question_id": "U5Ch3Hal-2025-May-P4-V1-Q09-aiii-Dangers-and",

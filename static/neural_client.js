@@ -1,17 +1,16 @@
-/* Haroony AI — Real Canvas-Enhanced OCR/PDF + Optional Cached WebGPU / Custom LLM Client
- * 1. Instant-first: NEVER freezes or blocks waiting on uncached multi-hundred-MB downloads.
- * 2. Real Canvas-Enhanced OCR (grayscale + contrast boost + upscale) for handwritten photos & PDFs via Tesseract.js + PDF.js.
- * 3. Optional Real Neural LLM:
- *    - Browser WebGPU (@mlc-ai/web-llm Qwen2.5-0.5B-Instruct-q4f16_1-MLC)
- *    - Or user-configured local/cloud OpenAI-compatible endpoint (Ollama, Groq, OpenAI, etc. via localStorage)
+/* Haroony AI — Enhanced Multi-Pass Document/Handwriting OCR + Optional WebGPU Engine
+ * 1. Adaptive Threshold + Contrast-Boosted Upscaled Canvas OCR (Tesseract.js worker + PDF.js 2.2x render).
+ * 2. Automatic 90-degree orientation fallback for sideways phone photos.
+ * 3. Instant-first: never freezes or blocks waiting on large downloads; optional WebGPU Qwen2.5-1.5B/0.5B.
+ * 4. Strictly branded as Haroony AI (no third-party provider names or keys in frontend).
  */
 (function (global) {
   "use strict";
 
-  const CUSTOM_CFG_KEY = "haroony_custom_llm_cfg";
   let engineState = "idle"; // idle | loading | ready | failed
   let mlcEngine = null;
   let initPromise = null;
+  let tesseractWorkerPromise = null;
   const listeners = new Set();
 
   function notify(stateInfo) {
@@ -20,27 +19,6 @@
         fn(stateInfo);
       } catch (_) {}
     }
-  }
-
-  function getCustomConfig() {
-    try {
-      const raw = localStorage.getItem(CUSTOM_CFG_KEY);
-      if (!raw) return null;
-      const cfg = JSON.parse(raw);
-      if (cfg && cfg.baseUrl && cfg.model) return cfg;
-    } catch (_) {}
-    return null;
-  }
-
-  function saveCustomConfig(cfg) {
-    try {
-      if (!cfg || !cfg.baseUrl) {
-        localStorage.removeItem(CUSTOM_CFG_KEY);
-      } else {
-        localStorage.setItem(CUSTOM_CFG_KEY, JSON.stringify(cfg));
-      }
-      notify(getStatus());
-    } catch (_) {}
   }
 
   function isMobileDevice() {
@@ -52,7 +30,7 @@
     if (initPromise) return initPromise;
 
     engineState = "loading";
-    notify({ state: "loading", text: "Checking WebGPU…" });
+    notify({ state: "loading", text: "Preparing browser acceleration…" });
 
     initPromise = (async () => {
       try {
@@ -62,7 +40,7 @@
 
         const modelId = isMobileDevice()
           ? "Qwen2.5-0.5B-Instruct-q4f16_1-MLC"
-          : "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+          : "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
 
         const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.88");
         const worker = new Worker("static/llm_worker.js", { type: "module" });
@@ -71,7 +49,10 @@
           initProgressCallback: (report) => {
             if (!report) return;
             const pct = typeof report.progress === "number" ? Math.round(report.progress * 100) : null;
-            const txt = pct !== null && pct > 0 && pct < 100 ? `Loading Neural AI (${pct}%)…` : report.text || "Loading Neural AI…";
+            const txt =
+              pct !== null && pct > 0 && pct < 100
+                ? `Loading Haroony Neural AI (${pct}%)…`
+                : report.text || "Loading Haroony Neural AI…";
             if (onProgress) onProgress(txt);
             notify({ state: "loading", progress: pct, text: txt });
           },
@@ -90,7 +71,7 @@
     return initPromise;
   }
 
-  // ==================== CANVAS-ENHANCED DOCUMENT & PHOTO OCR ====================
+  // ==================== ENHANCED MULTI-PASS CANVAS OCR ====================
   const scriptCache = {};
   function loadScriptOnce(src) {
     if (!scriptCache[src]) {
@@ -106,52 +87,208 @@
     return scriptCache[src];
   }
 
-  async function preprocessImageToCanvas(fileOrCanvas) {
+  async function getTesseractWorker() {
+    if (!tesseractWorkerPromise) {
+      tesseractWorkerPromise = (async () => {
+        await loadScriptOnce("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js");
+        if (!global.Tesseract) throw new Error("Tesseract unavailable");
+        const worker = await global.Tesseract.createWorker("eng", 1, {
+          errorHandler: () => {},
+        });
+        await worker.setParameters({
+          tessedit_pageseg_mode: "6", // Assume uniform block of text/math lines
+          preserve_interword_spaces: "1",
+        });
+        return worker;
+      })().catch((err) => {
+        tesseractWorkerPromise = null;
+        throw err;
+      });
+    }
+    return tesseractWorkerPromise;
+  }
+
+  function cleanPhysicsOcrText(text) {
+    return String(text || "")
+      .replace(/\u2009/g, " ")
+      .replace(/×/g, "x")
+      .replace(/−/g, "-")
+      .replace(/\bm\s*\/\s*s\s*2\b/gi, "m/s2")
+      .replace(/\bkg\s*\/\s*m\s*3\b/gi, "kg/m3")
+      .replace(/\b(\d+)\s*[oO]hms?\b/g, "$1 ohms")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
+  async function loadImageElement(fileOrCanvas) {
     if (fileOrCanvas instanceof HTMLCanvasElement) return fileOrCanvas;
     const url = URL.createObjectURL(fileOrCanvas);
     try {
-      const img = await new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         const im = new Image();
         im.onload = () => resolve(im);
         im.onerror = reject;
         im.src = url;
       });
-      const scale = img.width < 1100 ? Math.min(2.2, 1400 / Math.max(1, img.width)) : 1.0;
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, w, h);
-
-      // Contrast-boosted grayscale for cleaner handwriting & printed paper OCR
-      const imgData = ctx.getImageData(0, 0, w, h);
-      const d = imgData.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        const stretched = Math.max(0, Math.min(255, (lum - 128) * 1.38 + 132));
-        d[i] = d[i + 1] = d[i + 2] = stretched;
-      }
-      ctx.putImageData(imgData, 0, 0);
-      return canvas;
     } finally {
       URL.revokeObjectURL(url);
     }
   }
 
+  function buildScaledCanvas(source, rotateDeg = 0) {
+    const rawW = source.width || source.naturalWidth || 800;
+    const rawH = source.height || source.naturalHeight || 600;
+    const maxDim = Math.max(rawW, rawH);
+    const scale = maxDim < 1400 ? Math.min(2.6, 1500 / Math.max(1, maxDim)) : maxDim > 2600 ? 2400 / maxDim : 1.0;
+    const w = Math.round(rawW * scale);
+    const h = Math.round(rawH * scale);
+
+    const canvas = document.createElement("canvas");
+    if (rotateDeg === 90 || rotateDeg === 270) {
+      canvas.width = h;
+      canvas.height = w;
+    } else {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    if (rotateDeg === 90) {
+      ctx.translate(h, 0);
+      ctx.rotate(Math.PI / 2);
+    } else if (rotateDeg === 270) {
+      ctx.translate(0, w);
+      ctx.rotate(-Math.PI / 2);
+    }
+    ctx.drawImage(source, 0, 0, w, h);
+    ctx.restore();
+    return canvas;
+  }
+
+  function makeContrastGrayCanvas(baseCanvas) {
+    const w = baseCanvas.width;
+    const h = baseCanvas.height;
+    const out = document.createElement("canvas");
+    out.width = w;
+    out.height = h;
+    const ctx = out.getContext("2d");
+    ctx.drawImage(baseCanvas, 0, 0);
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const d = imgData.data;
+
+    // Percentile-like min/max stretch for crisp gray contrast
+    let minL = 255;
+    let maxL = 0;
+    const lums = new Uint8Array(w * h);
+    for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+      const lum = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) | 0;
+      lums[p] = lum;
+      if (lum < minL) minL = lum;
+      if (lum > maxL) maxL = lum;
+    }
+    const span = Math.max(30, maxL - minL);
+    for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+      const norm = ((lums[p] - minL) * 255) / span;
+      const v = Math.max(0, Math.min(255, (norm - 128) * 1.32 + 134));
+      d[i] = d[i + 1] = d[i + 2] = v;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    return out;
+  }
+
+  function makeAdaptiveBinaryCanvas(baseCanvas) {
+    // Bradley-Roth integral-image adaptive threshold: eliminates uneven shadows & lined paper tint
+    const w = baseCanvas.width;
+    const h = baseCanvas.height;
+    const out = document.createElement("canvas");
+    out.width = w;
+    out.height = h;
+    const ctx = out.getContext("2d");
+    ctx.drawImage(baseCanvas, 0, 0);
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const d = imgData.data;
+
+    const gray = new Uint8Array(w * h);
+    const integral = new Float64Array((w + 1) * (h + 1));
+    for (let y = 0; y < h; y++) {
+      let rowSum = 0;
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4;
+        const g = 0.299 * d[idx] + 0.587 * d[idx + 1] + 0.114 * d[idx + 2];
+        gray[y * w + x] = g;
+        rowSum += g;
+        integral[(y + 1) * (w + 1) + (x + 1)] = integral[y * (w + 1) + (x + 1)] + rowSum;
+      }
+    }
+
+    const radius = Math.max(12, Math.round(Math.min(w, h) / 28));
+    const tFactor = 0.88; // pixel < 88% of local mean => dark ink
+    for (let y = 0; y < h; y++) {
+      const y1 = Math.max(0, y - radius);
+      const y2 = Math.min(h - 1, y + radius);
+      for (let x = 0; x < w; x++) {
+        const x1 = Math.max(0, x - radius);
+        const x2 = Math.min(w - 1, x + radius);
+        const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+        const sum =
+          integral[(y2 + 1) * (w + 1) + (x2 + 1)] -
+          integral[y1 * (w + 1) + (x2 + 1)] -
+          integral[(y2 + 1) * (w + 1) + x1] +
+          integral[y1 * (w + 1) + x1];
+        const val = gray[y * w + x] * count < sum * tFactor ? 0 : 255;
+        const idx = (y * w + x) * 4;
+        d[idx] = d[idx + 1] = d[idx + 2] = val;
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+    return out;
+  }
+
+  async function runWorkerOcr(worker, canvas) {
+    const res = await worker.recognize(canvas);
+    const txt = cleanPhysicsOcrText(res && res.data ? res.data.text : "");
+    const conf = res && res.data && typeof res.data.confidence === "number" ? res.data.confidence : 0;
+    return { text: txt, confidence: conf };
+  }
+
   async function ocrImageSource(fileOrCanvas, onProgress) {
-    await loadScriptOnce("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js");
-    if (!global.Tesseract) throw new Error("Tesseract unavailable");
-    const canvas = await preprocessImageToCanvas(fileOrCanvas);
-    const res = await global.Tesseract.recognize(canvas, "eng", {
-      logger: (m) => {
-        if (onProgress && m && m.status === "recognizing text" && typeof m.progress === "number") {
-          onProgress(`Reading text from photo (${Math.round(m.progress * 100)}%)…`);
+    if (onProgress) onProgress("Enhancing image contrast & reading text…");
+    const worker = await getTesseractWorker();
+    const imgSource = await loadImageElement(fileOrCanvas);
+
+    const base = buildScaledCanvas(imgSource, 0);
+    const contrastCanvas = makeContrastGrayCanvas(base);
+    let best = await runWorkerOcr(worker, contrastCanvas);
+
+    // If initial pass looks short or noisy (shadowed phone photo / faint handwriting), try adaptive binarization!
+    if (best.text.length < 55 || best.confidence < 72) {
+      if (onProgress) onProgress("Running adaptive lighting cleanup pass…");
+      const binCanvas = makeAdaptiveBinaryCanvas(base);
+      const binRes = await runWorkerOcr(worker, binCanvas);
+      const scoreA = best.text.length * Math.max(25, best.confidence);
+      const scoreB = binRes.text.length * Math.max(25, binRes.confidence);
+      if (scoreB > scoreA * 1.1) {
+        best = binRes;
+      }
+    }
+
+    // Sideways photo fallback (90° / 270°)
+    if (best.text.length < 25 || best.confidence < 58) {
+      for (const deg of [90, 270]) {
+        const rotCanvas = makeContrastGrayCanvas(buildScaledCanvas(imgSource, deg));
+        const rotRes = await runWorkerOcr(worker, rotCanvas);
+        if (rotRes.text.length > best.text.length * 1.35 && rotRes.confidence >= best.confidence - 5) {
+          best = rotRes;
+          break;
         }
-      },
-    });
-    return (res && res.data && res.data.text ? res.data.text : "").trim();
+      }
+    }
+
+    return best.text;
   }
 
   async function extractPdfTextInBrowser(file, onProgress) {
@@ -170,16 +307,17 @@
     for (let p = 1; p <= maxPages; p++) {
       const page = await doc.getPage(p);
       const tc = await page.getTextContent();
-      const pageTxt = (tc.items || [])
-        .map((it) => it.str || "")
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
+      const pageTxt = cleanPhysicsOcrText(
+        (tc.items || [])
+          .map((it) => it.str || "")
+          .join(" ")
+          .replace(/\s+/g, " ")
+      );
 
       if (pageTxt.length >= 25) {
         pagesOut.push(pageTxt);
-      } else if (p <= 3) {
-        const viewport = page.getViewport({ scale: 1.8 });
+      } else if (p <= 4) {
+        const viewport = page.getViewport({ scale: 2.2 });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -201,7 +339,6 @@
         return await extractPdfTextInBrowser(file, onProgress);
       }
       if (type.startsWith("image/") || /\.(png|jpe?g|webp|bmp|gif)$/.test(name)) {
-        if (onProgress) onProgress("Enhancing & reading uploaded image…");
         return await ocrImageSource(file, onProgress);
       }
       return (await file.text()).trim();
@@ -211,71 +348,12 @@
     }
   }
 
-  // ==================== REAL STREAMING GENERATION ====================
-  async function generateViaCustomEndpoint(cfg, messages, opts) {
-    const { maxTokens = 650, temperature = 0.2, onToken = null } = opts;
-    const base = cfg.baseUrl.replace(/\/+$/, "");
-    const headers = { "Content-Type": "application/json" };
-    if (cfg.apiKey) headers.Authorization = `Bearer ${cfg.apiKey}`;
-
-    const resp = await fetch(`${base}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: cfg.model,
-        messages,
-        max_tokens: maxTokens,
-        temperature,
-        stream: true,
-      }),
-    });
-    if (!resp.ok || !resp.body) return null;
-
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let full = "";
-    let buf = "";
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buf += decoder.decode(value, { stream: true });
-      const lines = buf.split("\n");
-      buf = lines.pop() || "";
-      for (const ln of lines) {
-        const trimmed = ln.trim();
-        if (!trimmed.startsWith("data:")) continue;
-        const payload = trimmed.slice(5).trim();
-        if (payload === "[DONE]") continue;
-        try {
-          const j = JSON.parse(payload);
-          const delta = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
-          if (delta) {
-            full += delta;
-            if (onToken) onToken(full, delta);
-          }
-        } catch (_) {}
-      }
-    }
-    return full.trim() || null;
-  }
-
   async function generate(messages, opts = {}) {
-    const customCfg = getCustomConfig();
-    if (customCfg) {
-      try {
-        const res = await generateViaCustomEndpoint(customCfg, messages, opts);
-        if (res) return res;
-      } catch (err) {
-        console.warn("Custom LLM endpoint fallback:", err);
-      }
-    }
-
     if (engineState !== "ready" || !mlcEngine) {
       return null;
     }
 
-    const { maxTokens = 520, temperature = 0.2, onProgress = null, onToken = null, timeoutMs = 12000 } = opts;
+    const { maxTokens = 560, temperature = 0.2, onProgress = null, onToken = null, timeoutMs = 15000 } = opts;
     if (onProgress) onProgress("Generating explanation…");
 
     const runStream = (async () => {
@@ -311,25 +389,21 @@
   }
 
   function getStatus() {
-    const customCfg = getCustomConfig();
     return {
-      state: customCfg ? "custom_ready" : engineState,
-      backend: customCfg ? "custom_api" : engineState === "ready" ? "webllm" : "harony_rag",
+      state: engineState,
+      backend: engineState === "ready" ? "webllm" : "harony_rag",
       hasWebGPU: typeof navigator !== "undefined" && Boolean(navigator.gpu),
-      customModel: customCfg ? customCfg.model : null,
     };
   }
 
   global.HaroonyNeuralAI = {
-    isReady: () => Boolean(getCustomConfig()) || engineState === "ready",
+    isReady: () => engineState === "ready",
     getStatus,
     onStatusChange: (fn) => {
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
     enableWebGPU: initWebGPU,
-    getCustomConfig,
-    saveCustomConfig,
     generate,
     extractDocumentText,
   };
