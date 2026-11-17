@@ -17,6 +17,8 @@ models/harony_retriever.joblib
 .env.*
 !.env.example
 data/runtime_settings.json
+data/learning/
+models/online_student_learner.joblib
 
 # OS / Editor
 .DS_Store

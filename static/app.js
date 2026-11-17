@@ -475,11 +475,53 @@
             </div>`;
         }
 
-        extrasEl.innerHTML = videosHtml + cardsHtml;
+        let feedbackHtml = "";
+        if (!res.refused && res.category !== "greeting" && res.interaction_id) {
+          feedbackHtml = `
+            <div class="msg-feedback-row" data-interaction-id="${escapeHtml(res.interaction_id)}" data-unit="${escapeHtml(res.unit || "")}" data-query="${escapeHtml(res._userQuery || "")}">
+              <span class="msg-feedback-label">Was this helpful?</span>
+              <button type="button" class="fb-btn" data-helpful="true" title="Helpful — teach Haroony AI this worked well">👍 Helpful</button>
+              <button type="button" class="fb-btn" data-helpful="false" title="Needs improvement">👎 Needs detail</button>
+            </div>`;
+        }
+
+        extrasEl.innerHTML = videosHtml + cardsHtml + feedbackHtml;
         scrollChatToBottom();
       },
     };
   }
+
+  document.body.addEventListener("click", async function (e) {
+    const fbBtn = e.target.closest(".fb-btn");
+    if (!fbBtn) return;
+    const row = fbBtn.closest(".msg-feedback-row");
+    if (!row || row.dataset.voted === "1") return;
+    row.dataset.voted = "1";
+    const helpful = fbBtn.getAttribute("data-helpful") === "true";
+    const iid = row.getAttribute("data-interaction-id") || "";
+    const unit = row.getAttribute("data-unit") || "";
+    const query = row.getAttribute("data-query") || "";
+
+    row.querySelectorAll(".fb-btn").forEach((b) => {
+      b.disabled = true;
+      if (b === fbBtn) b.classList.add("fb-btn-selected");
+    });
+    const lbl = row.querySelector(".msg-feedback-label");
+    if (lbl) lbl.textContent = helpful ? "Thanks! Haroony AI learned from this." : "Thanks! Noted for improvement.";
+
+    try {
+      if (serverAvailable) {
+        const fd = new FormData();
+        fd.append("interaction_id", iid);
+        fd.append("helpful", helpful ? "true" : "false");
+        fd.append("query", query);
+        fd.append("unit", unit);
+        await fetch("api/feedback", { method: "POST", body: fd });
+      } else if (window.HaroonyBrowserEngine && window.HaroonyBrowserEngine.recordFeedback) {
+        window.HaroonyBrowserEngine.recordFeedback(iid, helpful, query, unit);
+      }
+    } catch (_) {}
+  });
 
   chatForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -522,6 +564,7 @@
         );
       }
 
+      if (data && !data.refused) data._userQuery = text;
       liveBubble.finalize(data);
 
       if (!data.refused) {

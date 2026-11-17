@@ -1,12 +1,14 @@
-"""Enhanced Local Vision & Document OCR Engine for Haroony AI.
+"""High-Accuracy Multi-Pass Vision & Document OCR Engine for Haroony AI.
 
-Upgrades over basic OCR:
-1. EXIF transpose (fixes sideways/upside-down smartphone photos automatically).
-2. OpenCV CLAHE adaptive local contrast + unsharp-mask denoising + smart upscaling
-   (dramatically improves pencil/blue-pen handwriting on lined exam paper).
-3. Auto 90°/270° orientation check when initial pass has low confidence/short output.
-4. Spatial top-to-bottom / left-to-right line grouping so formulas stay together.
-5. PyMuPDF vector-text first for PDFs, falling back to high-DPI page OCR for scans.
+Engineered for real student phone photos, dark-mode screenshots, tilted worksheets, and scanned PDFs:
+1. EXIF orientation fix + smart LANCZOS upscaling (up to 2400px) with white padding border.
+2. Automatic dark-mode screenshot detection & inversion (white-on-dark -> crisp black-on-white).
+3. Illumination / shadow normalization (background division) + CLAHE local contrast + unsharp sharpening.
+4. Automatic skew/tilt correction (-18 deg to +18 deg) so slanted phone photos stay on horizontal lines.
+5. Multi-pass evaluation: Shadow-Normalized Sharp + Adaptive Threshold Binary + Upscaled RGB,
+   plus 90/180/270-degree orientation fallback.
+6. Box-height-adaptive spatial line merging + IGCSE Physics notation normalization.
+7. PyMuPDF embedded text extraction first for PDFs, falling back to 260-DPI OCR on scanned pages.
 """
 from __future__ import annotations
 
@@ -33,67 +35,146 @@ def get_ocr():
 def _clean_ocr_physics_text(text: str) -> str:
     if not text:
         return ""
-    s = text.replace("\u2009", " ").replace("×", "x").replace("−", "-")
+    s = (
+        text.replace("\u2009", " ")
+        .replace("\u00a0", " ")
+        .replace("×", "x")
+        .replace("−", "-")
+        .replace("–", "-")
+        .replace("Ω", " ohms")
+        .replace("µ", "u")
+        .replace("μ", "u")
+    )
     # Fix common physics OCR glitches
-    s = re.sub(r"\b(\d+)\s*[oO]hms?\b", r"\1 ohms", s)
+    s = re.sub(r"\b(\d+(?:\.\d+)?)\s*[oO]hms?\b", r"\1 ohms", s)
     s = re.sub(r"\bm\s*/\s*s\s*2\b", "m/s2", s)
+    s = re.sub(r"\bm\s*s\s*-?\s*2\b", "m/s2", s)
     s = re.sub(r"\bkg\s*/\s*m\s*3\b", "kg/m3", s)
-    s = re.sub(r"\s+\n", "\n", s)
+    s = re.sub(r"\bg\s*/\s*cm\s*3\b", "g/cm3", s)
+    s = re.sub(r"\b(\d+(?:\.\d+)?)\s*[°o0]\s*C\b", r"\1 °C", s)
+    s = re.sub(r"(\d+(?:\.\d+)?)\s*[xX*]\s*10\s*\^?\s*([+-]?\d+)", r"\1 x 10^\2", s)
+    s = re.sub(r"[ \t]+\n", "\n", s)
+    s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()
 
 
-def _preprocess_pil_for_ocr(img: Image.Image) -> Tuple[np.ndarray, np.ndarray]:
-    """Return (color_upscaled_rgb, clahe_enhanced_rgb) numpy arrays."""
+def _normalize_dark_mode(rgb: np.ndarray) -> np.ndarray:
+    """Invert dark-mode screenshots (light text on dark background) into black-on-white."""
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+    if float(np.median(gray)) < 115.0:
+        return 255 - rgb
+    return rgb
+
+
+def _deskew_rgb(rgb: np.ndarray) -> np.ndarray:
+    """Correct small camera tilt (-18..+18 deg) using foreground text orientation."""
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+    # Find dark text pixels against lighter background
+    inv = cv2.bitwise_not(gray)
+    _, thresh = cv2.threshold(inv, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    # Connect horizontal characters into lines so minAreaRect tracks text-line angle
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 3))
+    dilated = cv2.dilate(thresh, kernel, iterations=1)
+    coords = np.column_stack(np.where(dilated > 0))
+    if len(coords) < 200:
+        return rgb
+    rect = cv2.minAreaRect(coords[:, ::-1].astype(np.float32))
+    angle = float(rect[-1])
+    if angle < -45.0:
+        angle = 90.0 + angle
+    elif angle > 45.0:
+        angle = angle - 90.0
+    if abs(angle) < 1.2 or abs(angle) > 18.0:
+        return rgb
+    h, w = rgb.shape[:2]
+    mat = cv2.getRotationMatrix2D((w / 2.0, h / 2.0), angle, 1.0)
+    return cv2.warpAffine(
+        rgb,
+        mat,
+        (w, h),
+        flags=cv2.INTER_CUBIC,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=(255, 255, 255),
+    )
+
+
+def _preprocess_pil_for_ocr(img: Image.Image) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return (upscaled_rgb, shadow_norm_sharp_rgb, adaptive_binary_rgb)."""
     img = ImageOps.exif_transpose(img).convert("RGB")
     w, h = img.size
     max_dim = max(w, h)
-    if max_dim < 1400:
-        scale = min(2.6, 1500.0 / max(1, max_dim))
+    if max_dim < 1600:
+        scale = min(3.0, 1700.0 / max(1, max_dim))
         img = img.resize((int(w * scale), int(h * scale)), Image.Resampling.LANCZOS)
-    elif max_dim > 2600:
-        scale = 2400.0 / max_dim
+    elif max_dim > 2800:
+        scale = 2600.0 / max_dim
         img = img.resize((int(w * scale), int(h * scale)), Image.Resampling.LANCZOS)
 
-    rgb = np.array(img)
+    rgb = _normalize_dark_mode(np.array(img))
+    rgb = _deskew_rgb(rgb)
+
+    # Add small white margin so edge text is never clipped by detector boxes
+    rgb = cv2.copyMakeBorder(rgb, 24, 24, 24, 24, cv2.BORDER_CONSTANT, value=(255, 255, 255))
+
     gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
 
-    # CLAHE adaptive contrast helps faint pencil & uneven phone shadow lighting
-    clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(8, 8))
-    enhanced = clahe.apply(gray)
+    # Illumination / shadow normalization (divides out uneven lighting & warm paper tint)
+    bg_k = max(31, (min(gray.shape[:2]) // 18) | 1)
+    bg = cv2.GaussianBlur(gray, (bg_k, bg_k), 0)
+    shadow_norm = cv2.divide(gray, np.maximum(bg, 1), scale=255)
 
-    # Light unsharp mask for crisp edges
-    blurred = cv2.GaussianBlur(enhanced, (0, 0), sigmaX=1.2)
-    sharp = cv2.addWeighted(enhanced, 1.35, blurred, -0.35, 0)
+    # CLAHE + mild unsharp sharpening
+    clahe = cv2.createCLAHE(clipLimit=2.4, tileGridSize=(8, 8))
+    enhanced = clahe.apply(shadow_norm)
+    blurred = cv2.GaussianBlur(enhanced, (0, 0), sigmaX=1.1)
+    sharp = cv2.addWeighted(enhanced, 1.4, blurred, -0.4, 0)
     sharp_rgb = cv2.cvtColor(sharp, cv2.COLOR_GRAY2RGB)
-    return rgb, sharp_rgb
+
+    # Adaptive binary pass for faint pencil or heavy shadow creases
+    block_sz = max(21, (min(gray.shape[:2]) // 32) | 1)
+    denoised = cv2.fastNlMeansDenoising(shadow_norm, None, h=8, templateWindowSize=7, searchWindowSize=15)
+    bin_gray = cv2.adaptiveThreshold(
+        denoised, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_sz, 11
+    )
+    bin_rgb = cv2.cvtColor(bin_gray, cv2.COLOR_GRAY2RGB)
+
+    return rgb, sharp_rgb, bin_rgb
 
 
 def _sort_and_merge_ocr_boxes(result: Any) -> Tuple[str, float]:
     if not result:
         return "", 0.0
-    items: List[Tuple[float, float, str, float]] = []
+    items: List[Tuple[float, float, float, str, float]] = []
     confs: List[float] = []
+    heights: List[float] = []
     for box, txt, conf in result:
         t = str(txt or "").strip()
         if not t:
             continue
         c = float(conf)
         confs.append(c)
-        # box is [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
         ys = [pt[1] for pt in box]
         xs = [pt[0] for pt in box]
         cy = sum(ys) / 4.0
         lx = min(xs)
-        items.append((cy, lx, t, c))
+        bh = max(8.0, max(ys) - min(ys))
+        heights.append(bh)
+        items.append((cy, lx, bh, t, c))
 
     if not items:
         return "", 0.0
 
-    # Group boxes on roughly the same horizontal line (within ~18px Y tolerance)
+    median_h = float(np.median(heights)) if heights else 24.0
+    y_tol = max(14.0, min(42.0, median_h * 0.6))
+
     items.sort(key=lambda it: (it[0], it[1]))
-    lines: List[List[Tuple[float, float, str, float]]] = []
+    lines: List[List[Tuple[float, float, float, str, float]]] = []
     for it in items:
-        if not lines or abs(it[0] - lines[-1][0][0]) > 20.0:
+        if not lines:
+            lines.append([it])
+            continue
+        avg_line_y = sum(x[0] for x in lines[-1]) / len(lines[-1])
+        if abs(it[0] - avg_line_y) > y_tol:
             lines.append([it])
         else:
             lines[-1].append(it)
@@ -101,38 +182,45 @@ def _sort_and_merge_ocr_boxes(result: Any) -> Tuple[str, float]:
     out_lines: List[str] = []
     for ln in lines:
         ln.sort(key=lambda it: it[1])
-        out_lines.append(" ".join(it[2] for it in ln))
+        out_lines.append(" ".join(it[3] for it in ln))
 
     avg_conf = sum(confs) / len(confs) if confs else 0.0
     return _clean_ocr_physics_text("\n".join(out_lines)), round(avg_conf, 3)
 
 
+def _score_ocr_candidate(txt: str, conf: float) -> float:
+    alnum = sum(ch.isalnum() for ch in (txt or ""))
+    return alnum * (0.45 + max(0.0, conf))
+
+
 def extract_text_from_image_bytes(image_bytes: bytes) -> Dict[str, Any]:
     """Run enhanced multi-pass RapidOCR on an uploaded photo/screenshot."""
     img = Image.open(io.BytesIO(image_bytes))
-    orig_rgb, enh_rgb = _preprocess_pil_for_ocr(img)
+    orig_rgb, sharp_rgb, bin_rgb = _preprocess_pil_for_ocr(img)
 
     ocr = get_ocr()
-    res_enh, _ = ocr(enh_rgb, box_thresh=0.35, unclip_ratio=1.75)
-    txt_enh, conf_enh = _sort_and_merge_ocr_boxes(res_enh)
+    res_sharp, _ = ocr(sharp_rgb, box_thresh=0.30, unclip_ratio=1.85)
+    best_txt, best_conf = _sort_and_merge_ocr_boxes(res_sharp)
+    best_score = _score_ocr_candidate(best_txt, best_conf)
 
-    best_txt, best_conf = txt_enh, conf_enh
+    # Try original upscaled RGB & adaptive-binary passes if needed
+    if len(best_txt) < 65 or best_conf < 0.78:
+        for cand_arr in (orig_rgb, bin_rgb):
+            res_c, _ = ocr(cand_arr, box_thresh=0.30, unclip_ratio=1.85)
+            txt_c, conf_c = _sort_and_merge_ocr_boxes(res_c)
+            sc_c = _score_ocr_candidate(txt_c, conf_c)
+            if sc_c > best_score * 1.08:
+                best_txt, best_conf, best_score = txt_c, conf_c, sc_c
 
-    # Compare against original upscaled RGB if enhanced pass looks short or low-confidence
-    if len(best_txt) < 40 or best_conf < 0.72:
-        res_orig, _ = ocr(orig_rgb, box_thresh=0.35, unclip_ratio=1.75)
-        txt_orig, conf_orig = _sort_and_merge_ocr_boxes(res_orig)
-        if (len(txt_orig) * max(0.3, conf_orig)) > (len(best_txt) * max(0.3, best_conf)) * 1.15:
-            best_txt, best_conf = txt_orig, conf_orig
-
-    # Sideways photo fallback (90° / 270°) when almost nothing legible was read
-    if len(best_txt) < 25 or best_conf < 0.62:
-        for rot_code in (cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE):
-            rot_arr = cv2.rotate(enh_rgb, rot_code)
-            res_rot, _ = ocr(rot_arr, box_thresh=0.35, unclip_ratio=1.75)
+    # Full orientation fallback (90°, 180°, 270°) when photo was rotated/upside-down
+    if len(best_txt) < 28 or best_conf < 0.65:
+        for rot_code in (cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_180, cv2.ROTATE_90_COUNTERCLOCKWISE):
+            rot_arr = cv2.rotate(sharp_rgb, rot_code)
+            res_rot, _ = ocr(rot_arr, box_thresh=0.30, unclip_ratio=1.85)
             txt_rot, conf_rot = _sort_and_merge_ocr_boxes(res_rot)
-            if len(txt_rot) > len(best_txt) * 1.35 and conf_rot >= best_conf - 0.05:
-                best_txt, best_conf = txt_rot, conf_rot
+            sc_rot = _score_ocr_candidate(txt_rot, conf_rot)
+            if sc_rot > best_score * 1.25 and conf_rot >= best_conf - 0.05:
+                best_txt, best_conf, best_score = txt_rot, conf_rot, sc_rot
 
     return {
         "text": best_txt,
@@ -154,7 +242,7 @@ def extract_text_from_pdf_bytes(pdf_bytes: bytes, max_pages: int = 8) -> Dict[st
         if len(raw_text) >= 40:
             all_pages_text.append(f"[Page {idx + 1}]\n{raw_text}")
         else:
-            pix = page.get_pixmap(dpi=210)
+            pix = page.get_pixmap(dpi=260)
             ocr_res = extract_text_from_image_bytes(pix.tobytes("png"))
             ocr_pages += 1
             if ocr_res["text"]:

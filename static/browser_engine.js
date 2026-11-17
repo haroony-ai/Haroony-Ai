@@ -1485,6 +1485,92 @@
     };
   }
 
+  // ==================== BROWSER CONTINUOUS ONLINE ML LEARNER ====================
+  const ONLINE_ML_KEY = "harony_online_ml_v1";
+  let memoryCache = null;
+
+  function loadOnlineMemory() {
+    if (memoryCache) return memoryCache;
+    try {
+      if (typeof localStorage !== "undefined") {
+        const raw = localStorage.getItem(ONLINE_ML_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            memoryCache = parsed;
+            return memoryCache;
+          }
+        }
+      }
+    } catch (_) {}
+    memoryCache = { unitWeights: {}, interactions: [] };
+    return memoryCache;
+  }
+
+  function saveOnlineMemory() {
+    try {
+      if (typeof localStorage !== "undefined" && memoryCache) {
+        localStorage.setItem(ONLINE_ML_KEY, JSON.stringify(memoryCache));
+      }
+    } catch (_) {}
+  }
+
+  function predictOnlineUnit(query) {
+    const mem = loadOnlineMemory();
+    const toks = tokenize(query).filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+    if (!toks.length) return null;
+    const scores = {};
+    for (const t of toks) {
+      const uw = mem.unitWeights[t];
+      if (!uw) continue;
+      for (const [u, w] of Object.entries(uw)) {
+        scores[u] = (scores[u] || 0) + w;
+      }
+    }
+    let bestU = null;
+    let bestS = 0;
+    for (const [u, s] of Object.entries(scores)) {
+      if (s > bestS) {
+        bestS = s;
+        bestU = u;
+      }
+    }
+    return bestS >= 2.0 ? bestU : null;
+  }
+
+  function recordOnlineInteraction(query, unit, topic, confidenceScore = 4.0) {
+    const toks = Array.from(new Set(tokenize(query).filter((w) => w.length >= 3 && !STOPWORDS.has(w))));
+    const id = "br-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6);
+    if (!toks.length) return id;
+    const mem = loadOnlineMemory();
+    if (unit && confidenceScore >= 3.8) {
+      for (const t of toks) {
+        if (!mem.unitWeights[t]) mem.unitWeights[t] = {};
+        mem.unitWeights[t][unit] = (mem.unitWeights[t][unit] || 0) + 1;
+      }
+    }
+    mem.interactions.push({ id, query: String(query).slice(0, 240), unit: unit || "", topic: topic || "", score: 0 });
+    if (mem.interactions.length > 250) mem.interactions = mem.interactions.slice(-250);
+    saveOnlineMemory();
+    return id;
+  }
+
+  function applyOnlineFeedback(interactionId, helpful, queryFallback, unitFallback) {
+    const mem = loadOnlineMemory();
+    const entry = mem.interactions.find((x) => x.id === interactionId);
+    const q = (entry ? entry.query : queryFallback) || "";
+    const u = (entry ? entry.unit : unitFallback) || "";
+    if (entry) entry.score += helpful ? 2 : -2;
+    if (helpful && q && u) {
+      for (const t of Array.from(new Set(tokenize(q).filter((w) => w.length >= 3 && !STOPWORDS.has(w))))) {
+        if (!mem.unitWeights[t]) mem.unitWeights[t] = {};
+        mem.unitWeights[t][u] = (mem.unitWeights[t][u] || 0) + 2;
+      }
+    }
+    saveOnlineMemory();
+    return { online_ml_active: true, total_learned_questions: mem.interactions.length };
+  }
+
   // ==================== PUBLIC ENGINE API ====================
   global.HaroonyBrowserEngine = {
     solvePhysicsProblem,
@@ -1665,6 +1751,10 @@
         finalReply = `**📷 Read from your uploaded file:**\n> ${prev.replace(/\n/g, "\n> ")}\n\n${finalReply}`;
       }
 
+      const resolvedUnit = primaryUnit || (conceptEntry && conceptEntry.unit) || predictOnlineUnit(searchQuery) || "";
+      const resolvedTopic = primaryTopic || (conceptEntry && conceptEntry.topic) || "Physics";
+      const interactionId = recordOnlineInteraction(combined, resolvedUnit, resolvedTopic, scoredChunks.length ? scoredChunks[0].s : 4.0);
+
       return {
         ok: true,
         refused: false,
@@ -1673,8 +1763,15 @@
         notes_cards: strongCards,
         video_links: vids,
         ocr_text: ocrText || null,
+        interaction_id: interactionId,
+        unit: resolvedUnit,
+        topic: resolvedTopic,
         engine: "Haroony AI",
       };
+    },
+
+    recordFeedback(interactionId, helpful, queryText, unitName) {
+      return applyOnlineFeedback(interactionId, helpful, queryText, unitName);
     },
 
     async getMarkSchemeById(msId) {
