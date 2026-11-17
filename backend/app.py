@@ -6,14 +6,16 @@ Serves both the simple student/teacher website and all REST APIs from a single o
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import httpx
 import pymupdf
 from fastapi import FastAPI, File, Form, Header, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import MODELS_DIR, ROOT_DIR, STATIC_DIR, load_settings, save_settings
@@ -440,3 +442,217 @@ async def update_teacher_settings(
         "ollama_enabled": saved["ollama_enabled"],
         "openai_compat_enabled": saved["openai_compat_enabled"],
     }
+
+
+def _write_env_updates(updates: Dict[str, str]) -> None:
+    env_path = ROOT_DIR / ".env"
+    existing: Dict[str, str] = {}
+    if env_path.exists():
+        for raw_ln in env_path.read_text(encoding="utf-8").splitlines():
+            ln = raw_ln.strip()
+            if ln and not ln.startswith("#") and "=" in ln:
+                k, v = ln.split("=", 1)
+                existing[k.strip()] = v.strip()
+    for k, v in updates.items():
+        if v:
+            existing[k] = v
+            os.environ[k] = v
+    env_path.write_text("\n".join(f"{k}={v}" for k, v in existing.items()) + "\n", encoding="utf-8")
+
+
+@app.post("/api/teacher/cloud-setup")
+async def teacher_cloud_setup(
+    pin: str = Form(""),
+    primary_key: str = Form(""),
+    secondary_key: str = Form(""),
+    primary_model: str = Form(""),
+    secondary_model: str = Form(""),
+) -> Dict[str, Any]:
+    check_teacher_pin(pin)
+    pk = primary_key.strip()
+    sk = secondary_key.strip()
+    updates: Dict[str, str] = {"HAROONY_LLM_MODE": "dual"}
+    if pk:
+        updates["GEMINI_API_KEYS"] = pk
+        updates.setdefault("GEMINI_MODEL", primary_model.strip() or os.environ.get("GEMINI_MODEL", "gemini-2.5-flash"))
+    elif primary_model.strip():
+        updates["GEMINI_MODEL"] = primary_model.strip()
+    if sk:
+        updates["OPENAI_API_KEYS"] = sk
+        updates.setdefault("OPENAI_MODEL", secondary_model.strip() or os.environ.get("OPENAI_MODEL", "gpt-4o-mini"))
+    elif secondary_model.strip():
+        updates["OPENAI_MODEL"] = secondary_model.strip()
+
+    _write_env_updates(updates)
+
+    # Verify live connectivity for whichever keys exist in server env
+    gem_active = (os.environ.get("GEMINI_API_KEYS") or os.environ.get("GEMINI_API_KEY", "")).split(",")[0].strip()
+    oai_active = (os.environ.get("OPENAI_API_KEYS") or os.environ.get("OPENAI_API_KEY", "")).split(",")[0].strip()
+    gem_ok = False
+    oai_ok = False
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        if gem_active:
+            try:
+                r = await client.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={gem_active}")
+                gem_ok = r.status_code == 200
+            except Exception:
+                gem_ok = False
+        if oai_active:
+            try:
+                r = await client.get(
+                    "https://api.openai.com/v1/models",
+                    headers={"Authorization": f"Bearer {oai_active}"},
+                )
+                oai_ok = r.status_code == 200
+            except Exception:
+                oai_ok = False
+
+    return {
+        "ok": True,
+        "primary_configured": bool(gem_active),
+        "primary_verified": gem_ok,
+        "secondary_configured": bool(oai_active),
+        "secondary_verified": oai_ok,
+        "server_llm_active": await has_active_server_llm(),
+    }
+
+
+@app.post("/api/teacher/train-cloud")
+async def teacher_train_cloud(pin: str = Form("")) -> Dict[str, Any]:
+    check_teacher_pin(pin)
+    from backend.config import TRAINING_DIR
+
+    gem_key = (os.environ.get("GEMINI_API_KEYS") or os.environ.get("GEMINI_API_KEY", "")).split(",")[0].strip()
+    oai_key = (os.environ.get("OPENAI_API_KEYS") or os.environ.get("OPENAI_API_KEY", "")).split(",")[0].strip()
+    out: Dict[str, Any] = {"ok": True, "primary": {"launched": False}, "secondary": {"launched": False}}
+
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        gem_ds = TRAINING_DIR / "gemini_sft_dataset.jsonl"
+        if gem_key and gem_ds.exists():
+            try:
+                examples = []
+                for ln in gem_ds.read_text(encoding="utf-8").splitlines()[:1200]:
+                    if not ln.strip():
+                        continue
+                    obj = json.loads(ln)
+                    c = obj.get("contents") or []
+                    if len(c) == 2:
+                        examples.append({
+                            "text_input": str(c[0]["parts"][0]["text"])[:1800],
+                            "output": str(c[1]["parts"][0]["text"])[:1800],
+                        })
+                resp = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/tunedModels?key={gem_key}",
+                    json={
+                        "display_name": "Haroony-Physics-AI-2027",
+                        "base_model": "models/gemini-1.5-flash-001-tuning",
+                        "tuning_task": {
+                            "hyperparameters": {"batch_size": 4, "learning_rate": 0.001, "epoch_count": 3},
+                            "training_data": {"examples": {"examples": examples}},
+                        },
+                    },
+                )
+                out["primary"] = {"launched": resp.status_code in (200, 201), "status": resp.status_code, "detail": resp.json()}
+            except Exception as exc:
+                out["primary"] = {"launched": False, "error": str(exc)}
+        else:
+            out["primary"] = {"launched": False, "reason": "Missing Primary API key or dataset"}
+
+        oai_ds = TRAINING_DIR / "openai_sft_dataset.jsonl"
+        if oai_key and oai_ds.exists():
+            try:
+                up = await client.post(
+                    "https://api.openai.com/v1/files",
+                    headers={"Authorization": f"Bearer {oai_key}"},
+                    data={"purpose": "fine-tune"},
+                    files={"file": (oai_ds.name, oai_ds.read_bytes(), "application/jsonl")},
+                )
+                up_j = up.json()
+                if up.status_code not in (200, 201) or not up_j.get("id"):
+                    out["secondary"] = {"launched": False, "status": up.status_code, "detail": up_j}
+                else:
+                    job = await client.post(
+                        "https://api.openai.com/v1/fine_tuning/jobs",
+                        headers={"Authorization": f"Bearer {oai_key}", "Content-Type": "application/json"},
+                        json={
+                            "training_file": up_j["id"],
+                            "model": "gpt-4o-mini-2024-07-18",
+                            "suffix": "haroony-physics-2027",
+                            "hyperparameters": {"n_epochs": 3},
+                        },
+                    )
+                    out["secondary"] = {"launched": job.status_code in (200, 201), "status": job.status_code, "detail": job.json()}
+            except Exception as exc:
+                out["secondary"] = {"launched": False, "error": str(exc)}
+        else:
+            out["secondary"] = {"launched": False, "reason": "Missing Secondary API key or dataset"}
+
+    return out
+
+
+@app.get("/setup", response_class=HTMLResponse)
+async def setup_popup_page() -> HTMLResponse:
+    return HTMLResponse(
+        """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Haroony AI — Secure Server Key & Training Setup</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;background:#0b1220;color:#e2e8f0;margin:0;padding:24px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+    .card{background:#111a2e;border:1px solid #243452;border-radius:16px;padding:28px;max-width:520px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+    h1{margin:0 0 8px;font-size:1.35rem}
+    p{color:#94a3b8;font-size:.92rem;line-height:1.5}
+    label{display:block;margin-top:14px;font-size:.85rem;font-weight:600;color:#cbd5e1}
+    input{width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border-radius:10px;border:1px solid #334155;background:#090f1c;color:#f8fafc;font-size:.95rem}
+    .row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    button{flex:1;padding:12px 14px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:.92rem}
+    .btn-save{background:#3b82f6;color:#fff}
+    .btn-train{background:#10b981;color:#052e16}
+    .out{margin-top:16px;padding:12px;border-radius:10px;background:#090f1c;border:1px solid #1e293b;font-size:.84rem;white-space:pre-wrap;display:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Haroony AI — Secure Key &amp; Training Setup</h1>
+    <p>Keys entered here are saved ONLY on your private server (<code>.env</code>), never pushed to GitHub or visible to students.</p>
+    <label>Teacher PIN (default: 0625)</label>
+    <input id="pin" type="password" value="0625" />
+    <label>Primary AI Key (Google AI Studio)</label>
+    <input id="pk" type="password" placeholder="Paste your primary API key..." autocomplete="off" />
+    <label>Secondary AI Key (OpenAI Platform)</label>
+    <input id="sk" type="password" placeholder="Paste your secondary API key..." autocomplete="off" />
+    <label>Optional Tuned Primary Model ID (e.g. tunedModels/...)</label>
+    <input id="pm" type="text" placeholder="Leave blank until training finishes" />
+    <label>Optional Tuned Secondary Model ID (e.g. ft:...)</label>
+    <input id="sm" type="text" placeholder="Leave blank until training finishes" />
+    <div class="row">
+      <button class="btn-save" onclick="saveKeys()">1. Save &amp; Test Keys</button>
+      <button class="btn-train" onclick="trainBoth()">2. Train Both on Harony Material</button>
+    </div>
+    <div id="out" class="out"></div>
+  </div>
+  <script>
+    async function saveKeys(){
+      const out = document.getElementById('out'); out.style.display='block'; out.textContent='Saving & verifying keys...';
+      const fd = new FormData();
+      fd.append('pin', document.getElementById('pin').value);
+      fd.append('primary_key', document.getElementById('pk').value);
+      fd.append('secondary_key', document.getElementById('sk').value);
+      fd.append('primary_model', document.getElementById('pm').value);
+      fd.append('secondary_model', document.getElementById('sm').value);
+      const r = await fetch('/api/teacher/cloud-setup', {method:'POST', body:fd});
+      out.textContent = JSON.stringify(await r.json(), null, 2);
+    }
+    async function trainBoth(){
+      const out = document.getElementById('out'); out.style.display='block'; out.textContent='Uploading Harony 2026/2027 datasets & starting training jobs...';
+      const fd = new FormData();
+      fd.append('pin', document.getElementById('pin').value);
+      const r = await fetch('/api/teacher/train-cloud', {method:'POST', body:fd});
+      out.textContent = JSON.stringify(await r.json(), null, 2);
+    }
+  </script>
+</body>
+</html>"""
+    )
