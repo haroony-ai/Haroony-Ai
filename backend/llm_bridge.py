@@ -121,7 +121,8 @@ async def _call_gemini(
         payload["systemInstruction"] = {"parts": system_parts}
 
     for api_key in keys:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        model_path = model if model.startswith(("models/", "tunedModels/")) else f"models/{model}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/{model_path}:generateContent?key={api_key}"
         try:
             async with httpx.AsyncClient(timeout=26.0) as client:
                 resp = await client.post(url, json=payload)

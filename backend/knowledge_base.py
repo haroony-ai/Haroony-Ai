@@ -395,6 +395,7 @@ class HaronyKnowledgeBase:
             return None
         low = query.lower()
         q_words = set(re.findall(r"[a-z0-9]{3,}", low))
+        q_stems = {w[:-1] if len(w) >= 5 and w.endswith("s") else w for w in q_words}
         best_entry = None
         best_score = 0.0
         for entry in self.concept_atlas:
@@ -403,13 +404,15 @@ class HaronyKnowledgeBase:
             sc = 0.0
             for kw in entry.get("keywords", []):
                 if kw in low:
-                    sc += 3.0 if " " in kw else 2.0
-            topic_words = set(re.findall(r"[a-z0-9]{3,}", entry.get("topic", "").lower()))
-            sc += 1.2 * len(q_words & topic_words)
+                    wc = len(kw.split())
+                    sc += (3.8 * wc) if wc >= 2 else 2.6
+            topic_words = set(re.findall(r"[a-z0-9]{4,}", entry.get("topic", "").lower()))
+            topic_stems = {w[:-1] if len(w) >= 5 and w.endswith("s") else w for w in topic_words}
+            sc += 1.6 * len(q_stems & topic_stems)
             if sc > best_score:
                 best_score = sc
                 best_entry = entry
-        return best_entry if best_score >= 2.0 else None
+        return best_entry if best_score >= 3.0 else None
 
     def search_question_bank(
         self,

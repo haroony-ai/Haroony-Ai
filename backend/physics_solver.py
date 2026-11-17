@@ -119,19 +119,20 @@ def extract_si_quantities(text: str) -> Dict[str, List[Tuple[float, str]]]:
         "temp_c": [],
         "shc": [],
         "angle_deg": [],
+        "density": [],
     }
 
-    # Normalize unicode superscripts for clean matching
+    # Normalize unicode superscripts & power-of-10 notation for clean matching
+    sup_map = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺", "0123456789-+")
     norm = (
-        text.replace("²", "^2")
-        .replace("³", "^3")
-        .replace("⁻", "-")
-        .replace("¹", "1")
-        .replace("⁴", "4")
-        .replace("⁶", "6")
+        text.replace("×", "x")
+        .replace("−", "-")
         .replace("Ω", "ohm")
         .replace("Ω", "ohm")
     )
+    norm = re.sub(r"10([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+)", lambda m: "10^" + m.group(1).translate(sup_map), norm)
+    norm = re.sub(r"([mkc]?m|s)([²³⁻⁰¹⁴⁵⁶⁷⁸⁹]+)", lambda m: m.group(1) + "^" + m.group(2).translate(sup_map), norm)
+    norm = norm.translate(sup_map)
 
     # Specific heat capacity (J/(kg °C) or J/g°C)
     for val, u, raw in find_quantity(norm, r"J\s*/\s*\(?\s*(?:kg|g)\s*[°o]?\s*[CK]\s*\)?"):
@@ -184,12 +185,30 @@ def extract_si_quantities(text: str) -> Dict[str, List[Tuple[float, str]]]:
         else:
             q["area"].append((val, f"A = {format_clean_float(val)} m²"))
 
-    # Volume (m^3, cm^3)
-    for val, u, raw in find_quantity(norm, r"m\^3|cm\^3"):
+    # Density (kg/m^3, g/cm^3)
+    for val, u, raw in find_quantity(norm, r"kg\s*/\s*m\^?3|kg\s*m\s*\^?-3|g\s*/\s*cm\^?3|g\s*cm\s*\^?-3"):
+        ul = u.lower().replace(" ", "")
+        if ul.startswith("g"):
+            si = val * 1000.0
+            q["density"].append((si, f"ρ = {raw} = {format_clean_float(si)} kg/m³ (× 1000)"))
+        else:
+            q["density"].append((val, f"ρ = {format_clean_float(val)} kg/m³"))
+
+    # Volume (km^3, m^3, cm^3, mm^3, litres)
+    for val, u, raw in find_quantity(norm, r"km\^?3|m\^?3|cm\^?3|mm\^?3|litres?|L"):
         ul = u.lower()
-        if ul.startswith("cm"):
+        if ul.startswith("km"):
+            si = val * 1e9
+            q["volume"].append((si, f"V = {raw} = {format_clean_float(si)} m³ (× 10⁹)"))
+        elif ul.startswith("cm"):
             si = val * 1e-6
             q["volume"].append((si, f"V = {raw} = {format_clean_float(si)} m³ (× 10⁻⁶)"))
+        elif ul.startswith("mm"):
+            si = val * 1e-9
+            q["volume"].append((si, f"V = {raw} = {format_clean_float(si)} m³ (× 10⁻⁹)"))
+        elif ul.startswith("l"):
+            si = val * 1e-3
+            q["volume"].append((si, f"V = {raw} = {format_clean_float(si)} m³ (× 10⁻³)"))
         else:
             q["volume"].append((val, f"V = {format_clean_float(val)} m³"))
 
@@ -475,6 +494,68 @@ def try_solve_physics_problem(question_text: str) -> Optional[SolvedPhysicsProbl
                 "Note: Deceleration is negative acceleration (so if a question asks for 'deceleration', write the positive magnitude in m/s²).",
             )
 
+    # 4b. Multi-segment Average Speed vs Average Velocity (e.g. "100 m north then 100 m south in 20 s")
+    dir_segs = re.findall(
+        NUM_PATTERN + r"\s*(km|cm|mm|m)\s+(north|south|east|west|up|down|forward|forwards|back|backward|backwards|left|right)\b",
+        question_text,
+        re.I,
+    )
+    if len(dir_segs) >= 2 and q["time"] and ("speed" in low or "velocity" in low):
+        dx, dy, total_d = 0.0, 0.0, 0.0
+        seg_notes = []
+        for num_s, unit_s, dir_s in dir_segs:
+            val = parse_num(num_s)
+            ul = unit_s.lower()
+            d_m = val * 1000.0 if ul == "km" else val / 100.0 if ul == "cm" else val / 1000.0 if ul == "mm" else val
+            total_d += d_m
+            dl = dir_s.lower()
+            if dl in ("north", "up", "forward", "forwards"):
+                dy += d_m
+            elif dl in ("south", "down", "back", "backward", "backwards"):
+                dy -= d_m
+            elif dl in ("east", "right"):
+                dx += d_m
+            elif dl in ("west", "left"):
+                dx -= d_m
+            seg_notes.append(f"{format_clean_float(d_m)} m {dl}")
+        net_disp = math.hypot(dx, dy)
+        t_tot, t_str = q["time"][-1]
+        if t_tot > 0:
+            avg_spd = total_d / t_tot
+            avg_vel = net_disp / t_tot
+            ask_vel_only = "velocity" in low and "speed" not in low
+            primary_val = avg_vel if ask_vel_only else avg_spd
+            return make_res(
+                "Average Speed vs Average Velocity (Unit 1: Kinematics)",
+                "Average Speed = Total Distance / Total Time  |  Average Velocity = Net Displacement / Total Time",
+                "speed uses scalar total distance; velocity uses vector net displacement",
+                [*seg_notes, t_str],
+                [
+                    f"`Total distance = {format_clean_float(total_d)} m` → **`Average speed = {format_clean_float(total_d)} / {format_clean_float(t_tot)} = {format_clean_float(avg_spd)} m/s`**",
+                    f"`Net displacement = {format_clean_float(net_disp)} m` → **`Average velocity = {format_clean_float(net_disp)} / {format_clean_float(t_tot)} = {format_clean_float(avg_vel)} m/s`**",
+                ],
+                primary_val,
+                "m/s",
+                "**Distance / speed** are scalars (add all path lengths); **displacement / velocity** are vectors (opposite directions cancel!).",
+            )
+
+    # 4c. Single-segment Average Speed: v = d / t
+    if "speed" in low and len(q["length"]) == 1 and q["time"] and not q["speed"] and "velocity" not in low:
+        d, d_str = q["length"][0]
+        t, t_str = q["time"][0]
+        if t > 0:
+            v = d / t
+            return make_res(
+                "Average Speed (Unit 1: Kinematics)",
+                "v = d / t",
+                "average speed = distance travelled ÷ time taken",
+                [d_str, t_str],
+                [f"`v = {format_clean_float(d)} / {format_clean_float(t)}`", f"`v = {format_clean_float(v)} m/s`"],
+                v,
+                "m/s",
+                "Speed is a scalar (`distance / time`); convert `km` to `m` and `minutes` to `s` for `m/s`.",
+            )
+
     # 5. Newton's Second Law: F = m a (or a = F / m)
     if ("resultant force" in low or "force" in low or "acceleration" in low) and q["mass"] and (q["accel"] or q["force"]):
         m, m_str = q["mass"][0]
@@ -521,7 +602,7 @@ def try_solve_physics_problem(question_text: str) -> Optional[SolvedPhysicsProbl
             "Weight is a **force** measured in **Newtons (N)**, never in kg!",
         )
 
-    # 7. Density: ρ = m / V
+    # 7. Density: ρ = m / V, m = ρ × V, V = m / ρ
     if "density" in low and q["mass"] and q["volume"]:
         m, m_str = q["mass"][0]
         vol, v_str = q["volume"][0]
@@ -535,6 +616,34 @@ def try_solve_physics_problem(question_text: str) -> Optional[SolvedPhysicsProbl
             rho,
             "kg/m³",
             "Note: `1 g/cm³ = 1000 kg/m³`. Always check whether the question asks for `kg/m³` or `g/cm³`.",
+        )
+    if "density" in low and q["density"] and q["volume"] and "mass" in low:
+        rho, r_str = q["density"][0]
+        vol, v_str = q["volume"][0]
+        m_val = rho * vol
+        return make_res(
+            "Mass from Density & Volume (Unit 1: Density)",
+            "m = ρ × V",
+            "mass = density × volume",
+            [r_str, v_str],
+            [f"`m = {format_clean_float(rho)} × {format_clean_float(vol)}`", f"`m = {format_clean_float(m_val)} kg`"],
+            m_val,
+            "kg",
+            "Convert volume to `m³` first (`1 km³ = 10⁹ m³`, `1 cm³ = 10⁻⁶ m³`) when density is in `kg/m³`.",
+        )
+    if "density" in low and q["density"] and q["mass"] and "volume" in low:
+        rho, r_str = q["density"][0]
+        m_val, m_str = q["mass"][0]
+        vol = m_val / rho
+        return make_res(
+            "Volume from Mass & Density (Unit 1: Density)",
+            "V = m / ρ",
+            "volume = mass ÷ density",
+            [m_str, r_str],
+            [f"`V = {format_clean_float(m_val)} / {format_clean_float(rho)}`", f"`V = {format_clean_float(vol)} m³`"],
+            vol,
+            "m³",
+            "Ensure mass and density use matching units (`kg` with `kg/m³`, or `g` with `g/cm³`).",
         )
 
     # 8. Moment of a Force: M = F × d

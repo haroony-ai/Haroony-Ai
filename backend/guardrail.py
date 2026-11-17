@@ -79,11 +79,13 @@ PHYSICS_KEYWORDS = {
     "neutron star", "black hole", "light-year", "light year", "redshift", "red-shift", "cosmic microwave",
     "cmbr", "hubble", "big bang",
     "micrometer", "caliper", "vernier", "parallax", "meniscus", "pendulum", "oscillation", "significant figures",
+    "pressure cooker", "swimming pool", "feel cold", "sweat", "windy", "winter coat", "double glazing",
+    "sea breeze", "land breeze", "vacuum flask", "thermos", "ice float", "wooden spoon", "metal spoon",
 }
 
 # Explicit off-topic triggers (blocked unless strong physics context outweighs them)
 STRONG_OFF_TOPIC_PATTERNS = [
-    (re.compile(r"\b(?:recipe|cook|bake|ingredients|biryani|pasta|pizza|cake|chicken|chocolate)\b", re.I), "cooking & food"),
+    (re.compile(r"\b(?:recipe|bake|ingredients|biryani|pasta|pizza|cake|chicken|chocolate|how\s+to\s+cook|cook\s+(?:pasta|rice|chicken|steak|dinner|lunch))\b", re.I), "cooking & food"),
     (re.compile(r"\b(?:poem|poetry|sonnet|haiku|love\s+letter|bedtime\s+story|shakespeare|hamlet|macbeth|novel)\b", re.I), "literature & creative writing"),
     (re.compile(r"\b(?:javascript|typescript|react|nextjs|css|html|sql|mongodb|discord\s+bot|scrape|leetcode|dockerfile|kubernetes)\b", re.I), "programming & software development"),
     (re.compile(r"\b(?:world\s+war|roman\s+empire|napoleon|cleopatra|ottawa|capital\s+of|president\s+of|prime\s+minister|election|fifa|world\s+cup|champions\s+league|messi|ronaldo|nba|netflix|tiktok|minecraft|fortnite|gta)\b", re.I), "general trivia, history, politics, sports & entertainment"),

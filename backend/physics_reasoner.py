@@ -32,6 +32,63 @@ def _factor_from_text(text: str) -> Optional[tuple[float, str]]:
 def try_reason_physics_variation(query: str) -> Optional[str]:
     low = (query or "").lower()
 
+    # 0. Everyday & Core Causal Physics ("Why does...", "Explain why...")
+    if "pressure cooker" in low:
+        return (
+            "### ⚡ Why a Pressure Cooker Cooks Food Faster *(Unit 2: Thermal Physics)*\n\n"
+            "- A pressure cooker has a **sealed lid** that traps steam above the water, **increasing the gas pressure** above normal atmospheric pressure.\n"
+            "- Higher pressure **raises the boiling point of water** above `100 °C` (typically `~120 °C`).\n"
+            "- Because the water and steam reach a **higher temperature**, thermal energy transfers into the food more rapidly, cooking it faster."
+        )
+    if (any(w in low for w in ("swimming", "pool", "sweat", "wet", "out of water", "step out")) and any(w in low for w in ("cold", "cool", "wind", "windy", "breeze"))) or (
+        "wind" in low and "evaporat" in low
+    ):
+        return (
+            "### ⚡ Evaporation Cooling & Effect of Wind *(Unit 2: Thermal Physics)*\n\n"
+            "- Water on your skin **evaporates**: the **fastest, highest-kinetic-energy molecules** overcome intermolecular forces and escape from the liquid surface.\n"
+            "- This lowers the **average kinetic energy** of the remaining water molecules (and absorbs latent heat from your skin), causing **cooling**.\n"
+            "- **Wind** continuously blows away humid air (water vapour) from above the skin, **increasing the rate of evaporation** and making you feel colder faster."
+        )
+    if ("ice" in low and "float" in low) or ("ice" in low and "dense" in low):
+        return (
+            "### ⚡ Why Ice Floats on Liquid Water *(Unit 1 & 2)*\n\n"
+            "- When water freezes, its molecules form an open crystal lattice that takes up **more volume** for the same mass.\n"
+            "- Therefore ice has a **lower density** (`≈ 0.92 g/cm³`) than liquid water (`1.0 g/cm³`), so it floats."
+        )
+    if ("spoon" in low or "metal" in low) and ("wood" in low or "plastic" in low) and any(w in low for w in ("cold", "colder", "warm", "hot", "touch", "feel")):
+        return (
+            "### ⚡ Why Metal Feels Colder Than Wood at Room Temperature *(Unit 2: Conduction)*\n\n"
+            "- Both are at the **exact same room temperature**.\n"
+            "- Metal has **delocalised (free) electrons**, making it a **good thermal conductor** that conducts heat **away from your warm hand much faster** than wood (a thermal insulator)."
+        )
+    if any(w in low for w in ("coat", "sweater", "blanket", "jacket", "double glazing", "fur", "feathers")) and any(w in low for w in ("warm", "heat", "insulat", "cold")):
+        return (
+            "### ⚡ How Coats, Fur & Double Glazing Reduce Heat Loss *(Unit 2: Thermal Physics)*\n\n"
+            "- Wool, feathers, and double-glazed windows **trap small pockets of air**.\n"
+            "- **Air is a poor thermal conductor** (reduces conduction), and trapping it in small pockets stops it circulating (**reduces convection**)."
+        )
+    if "sea breeze" in low or "land breeze" in low:
+        return (
+            "### ⚡ Sea Breeze & Land Breeze *(Unit 2: Convection)*\n\n"
+            "- **Day (Sea Breeze):** Land has a lower specific heat capacity than water, so land heats up faster. Air above the warm land expands, becomes **less dense and rises**, while cooler denser air from over the sea flows in to replace it.\n"
+            "- **Night (Land Breeze):** Land cools faster than the sea; warmer air over the sea rises and cooler air from the land flows out towards the sea."
+        )
+    if "bulb" in low and "parallel" in low and any(w in low for w in ("bright", "brightness", "same", "add")):
+        return (
+            "### ⚡ Adding a Bulb in Parallel *(Unit 3: Electric Circuits)*\n\n"
+            "- In a **parallel circuit**, every branch is connected directly across the **full supply potential difference (voltage)**.\n"
+            "- Adding another bulb in parallel does **not** change the p.d. across the existing bulbs, so each bulb keeps the **same current and same brightness** (while total current from the battery increases)."
+        )
+    if "total internal reflection" in low or ("tir" in low.split() and "condition" in low):
+        return (
+            "### ⚡ Total Internal Reflection (TIR) *(Unit 6: Light & Optics)*\n\n"
+            "- **Definition:** Complete reflection of light back inside a denser medium at the boundary with a less dense medium (zero refraction out).\n"
+            "- **Two Required Conditions:**\n"
+            "  1. Light must travel from an **optically denser medium to a less dense medium** (e.g. glass/water → air).\n"
+            "  2. The **angle of incidence must be greater than the critical angle** (`i > c`, where `sin c = 1 / n`).\n"
+            "- **Applications:** Optical fibres (high-speed internet & medical endoscopes) and reflecting prisms in periscopes/binoculars."
+        )
+
     # 1. Comparisons / Differences
     if re.search(r"\b(?:difference|compare|distinguish|contrast|vs\.?|versus)\b", low):
         if "evaporat" in low and "boil" in low:

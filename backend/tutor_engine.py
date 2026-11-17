@@ -271,12 +271,16 @@ class HaroonyTutorEngine:
         concept_entry = self.kb.match_concept_atlas(search_query, preferred_unit=primary_unit)
         if not concept_entry:
             concept_entry = self.kb.match_concept_atlas(search_query)
+        # Only use Question Bank when exact paper code or very strong match
         qb_hits = self.kb.search_question_bank(search_query, top_k=2, preferred_unit=primary_unit)
-        ms_tips = find_related_ms_tips(search_query, self.kb)
+        is_paper_code_q = bool(re.search(r"\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+", combined_query, re.I))
+        ms_tips = find_related_ms_tips(search_query, self.kb) if is_paper_code_q else []
         vid_hits = self.kb.search_videos(search_query, top_k=3, preferred_unit=primary_unit, preferred_topic=primary_topic)
         # Supplement videos from matched ClassWork / P4 / P2 question pages if needed
         existing_vurls = {v.get("video_url") for v in vid_hits if v.get("video_url")}
         for qb in qb_hits:
+            if qb.get("score", 0.0) < 0.45:
+                continue
             for yt_u in qb.get("youtube_links", []):
                 if yt_u and yt_u not in existing_vurls and len(vid_hits) < 3:
                     existing_vurls.add(yt_u)
@@ -408,7 +412,7 @@ class HaroonyTutorEngine:
                 c_md += f"\n\n> **Examiner Trap:** {concept_entry['examiner_trap']}"
             sections.append(c_md)
 
-        if note_hits:
+        if note_hits and not (solved or reasoned_md or concept_entry):
             # Pick the page whose individual sentences actually match the question best
             q_words = {w for w in re.findall(r"[a-z0-9]{3,}", combined_query.lower()) if w not in STOPWORDS}
             scored_pages = []
@@ -419,38 +423,37 @@ class HaroonyTutorEngine:
                 scored_pages.append((best_sent_hits, total_hits, -idx_nh, nh, nh_bullets))
             scored_pages.sort(reverse=True)
 
-            primary = scored_pages[0][3]
-            p_topic = primary.get("topic", "IGCSE Physics")
-            p_unit = primary.get("unit", "")
-            p_page = primary.get("page")
-            header_cite = f"Harony Notes p.{p_page}" if p_page else primary.get("source", "Harony Notes")
+            if scored_pages and scored_pages[0][0] >= 1:
+                primary = scored_pages[0][3]
+                p_topic = primary.get("topic", "IGCSE Physics")
+                p_unit = primary.get("unit", "")
+                p_page = primary.get("page")
+                header_cite = f"Harony Notes p.{p_page}" if p_page else primary.get("source", "Harony Notes")
 
-            bullets = list(scored_pages[0][4])
-            for _, _, _, nh2, b2 in scored_pages[1:]:
-                if nh2.get("unit") == p_unit and not solved:
-                    for eb in b2:
-                        if eb not in bullets:
-                            bullets.append(eb)
+                bullets = list(scored_pages[0][4])
+                for _, _, _, nh2, b2 in scored_pages[1:]:
+                    if nh2.get("unit") == p_unit:
+                        for eb in b2:
+                            if eb not in bullets:
+                                bullets.append(eb)
 
-            max_bullets = 4 if (solved or reasoned_md or concept_entry) else 8
-            ranked_bullets = rank_relevant_bullets(bullets, combined_query, limit=max_bullets)
-            bullet_md = "\n".join(f"- {b}" for b in ranked_bullets)
+                ranked_bullets = rank_relevant_bullets(bullets, combined_query, limit=6)
+                if ranked_bullets:
+                    bullet_md = "\n".join(f"- {b}" for b in ranked_bullets)
+                    sections.append(
+                        f"### 📘 {p_topic} *({p_unit} — {header_cite})*\n\n{bullet_md}"
+                    )
 
-            title_prefix = "Harony Notes Key Points" if (solved or reasoned_md or concept_entry) else f"{p_topic}"
-            sections.append(
-                f"### 📘 {title_prefix} *({p_unit} — {header_cite})*\n\n{bullet_md}"
-            )
+                all_formulas = []
+                for nh in note_hits[:2]:
+                    for fm in nh.get("formulas", []):
+                        if fm not in all_formulas:
+                            all_formulas.append(fm)
+                if all_formulas:
+                    fm_md = "\n".join(f"- `{fm}`" for fm in all_formulas[:4])
+                    sections.append(f"**Key Equations & Relations:**\n{fm_md}")
 
-            all_formulas = []
-            for nh in note_hits[:2]:
-                for fm in nh.get("formulas", []):
-                    if fm not in all_formulas:
-                        all_formulas.append(fm)
-            if all_formulas and not solved and not concept_entry:
-                fm_md = "\n".join(f"- `{fm}`" for fm in all_formulas[:4])
-                sections.append(f"**Key Equations & Relations:**\n{fm_md}")
-
-        if qb_hits and (has_file or qb_hits[0].get("score", 0.0) >= 0.34) and not solved:
+        if qb_hits and (has_file or is_paper_code_q or qb_hits[0].get("score", 0.0) >= 0.62) and not solved:
             qb0 = qb_hits[0]
             ms_list = [m for m in qb0.get("ms_answers", []) if m.get("answer")]
             if ms_list:
