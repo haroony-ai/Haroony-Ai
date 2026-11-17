@@ -71,6 +71,7 @@ class HaronyKnowledgeBase:
         self.qb_matrix = None
         self.topic_clf = None
         self.intent_clf = None
+        self.neural_subtopic_clf = None
         self.reload()
 
     def reload(self) -> None:
@@ -147,6 +148,13 @@ class HaronyKnowledgeBase:
                 self.intent_clf = joblib.load(INTENT_MODEL_PATH)
             except Exception:
                 self.intent_clf = None
+
+        neural_mlp_path = MODELS_DIR / "neural_subtopic_mlp.joblib"
+        if neural_mlp_path.exists():
+            try:
+                self.neural_subtopic_clf = joblib.load(neural_mlp_path)
+            except Exception:
+                self.neural_subtopic_clf = None
 
         if RETRIEVER_MODEL_PATH.exists():
             try:
@@ -412,7 +420,21 @@ class HaronyKnowledgeBase:
             if sc > best_score:
                 best_score = sc
                 best_entry = entry
-        return best_entry if best_score >= 3.0 else None
+        if best_score >= 3.0:
+            return best_entry
+        if self.neural_subtopic_clf is not None:
+            try:
+                probs = self.neural_subtopic_clf.predict_proba([query])[0]
+                classes = self.neural_subtopic_clf.classes_
+                best_idx = int(np.argmax(probs))
+                if float(probs[best_idx]) >= 0.62:
+                    pred_topic = str(classes[best_idx])
+                    for entry in self.concept_atlas:
+                        if entry.get("topic") == pred_topic and (not preferred_unit or entry.get("unit") == preferred_unit):
+                            return entry
+            except Exception:
+                pass
+        return None
 
     def search_question_bank(
         self,

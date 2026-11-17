@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 
 from backend.config import load_settings
+from backend.local_llm import is_local_llm_enabled, try_local_transformer_generation
 
 HAROONY_SYSTEM_PROMPT = (
     "You are Haroony AI, the official Cambridge IGCSE (0625) & A-Level (9702) Physics AI Assistant "
@@ -329,6 +330,10 @@ async def try_neural_generation(
     compat_res = await _call_openai_compat(settings, messages, image_bytes, image_mime)
     if compat_res:
         return _sanitize_provider_mentions(compat_res)
+
+    local_res = await try_local_transformer_generation(messages)
+    if local_res:
+        return _sanitize_provider_mentions(local_res)
     return None
 
 
@@ -353,7 +358,7 @@ async def try_neural_vision_ocr(
 
 
 async def has_active_server_llm() -> bool:
-    """Return True if Gemini or OpenAI API keys are configured on the server."""
+    """Return True if Gemini, OpenAI, or Free Local Transformer is active on the server."""
     if any(
         os.environ.get(k, "").strip()
         for k in (
@@ -361,6 +366,8 @@ async def has_active_server_llm() -> bool:
             "OPENAI_API_KEYS", "OPENAI_API_KEY",
         )
     ):
+        return True
+    if is_local_llm_enabled():
         return True
     settings = load_settings()
     if settings.get("openai_compat_enabled") and settings.get("openai_compat_base_url") and settings.get("openai_compat_model"):

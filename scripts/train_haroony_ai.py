@@ -27,6 +27,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import ComplementNB
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import normalize
 from sklearn.svm import LinearSVC
@@ -349,6 +350,45 @@ def train_unit_classifier(
     return pipe, u_acc
 
 
+def train_neural_subtopic_mlp(atlas: List[Dict[str, Any]], chunks: List[Dict[str, Any]]) -> float:
+    """Train a 2-hidden-layer Neural Network (MLPClassifier) across all 35 Concept Atlas topics."""
+    texts: List[str] = []
+    labels: List[str] = []
+    for entry in atlas:
+        t = entry.get("topic", "")
+        if not t:
+            continue
+        kws = entry.get("keywords", [])
+        pts = entry.get("points", [])
+        texts.append(f"Explain {t}: {entry.get('summary', '')}")
+        labels.append(t)
+        for kw in kws:
+            texts.append(f"{kw} in physics: {t}")
+            labels.append(t)
+        for pt in pts:
+            texts.append(pt)
+            labels.append(t)
+        # Match chunk pages in the same unit/topic
+        for ch in chunks:
+            if ch.get("unit") == entry.get("unit") and any(k in (ch.get("topic", "") + " " + ch.get("text", "")[:250]).lower() for k in kws[:4]):
+                texts.append(f"{ch.get('topic', '')} {ch.get('text', '')[:500]}")
+                labels.append(t)
+
+    if len(set(labels)) < 5:
+        return 0.0
+
+    X_tr, X_te, y_tr, y_te = train_test_split(texts, labels, test_size=0.15, random_state=42)
+    mlp = Pipeline([
+        ("tfidf", TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, max_features=6000)),
+        ("mlp", MLPClassifier(hidden_layer_sizes=(160, 80), activation="relu", alpha=1e-4, max_iter=120, early_stopping=True, random_state=42)),
+    ])
+    mlp.fit(X_tr, y_tr)
+    acc = float(accuracy_score(y_te, mlp.predict(X_te)))
+    mlp.fit(texts, labels)
+    joblib.dump(mlp, MODELS_DIR / "neural_subtopic_mlp.joblib")
+    return acc
+
+
 def train_intent_classifier() -> float:
     texts = [t for t, _ in INTENT_TRAINING_SAMPLES] * 4
     labels = [l for _, l in INTENT_TRAINING_SAMPLES] * 4
@@ -581,11 +621,12 @@ def train_all_models() -> Dict[str, Any]:
         videos = json.loads((DATA_DIR / "video_solutions.json").read_text(encoding="utf-8"))
 
     _, unit_acc = train_unit_classifier(chunks, atlas, videos, ms_data, question_bank)
+    neural_mlp_acc = train_neural_subtopic_mlp(atlas, chunks)
     intent_acc = train_intent_classifier()
     sft_rows = export_sft_dataset(chunks, atlas, ms_data, question_bank)
 
     metrics = {
-        "model_name": "Haroony-Physics-AI-v4 (Full 2026/2027 Books + Ensemble ML + Question Bank)",
+        "model_name": "Haroony-Physics-AI-v4 (Full 2026/2027 Books + Neural MLP + Ensemble + Question Bank)",
         "trained_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "guardrail_samples": len(texts),
         "validation_accuracy": round(acc, 4),
@@ -593,6 +634,7 @@ def train_all_models() -> Dict[str, Any]:
         "validation_recall": round(rec, 4),
         "validation_f1": round(f1, 4),
         "unit_classifier_accuracy": round(unit_acc, 4),
+        "neural_subtopic_mlp_accuracy": round(neural_mlp_acc, 4),
         "intent_classifier_accuracy": round(intent_acc, 4),
         "sft_instruction_pairs": sft_rows,
         "concept_atlas_topics": len(atlas),
