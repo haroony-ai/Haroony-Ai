@@ -88,6 +88,52 @@ def try_reason_physics_variation(query: str) -> Optional[str]:
             "  2. The **angle of incidence must be greater than the critical angle** (`i > c`, where `sin c = 1 / n`).\n"
             "- **Applications:** Optical fibres (high-speed internet & medical endoscopes) and reflecting prisms in periscopes/binoculars."
         )
+    if any(w in low for w in ("thrown vertically", "vertically upwards", "highest point")):
+        return (
+            "### ⚡ Ball Thrown Vertically Upwards *(Unit 1: Kinematics & Gravity)*\n\n"
+            "- While rising, **gravitational force (weight) acts downwards**, so the ball **decelerates at `9.8 m/s²`** as kinetic energy converts into gravitational potential energy.\n"
+            "- **At the highest point:** instantaneous **velocity = `0 m/s`**, **kinetic energy = `0 J`**, **GPE is maximum**, and **acceleration is STILL `9.8 m/s²` downwards** (NOT zero!)."
+        )
+    if "railway" in low and ("gap" in low or "track" in low or "expand" in low):
+        return (
+            "### ⚡ Gaps in Railway Tracks *(Unit 2: Thermal Expansion)*\n\n"
+            "- On hot days, metal rails absorb thermal energy and **expand (increase in length)** as their particles vibrate with greater amplitude.\n"
+            "- Expansion gaps give the rails **room to expand safely** without pushing against each other and **buckling/bending**."
+        )
+    if ("white" in low and ("house" in low or "building" in low or "hot countr" in low or "paint" in low)) or ("dull black" in low and "shiny" in low):
+        return (
+            "### ⚡ Why Houses in Hot Countries Are Painted White *(Unit 2: Infrared Radiation)*\n\n"
+            "- **White / shiny surfaces** are **poor absorbers** and **good reflectors** of **infrared (thermal) radiation** from the Sun.\n"
+            "- This reduces heat transfer into the building, keeping the interior cooler. *(In contrast, dull black surfaces are the best absorbers and best emitters of IR radiation.)*"
+        )
+    if "steel" in low and "ship" in low and "float" in low:
+        return (
+            "### ⚡ Why a Steel Ship Floats on Water *(Unit 1: Density)*\n\n"
+            "- Although solid steel is denser than water (`~7800 kg/m³`), a ship is **hollow and contains large air spaces**.\n"
+            "- Its **overall average density (`total mass ÷ total volume`) is less than the density of water (`1000 kg/m³`)**, so it floats."
+        )
+    if "irregular" in low and ("stone" in low or "rock" in low or "object" in low) and "density" in low:
+        return (
+            "### ⚡ Measuring the Density of an Irregular Stone *(Unit 1: Practical)*\n\n"
+            "1. Measure **mass `m`** using a **top-pan / electronic balance** (zeroed first).\n"
+            "2. Half-fill a **measuring cylinder** with water and read initial volume `V₁` at eye level (**bottom of meniscus**, avoid parallax error).\n"
+            "3. Gently submerge the stone (no splashing) and read new volume `V₂`; stone volume `V = V₂ − V₁` *(or use a displacement/eureka can)*.\n"
+            "4. Calculate **`ρ = m / V`**."
+        )
+    if "irregular" in low and "lamina" in low:
+        return (
+            "### ⚡ Finding the Centre of Gravity of an Irregular Lamina *(Unit 1: Practical)*\n\n"
+            "1. Punch 2–3 small holes near the edge; suspend the lamina from a pin so it **swings freely**.\n"
+            "2. Hang a **plumb line** from the same pin and mark the vertical line once steady.\n"
+            "3. Repeat from another hole; the **intersection of the lines** is the **centre of gravity**."
+        )
+    if "vacuum flask" in low or "thermos" in low:
+        return (
+            "### ⚡ How a Vacuum Flask Reduces Heat Transfer *(Unit 2: Thermal Physics)*\n\n"
+            "- **Vacuum between glass walls:** Prevents **conduction and convection** (no particles present).\n"
+            "- **Silvered/shiny inner surfaces:** Reflect infrared radiation (**reduces radiation**).\n"
+            "- **Plastic/foam stopper & cap:** Trapped air and plastic insulator reduce **conduction** and stop hot air rising (**convection**) and **evaporation**."
+        )
 
     # 1. Comparisons / Differences
     if re.search(r"\b(?:difference|compare|distinguish|contrast|vs\.?|versus)\b", low):

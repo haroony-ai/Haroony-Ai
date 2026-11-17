@@ -24,7 +24,7 @@
     /\b(recipe|bake|cake|pasta|pizza|biryani|chicken|burger|how\s+to\s+cook|poem|poetry|haiku|sonnet|romeo|juliet|shakespeare|fifa|world\s+cup|football\s+match|basketball|oscar|netflix|movie\s+review|horoscope|zodiac|astrology|bitcoin|crypto|ethereum|stock\s+market|forex|makeup|skincare|mitosis|meiosis|photosynthesis|chloroplast|digestive\s+system|nephron|auxin|enzyme|dna\s+replication|titration|haber\s+process|alkane|alkene|polymerisation|covalent\s+bond|electrolysis\s+of\s+brine|scrape|beautifulsoup|flexbox|react\s+component|sql\s+query|discord\s+bot|roman\s+empire|french\s+revolution|world\s+war|capital\s+of)\b/i;
 
   const STRONG_PHYSICS_RE =
-    /\b(physics|forces?|newtons?|velocit(?:y|ies)|accelerations?|decelerations?|speeds?|distance|displacement|scalar|vector|free\s*fall|terminal\s+velocity|momentum|impulse|collisions?|kinetic|potential\s+energy|gravitational|gpe|work\s+done|power|watts?|joules?|efficiency|densit(?:y|ies)|mass|volume|weight|gravity|moments?|torque|pivot|equilibrium|centre\s+of\s+gravity|center\s+of\s+mass|hooke|spring\s+constant|extension|limit\s+of\s+proportionality|pressures?|pressure\s+cooker|pascal|barometer|manometer|hydraulic|boyle|kelvin|absolute\s+zero|brownian|evaporation|evaporate|boiling|melting|thermal|conduction|convection|infrared|radiation|emitter|absorber|specific\s+heat|latent\s+heat|swimming\s+pool|windy|sweat|feel\s+cold|winter\s+coat|double\s+glazing|vacuum\s+flask|sea\s+breeze|land\s+breeze|waves?|transverse|longitudinal|wavelengths?|frequenc(?:y|ies)|amplitude|period|hertz|wavefronts?|diffraction|refraction|reflection|total\s+internal|critical\s+angle|snell|refractive\s+index|lens(?:es)?|focal\s+length|converging|diverging|principal\s+focus|dispersion|monochromatic|electromagnetic\s+spectrum|microwaves?|ultraviolet|x-rays|gamma|ultrasound|echo(?:es)?|sonar|pitch|loudness|charges?|coulombs?|electrostatic|electric\s+field|currents?|amperes?|amps|voltages?|volts?|emf|potential\s+difference|resistance|ohms?|resistors?|filament\s+lamp|diode|ldr|thermistor|series\s+circuit|parallel\s+circuit|circuits?|potential\s+divider|kilowatt|kwh|fuse|earth\s+wire|circuit\s+breaker|magnets?|magnetic|solenoid|electromagnets?|fleming|motor\s+effect|commutator|electromagnetic\s+induction|lenz|faraday|generators?|slip\s+ring|transformers?|step-up|step-down|national\s+grid|atoms?|nucle(?:us|i)|protons?|neutrons?|electrons?|isotopes?|nuclide|alpha|beta|radioactive|radioactivity|ionising|ionizing|background\s+radiation|geiger|half-life|decay|fission|fusion|rutherford|gold\s+foil|solar\s+system|orbits?|orbital\s+speed|planets?|comets?|satellites?|geostationary|protostar|main\s+sequence|red\s+giant|supergiant|white\s+dwarf|supernova|neutron\s+star|black\s+hole|galax(?:y|ies)|milky\s+way|light-year|redshift|big\s+bang|cosmic\s+microwave|hubble|0625|9702|igcse|mark\s+scheme|harony|haroony)\b/i;
+    /\b(physics|forces?|newtons?|velocit(?:y|ies)|accelerations?|decelerations?|speeds?|distance|displacement|scalar|vector|free\s*fall|terminal\s+velocity|thrown\s+vertically|vertically\s+upwards|highest\s+point|skydiver|astronaut|momentum|impulse|collisions?|kinetic|potential\s+energy|gravitational|gpe|work\s+done|power|watts?|joules?|efficiency|densit(?:y|ies)|mass|volume|weight|gravity|moments?|torque|pivot|equilibrium|centre\s+of\s+gravity|center\s+of\s+mass|irregular\s+(?:stone|lamina)|plumb\s+line|displacement\s+can|hooke|spring\s+constant|extension|limit\s+of\s+proportionality|pressures?|pressure\s+cooker|pascal|barometer|manometer|hydraulic|boyle|kelvin|absolute\s+zero|brownian|evaporation|evaporate|boiling|melting|thermal|conduction|convection|infrared|radiation|emitter|absorber|painted\s+white|dull\s+black|railway\s+tracks?|bimetallic|specific\s+heat|latent\s+heat|swimming\s+pool|windy|sweat|feel\s+cold|winter\s+coat|double\s+glazing|vacuum\s+flask|thermos|sea\s+breeze|land\s+breeze|waves?|transverse|longitudinal|wavelengths?|frequenc(?:y|ies)|amplitude|period|hertz|wavefronts?|diffraction|refraction|reflection|total\s+internal|critical\s+angle|snell|refractive\s+index|lens(?:es)?|focal\s+length|converging|diverging|principal\s+focus|dispersion|monochromatic|electromagnetic\s+spectrum|microwaves?|ultraviolet|x-rays|gamma|ultrasound|echo(?:es)?|sonar|pitch|loudness|charges?|coulombs?|electrostatic|electric\s+field|currents?|amperes?|amps|voltages?|volts?|emf|potential\s+difference|resistance|ohms?|resistors?|filament\s+lamp|diode|ldr|thermistor|series\s+circuit|parallel\s+circuit|circuits?|potential\s+divider|kilowatt|kwh|fuse|earth\s+wire|circuit\s+breaker|magnets?|magnetic|solenoid|electromagnets?|fleming|motor\s+effect|commutator|electromagnetic\s+induction|lenz|faraday|generators?|slip\s+ring|transformers?|step-up|step-down|national\s+grid|atoms?|nucle(?:us|i)|protons?|neutrons?|electrons?|isotopes?|nuclide|alpha|beta|radioactive|radioactivity|ionising|ionizing|background\s+radiation|geiger|half-life|decay|fission|fusion|rutherford|gold\s+foil|solar\s+system|orbits?|orbital\s+speed|planets?|comets?|satellites?|geostationary|protostar|main\s+sequence|red\s+giant|supergiant|white\s+dwarf|supernova|neutron\s+star|black\s+hole|galax(?:y|ies)|milky\s+way|light-year|redshift|big\s+bang|cosmic\s+microwave|hubble|0625|9702|igcse|mark\s+scheme|harony|haroony)\b/i;
 
   const FOLLOWUP_PHYSICS_RE =
     /\b(example|another|explain\s+more|simpler|why|how\s+come|what\s+if|formula|equation|unit|units|step|steps|rearrange|double|halve|increase|decrease|graph|diagram|quiz|question|solve|calculate|check)\b/i;
@@ -665,7 +665,15 @@
         };
       }
     }
-    if (/\b(average\s+speed|speed)\b/i.test(low) && u.dists.length === 1 && u.times.length && !u.freqs.length && !u.speeds.length && !/\bvelocity\b/i.test(low)) {
+    // Orbital Speed: v = 2πr / T (must precede single-segment v = d / t)
+    if (/\b(orbital\s+speed|orbit)\b/i.test(low) && u.dists.length && u.times.length) {
+      const r = u.dists[0], t = u.times[0];
+      if (t > 0) {
+        const vOrb = (2 * Math.PI * r) / t;
+        return makeStepCard("Orbital Speed (Unit 7: Space Physics)", "v = 2π r / T", `r = ${fmtNum(r)} m, T = ${fmtNum(t)} s`, `v = (2 × π × ${fmtNum(r)}) / ${fmtNum(t)}`, vOrb, "m/s");
+      }
+    }
+    if (/\b(average\s+speed|speed)\b/i.test(low) && u.dists.length === 1 && u.times.length && !u.freqs.length && !u.speeds.length && !/\b(velocity|orbit)\b/i.test(low)) {
       const d = u.dists[0], t = u.times[0];
       return makeStepCard("Average Speed", "v = d / t", `d = ${fmtNum(d)} m, t = ${fmtNum(t)} s`, `v = ${fmtNum(d)} / ${fmtNum(t)}`, d / t, "m/s");
     }
@@ -1045,6 +1053,64 @@
         "- **Uses:** Optical fibres (telecommunications & medical endoscopes) and reflecting prisms."
       );
     }
+    if (/\b(thrown\s+vertically|vertically\s+upwards|highest\s+point)\b/.test(low)) {
+      return (
+        "### ⚡ Ball Thrown Vertically Upwards *(Unit 1: Kinematics & Gravity)*\n\n" +
+        "- While rising, **weight acts downwards**, so the ball **decelerates at `9.8 m/s²`** as kinetic energy converts into gravitational potential energy.\n" +
+        "- **At the highest point:** velocity = **`0 m/s`**, kinetic energy = **`0 J`**, GPE is maximum, and **acceleration is STILL `9.8 m/s²` downwards** (not zero!)."
+      );
+    }
+    if (low.includes("railway") && (low.includes("gap") || low.includes("track") || low.includes("expand"))) {
+      return (
+        "### ⚡ Gaps in Railway Tracks *(Unit 2: Thermal Expansion)*\n\n" +
+        "- On hot days, metal rails heat up and **expand (increase in length)** as particles vibrate with larger amplitude.\n" +
+        "- Expansion gaps allow the rails to expand safely without **buckling or bending**."
+      );
+    }
+    if ((low.includes("white") && /\b(houses?|buildings?|hot\s+countr|paint)/i.test(low)) || (low.includes("dull black") && low.includes("shiny"))) {
+      return (
+        "### ⚡ Why Houses in Hot Countries Are Painted White *(Unit 2: Infrared Radiation)*\n\n" +
+        "- **White / shiny surfaces** are **poor absorbers** and **good reflectors** of **infrared radiation** from the Sun, keeping buildings cooler.\n" +
+        "- *(Dull black surfaces are the best absorbers and best emitters of IR radiation.)*"
+      );
+    }
+    if (low.includes("steel") && low.includes("ship") && low.includes("float")) {
+      return (
+        "### ⚡ Why a Steel Ship Floats on Water *(Unit 1: Density)*\n\n" +
+        "- Solid steel is denser than water (`~7800 kg/m³`), but a ship is **hollow with large air spaces**.\n" +
+        "- Its **overall average density (`total mass ÷ total volume`) is less than water (`1000 kg/m³`)**, so it floats."
+      );
+    }
+    if (low.includes("irregular") && /\b(stone|rock|object)\b/.test(low) && low.includes("density")) {
+      return (
+        "### ⚡ Density of an Irregular Stone *(Unit 1: Practical)*\n\n" +
+        "1. Measure **mass `m`** on a balance.\n" +
+        "2. Read initial water volume `V₁` in a measuring cylinder (bottom of meniscus at eye level), submerge the stone gently, and read `V₂` (`V = V₂ − V₁`) *(or use a displacement can)*.\n" +
+        "3. Calculate **`ρ = m / V`**."
+      );
+    }
+    if (low.includes("irregular") && low.includes("lamina")) {
+      return (
+        "### ⚡ Centre of Gravity of an Irregular Lamina *(Unit 1: Practical)*\n\n" +
+        "1. Suspend the lamina freely from a pin near the edge and hang a **plumb line** from the same pin.\n" +
+        "2. Mark the vertical line, repeat from another hole, and find where the **lines intersect** → **centre of gravity**."
+      );
+    }
+    if (low.includes("vacuum flask") || low.includes("thermos")) {
+      return (
+        "### ⚡ How a Vacuum Flask Reduces Heat Loss *(Unit 2: Thermal Physics)*\n\n" +
+        "- **Vacuum gap:** Stops **conduction and convection** (no particles).\n" +
+        "- **Silvered walls:** Reflect infrared radiation (**reduces radiation**).\n" +
+        "- **Insulating stopper:** Reduces **conduction**, **convection**, and **evaporation**."
+      );
+    }
+    if (low.includes("sea breeze") || low.includes("land breeze")) {
+      return (
+        "### ⚡ Sea Breeze & Land Breeze *(Unit 2: Convection)*\n\n" +
+        "- **Day (Sea Breeze):** Land heats up faster than water (lower SHC); warm air above land expands, becomes **less dense and rises**, and cooler air from the sea flows in.\n" +
+        "- **Night (Land Breeze):** Land cools faster; warmer air over the sea rises and cooler air from land flows out."
+      );
+    }
 
     if (/\b(?:difference|compare|distinguish|contrast|vs\.?|versus)\b/.test(low)) {
       if (low.includes("evaporat") && low.includes("boil")) {
@@ -1130,9 +1196,9 @@
 
     if (/\b(what\s+happens|how\s+does|effect\s+on|change\s+in|doubles?|triples?|halves?|halved|doubled|tripled|increased?|decreased?)\b/.test(low)) {
       let k = null, kTxt = "";
-      if (/\b(doubled?|twice|2\s*times|x\s*2)\b/.test(low)) { k = 2; kTxt = "doubled (×2)"; }
-      else if (/\b(tripled?|three\s+times|3\s*times|x\s*3)\b/.test(low)) { k = 3; kTxt = "tripled (×3)"; }
-      else if (/\b(halved?|half)\b/.test(low)) { k = 0.5; kTxt = "halved (×½)"; }
+      if (/\b(doubles?|twice|2\s*times|x\s*2)\b/.test(low)) { k = 2; kTxt = "doubled (×2)"; }
+      else if (/\b(triples?|three\s+times|3\s*times|x\s*3)\b/.test(low)) { k = 3; kTxt = "tripled (×3)"; }
+      else if (/\b(halved?|halves|half)\b/.test(low)) { k = 0.5; kTxt = "halved (×½)"; }
       if (k !== null) {
         if (low.includes("kinetic energy") && (low.includes("speed") || low.includes("velocity"))) {
           return `### ⚡ Effect on Kinetic Energy (\`KE = ½ m v²\`)\n\n- Kinetic energy is proportional to **speed²** (\`KE ∝ v²\`).\n- If speed is **${kTxt}**, kinetic energy changes by **\`${k * k}×\`**.`;
@@ -1151,6 +1217,9 @@
         }
         if (low.includes("wavelength") && low.includes("frequency")) {
           return `### ⚡ Wave Equation (\`v = f × λ\`)\n\n- At constant wave speed, frequency and wavelength are **inversely proportional**.\n- If frequency is **${kTxt}**, wavelength becomes **\`${1 / k}×\`**.`;
+        }
+        if (low.includes("current") && low.includes("resistance")) {
+          return `### ⚡ Ohm's Law (\`I = V / R\`)\n\n- At constant voltage (p.d.), current is **inversely proportional to resistance** (\`I ∝ 1 / R\`).\n- If resistance is **${kTxt}**, current becomes **\`${1 / k}×\`**.`;
         }
       }
     }
