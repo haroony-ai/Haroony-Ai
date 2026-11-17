@@ -81,6 +81,9 @@ PHYSICS_KEYWORDS = {
     "micrometer", "caliper", "vernier", "parallax", "meniscus", "pendulum", "oscillation", "significant figures",
     "pressure cooker", "swimming pool", "feel cold", "sweat", "windy", "winter coat", "double glazing",
     "sea breeze", "land breeze", "vacuum flask", "thermos", "ice float", "wooden spoon", "metal spoon",
+    "thrown vertically", "vertically upwards", "highest point", "railway track", "bimetallic",
+    "painted white", "dull black", "shiny surface", "matt black", "irregular stone", "irregular lamina",
+    "displacement can", "eureka can", "measuring cylinder", "plumb line", "skydiver", "astronaut",
 }
 
 # Explicit off-topic triggers (blocked unless strong physics context outweighs them)

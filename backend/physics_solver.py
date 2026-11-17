@@ -539,8 +539,25 @@ def try_solve_physics_problem(question_text: str) -> Optional[SolvedPhysicsProbl
                 "**Distance / speed** are scalars (add all path lengths); **displacement / velocity** are vectors (opposite directions cancel!).",
             )
 
+    # 4b2. Orbital Speed: v = 2πr / T (must precede single-segment v = d / t)
+    if ("orbital speed" in low or "orbit" in low) and q["length"] and q["time"]:
+        r, r_str = q["length"][0]
+        t, t_str = q["time"][0]
+        if t > 0:
+            v_orb = (2.0 * math.pi * r) / t
+            return make_res(
+                "Orbital Speed (Unit 7: Space Physics)",
+                "v = 2π r / T",
+                "orbital speed = circumference of orbit ÷ orbital period",
+                [f"r = {format_clean_float(r)} m ({r_str})", f"T = {format_clean_float(t)} s ({t_str})"],
+                [f"`v = (2 × π × {format_clean_float(r)}) / {format_clean_float(t)}`", f"`v = {format_clean_float(v_orb)} m/s`"],
+                v_orb,
+                "m/s",
+                "Convert orbital radius to metres (`m`) and period to seconds (`s`) before dividing.",
+            )
+
     # 4c. Single-segment Average Speed: v = d / t
-    if "speed" in low and len(q["length"]) == 1 and q["time"] and not q["speed"] and "velocity" not in low:
+    if "speed" in low and len(q["length"]) == 1 and q["time"] and not q["speed"] and "velocity" not in low and "orbit" not in low:
         d, d_str = q["length"][0]
         t, t_str = q["time"][0]
         if t > 0:
