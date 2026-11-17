@@ -101,9 +101,10 @@ def find_related_ms_tips(query: str, kb: HaronyKnowledgeBase) -> List[Dict[str, 
 
 
 class HaroonyTutorEngine:
-    def __init__(self, guardrail: PhysicsGuardrail, kb: HaronyKnowledgeBase) -> None:
+    def __init__(self, guardrail: PhysicsGuardrail, kb: HaronyKnowledgeBase, learner: Optional[Any] = None) -> None:
         self.guardrail = guardrail
         self.kb = kb
+        self.learner = learner
 
     async def answer_student(
         self,
@@ -249,17 +250,20 @@ class HaroonyTutorEngine:
         if re.search(r"\b(?:quiz\s+me|test\s+me|practice\s+question|give\s+me\s+a\s+question)\b", combined_query, re.I):
             return self._generate_practice_question(search_query)
 
-        # 4. Run Symbolic Physics Calculation Solver + First-Principles Reasoner + Trained Classifiers + Harony RAG
+        # 4. Run Symbolic Physics Calculation Solver + First-Principles Reasoner + Trained & Online ML Classifiers + Harony RAG
         solved = try_solve_physics_problem(combined_query)
         reasoned_md = None if solved else try_reason_physics_variation(combined_query)
         predicted_unit = self.kb.predict_unit(search_query)
+        online_pred = self.learner.predict_unit_online(search_query) if self.learner else None
+        learned_hint = self.learner.find_learned_guidance(search_query) if self.learner else None
         predicted_intent = self.kb.predict_intent(search_query)
         raw_note_hits = self.kb.search(search_query, top_k=5)
-        primary_unit = (
-            raw_note_hits[0].get("unit")
-            if raw_note_hits and raw_note_hits[0].get("score", 0.0) >= 0.24
-            else predicted_unit
-        )
+        if raw_note_hits and raw_note_hits[0].get("score", 0.0) >= 0.24:
+            primary_unit = raw_note_hits[0].get("unit")
+        elif online_pred and online_pred.get("confidence", 0.0) >= 0.62:
+            primary_unit = online_pred["unit"]
+        else:
+            primary_unit = predicted_unit
         primary_topic = raw_note_hits[0].get("topic") if raw_note_hits else None
         note_hits = [nh for nh in raw_note_hits if not primary_unit or nh.get("unit") == primary_unit][:3]
         if not note_hits and raw_note_hits:
@@ -274,6 +278,11 @@ class HaroonyTutorEngine:
         ctx_parts = []
         if solved:
             ctx_parts.append(solved.to_markdown())
+        if learned_hint and learned_hint.get("helpful_votes", 0) >= 2:
+            ctx_parts.append(
+                f"[Student-Verified Learned Pattern (sim={learned_hint['similarity']})]:\n"
+                f"Similar Q: {learned_hint['query']}\nKey points: {learned_hint['reply_excerpt']}"
+            )
         if concept_entry:
             ctx_parts.append(
                 f"[Harony Concept Guide — {concept_entry['topic']} ({concept_entry['unit']})]:\n"
@@ -315,7 +324,29 @@ class HaroonyTutorEngine:
         rag_context_str = "\n\n".join(ctx_parts)
         solved_md_str = solved.to_markdown() if solved else None
 
+        resolved_topic = (
+            (concept_entry or {}).get("topic")
+            or primary_topic
+            or (learned_hint or {}).get("topic")
+            or "Physics"
+        )
+        resolved_unit = primary_unit or (online_pred or {}).get("unit") or ""
+        top_conf = float(raw_note_hits[0].get("score", 0.0)) if raw_note_hits else 0.0
+        learn_conf = max(top_conf, float((online_pred or {}).get("confidence", 0.0)), 0.85 if (solved or concept_entry) else 0.5)
+
         if neural_reply:
+            interaction_id = (
+                self.learner.record_interaction(
+                    query=combined_query,
+                    unit=resolved_unit,
+                    topic=resolved_topic,
+                    reply=neural_reply,
+                    confidence=max(learn_conf, 0.85),
+                    neural_generated=True,
+                )
+                if self.learner
+                else ""
+            )
             return {
                 "ok": True,
                 "refused": False,
@@ -327,6 +358,10 @@ class HaroonyTutorEngine:
                 "rag_context": rag_context_str,
                 "solved_markdown": solved_md_str,
                 "neural_generated": True,
+                "interaction_id": interaction_id,
+                "unit": resolved_unit,
+                "topic": resolved_topic,
+                "learning_stats": self.learner.get_stats() if self.learner else None,
                 "engine": "Haroony AI (Neural + Harony 2026/2027 RAG)",
             }
 
@@ -420,17 +455,35 @@ class HaroonyTutorEngine:
                 "or upload a photo of the question!"
             )
 
+        final_local_reply = "\n\n---\n\n".join(sections)
+        interaction_id = (
+            self.learner.record_interaction(
+                query=combined_query,
+                unit=resolved_unit,
+                topic=resolved_topic,
+                reply=final_local_reply,
+                confidence=learn_conf,
+                neural_generated=False,
+            )
+            if self.learner
+            else ""
+        )
+
         return {
             "ok": True,
             "refused": False,
             "category": "physics",
-            "reply": "\n\n---\n\n".join(sections),
+            "reply": final_local_reply,
             "notes_cards": notes_cards,
             "video_links": vid_hits,
             "ocr_text": ocr_text,
             "rag_context": rag_context_str,
             "solved_markdown": solved_md_str,
             "neural_generated": False,
+            "interaction_id": interaction_id,
+            "unit": resolved_unit,
+            "topic": resolved_topic,
+            "learning_stats": self.learner.get_stats() if self.learner else None,
             "engine": "Haroony Physics AI (Harony 2026/2027 Books)",
         }
 

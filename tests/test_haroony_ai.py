@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
 import httpx
 
 BASE = "http://127.0.0.1:8000"
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
 def run_all_tests() -> None:
@@ -230,6 +233,61 @@ def run_all_tests() -> None:
         assert p_ke["ok"] is True and "4" in p_ke["reply"]
         p_evap = client.post("/api/chat", data={"message": "What is the difference between evaporation and boiling?"}).json()
         assert p_evap["ok"] is True and "surface" in p_evap["reply"].lower()
+
+        # 15. Continuous Online ML Learning + Feedback + Anti-Poisoning Gate
+        st_before = client.get("/api/status").json()["learning_stats"]
+        learn_q = client.post(
+            "/api/chat",
+            data={"message": "Why does a wire get hotter when a larger current flows through its resistance?"},
+        ).json()
+        assert learn_q["ok"] is True and learn_q.get("interaction_id")
+        st_after_q = client.get("/api/status").json()["learning_stats"]
+        assert st_after_q["total_learned_questions"] >= st_before["total_learned_questions"] + 1
+
+        fb_res = client.post(
+            "/api/feedback",
+            data={
+                "interaction_id": learn_q["interaction_id"],
+                "helpful": "true",
+                "query": "Why does a wire get hotter when a larger current flows through its resistance?",
+                "unit": learn_q.get("unit", "Unit 3: Electricity"),
+            },
+        ).json()
+        assert fb_res["ok"] is True
+        assert fb_res["learning_stats"]["positive_feedback_count"] >= st_before["positive_feedback_count"] + 1
+
+        # Anti-poisoning: refused off-topic prompts must NOT increment learned count
+        st_pre_bad = client.get("/api/status").json()["learning_stats"]["total_learned_questions"]
+        bad_learn = client.post("/api/chat", data={"message": "Bake me a chocolate cake recipe please"}).json()
+        assert bad_learn["refused"] is True
+        st_post_bad = client.get("/api/status").json()["learning_stats"]["total_learned_questions"]
+        assert st_post_bad == st_pre_bad
+
+        # 16. Enhanced Dark-Mode & Tilted/Shadowed Physics Photo OCR
+        import io
+        from PIL import Image, ImageDraw, ImageFont
+        from backend.ocr_engine import extract_text_from_image_bytes
+
+        # Dark-mode screenshot test
+        dark_im = Image.new("RGB", (900, 260), (24, 24, 28))
+        draw = ImageDraw.Draw(dark_im)
+        font = ImageFont.load_default(size=28) if hasattr(ImageFont, "load_default") else ImageFont.load_default()
+        draw.text((40, 60), "Calculate the kinetic energy of mass 4 kg at 5 m/s", fill=(235, 240, 245), font=font)
+        buf = io.BytesIO()
+        dark_im.save(buf, format="PNG")
+        dark_ocr = extract_text_from_image_bytes(buf.getvalue())
+        assert "kinetic" in dark_ocr["text"].lower() and "4" in dark_ocr["text"], f"Dark OCR failed: {dark_ocr}"
+
+        # Tilted + uneven shadow test
+        tilted_im = Image.new("RGB", (920, 300), (210, 205, 195))
+        draw2 = ImageDraw.Draw(tilted_im)
+        draw2.rectangle([0, 0, 420, 300], fill=(155, 150, 145))
+        draw2.text((50, 100), "Calculate resistance when voltage is 12 V and current is 3 A", fill=(25, 25, 30), font=font)
+        tilted_im = tilted_im.rotate(7, expand=True, fillcolor=(180, 175, 170))
+        buf2 = io.BytesIO()
+        tilted_im.save(buf2, format="PNG")
+        tilt_ocr = extract_text_from_image_bytes(buf2.getvalue())
+        assert "resistance" in tilt_ocr["text"].lower() and "12" in tilt_ocr["text"], f"Tilted shadow OCR failed: {tilt_ocr}"
 
     print("ALL HAROONY AI 2026/2027 INTEGRATION TESTS PASSED PERFECTLY!")
 

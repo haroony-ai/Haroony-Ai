@@ -17,6 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.config import MODELS_DIR, ROOT_DIR, STATIC_DIR, load_settings, save_settings
+from backend.continuous_learner import ContinuousPhysicsLearner
 from backend.guardrail import PhysicsGuardrail
 from backend.knowledge_base import HaronyKnowledgeBase
 from backend.llm_bridge import has_active_server_llm, try_neural_vision_ocr
@@ -44,7 +45,8 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 guardrail = PhysicsGuardrail()
 kb = HaronyKnowledgeBase()
-tutor = HaroonyTutorEngine(guardrail=guardrail, kb=kb)
+learner = ContinuousPhysicsLearner()
+tutor = HaroonyTutorEngine(guardrail=guardrail, kb=kb, learner=learner)
 
 
 def check_teacher_pin(pin: Optional[str]) -> None:
@@ -101,8 +103,26 @@ async def api_status() -> Dict[str, Any]:
         ],
         "curriculum": kb.curriculum_overview(),
         "metrics": metrics,
+        "learning_stats": learner.get_stats(),
         "server_llm_active": await has_active_server_llm(),
     }
+
+
+@app.post("/api/feedback")
+async def api_feedback(
+    interaction_id: str = Form(""),
+    helpful: str = Form("true"),
+    query: str = Form(""),
+    unit: str = Form(""),
+) -> Dict[str, Any]:
+    is_helpful = str(helpful).strip().lower() in ("true", "1", "yes", "up")
+    stats = learner.record_feedback(
+        interaction_id=interaction_id.strip(),
+        helpful=is_helpful,
+        query_fallback=query,
+        unit_fallback=unit,
+    )
+    return {"ok": True, "helpful": is_helpful, "learning_stats": stats}
 
 
 @app.post("/api/chat")
