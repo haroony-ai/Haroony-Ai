@@ -2181,4 +2181,4 @@
       return { ok: true, results: pool.slice(3, 27) };
     },
   };
-})(window);
+})(typeof window !== "undefined" ? window : globalThis);
