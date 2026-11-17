@@ -16,13 +16,18 @@
       <div class="brand" id="brandHome" title="Haroony AI">
         <img src="static/assets/harony_logo.webp" alt="Harony Physics Clinic" class="brand-logo" />
       </div>
+
+      <nav class="nav-tabs" aria-label="Primary sections">
+        <button class="nav-tab active" data-tab="tutor" type="button">Ask AI</button>
+        <button class="nav-tab" data-tab="grader" type="button">Mark My Answer</button>
+      </nav>
     </div>
   </header>
 
   <main class="container">
-    <!-- ==================== HAROONY AI CHAT ==================== -->
+    <!-- ==================== TAB 1: ASK AI ==================== -->
     <section id="tab-tutor" class="tab-panel active">
-      <div class="chat-card chat-card-full" id="chatCard">
+      <div class="chat-card" id="chatCard">
         <div class="chat-header">
           <div class="chat-header-left">
             <img src="static/assets/harony_avatar.webp" alt="Harony Physics Clinic" class="mascot-avatar" />
@@ -48,6 +53,13 @@
                   <li>Ask for <strong>YouTube video solutions</strong> on any topic (e.g. <em>"YouTube videos for waves"</em>)</li>
                   <li>Attach a <strong>photo / PDF</strong>, drag &amp; drop, or press <strong><code>Ctrl+V</code></strong> in the text bar to paste a screenshot!</li>
                 </ul>
+                <div class="quick-prompts" id="quickPrompts">
+                  <button type="button" class="quick-chip" data-prompt="Explain motion graphs (distance-time and speed-time)">Motion Graphs</button>
+                  <button type="button" class="quick-chip" data-prompt="Explain Ohm's law and filament lamp I-V graph">Ohm's Law</button>
+                  <button type="button" class="quick-chip" data-prompt="Explain convection in fluids">Convection</button>
+                  <button type="button" class="quick-chip" data-prompt="Explain A.C. generator 1st and 2nd half cycle">A.C. Generator</button>
+                  <button type="button" class="quick-chip" data-prompt="YouTube videos for diffraction and waves">Wave Videos</button>
+                </div>
               </div>
             </div>
           </div>
@@ -82,6 +94,108 @@
           </button>
         </form>
       </div>
+    </section>
+
+    <!-- ==================== TAB 2: MARK MY ANSWER ==================== -->
+    <section id="tab-grader" class="tab-panel">
+      <div class="grader-grid">
+        <!-- Step 1: Student Submission -->
+        <div class="panel-card" id="graderStep1Card">
+          <div class="panel-card-top">
+            <div class="panel-card-header">
+              <span class="step-pill">1</span>
+              <h3>Your Physics Answer</h3>
+            </div>
+            <button type="button" id="clearGraderBtn" class="btn btn-ghost btn-sm">Clear</button>
+          </div>
+          <p class="panel-help">Upload photos/PDF of your working, press <code>Ctrl+V</code> to paste a screenshot, or type below.</p>
+
+          <label for="studentFileInput" class="dropzone" id="studentDropzone">
+            <div class="dropzone-icon">📷</div>
+            <div class="dropzone-title">Drop photos or PDF here, click to browse, or Ctrl+V</div>
+            <div class="dropzone-sub">Supports handwritten paper photos, screenshots, and PDFs</div>
+          </label>
+          <input type="file" id="studentFileInput" accept="image/*,.pdf" multiple hidden />
+          <div id="studentFilePills" class="file-pills"></div>
+
+          <div class="field-group">
+            <label for="studentTextInput">Typed Question &amp; Answer <span class="muted-tag">(optional if uploaded)</span></label>
+            <textarea
+              id="studentTextInput"
+              rows="6"
+              placeholder="Tip: Include the question or paste your working &amp; final answer here (e.g. A 2.0 kg trolley accelerates at 3.5 m/s2. F = ma = 2.0 x 3.5 = 7.0 N)"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Step 2: Mark Scheme Selection -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <span class="step-pill">2</span>
+            <h3>Mark Scheme</h3>
+          </div>
+          <p class="panel-help">Let AI check your answer directly, pick a Harony 2027 question, or supply a Mark Scheme.</p>
+
+          <div class="ms-mode-switcher" role="tablist">
+            <button type="button" class="ms-mode-btn active" data-ms-mode="ai">AI Auto Check</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="saved">Harony MS</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="upload">Upload MS</button>
+            <button type="button" class="ms-mode-btn" data-ms-mode="paste">Paste MS</button>
+          </div>
+
+          <div id="ms-pane-ai" class="ms-pane">
+            <div class="info-callout">
+              <strong>AI Auto Check</strong> reads your submission, matches any calculation or official Harony 2027 question, and checks every Cambridge 0625 step honestly — without guessing if the question is missing.
+            </div>
+          </div>
+
+          <div id="ms-pane-saved" class="ms-pane hidden">
+            <div class="field-group">
+              <label for="savedMsSelect">Book / Past Paper Pack</label>
+              <select id="savedMsSelect">
+                <option value="">Loading mark schemes…</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="questionSearchInput">Filter &amp; Pick Question <span class="muted-tag">(optional)</span></label>
+              <input type="text" id="questionSearchInput" class="question-search-input" placeholder="Search by code or keyword (e.g. 2023 March Q02, density, lens)..." />
+              <select id="questionSelect" class="question-select">
+                <option value="">Auto-detect best matching question</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ms-pane-upload" class="ms-pane hidden">
+            <label for="msFileInput" class="dropzone dropzone-compact" id="msDropzone">
+              <div class="dropzone-title">Upload Official Mark Scheme (PDF / Image)</div>
+              <div class="dropzone-sub">Cambridge 0625 / 9702 Mark Scheme PDFs or photos</div>
+            </label>
+            <input type="file" id="msFileInput" accept="image/*,.pdf" hidden />
+            <div id="msFilePill" class="file-pills"></div>
+          </div>
+
+          <div id="ms-pane-paste" class="ms-pane hidden">
+            <div class="field-group">
+              <label for="msTextInput">Paste Mark Scheme Text</label>
+              <textarea
+                id="msTextInput"
+                rows="5"
+                placeholder="Example:
+(a) M1: F = m a
+    A1: 7.0 N
+(b) B1: resultant force causes acceleration in the same direction"
+              ></textarea>
+            </div>
+          </div>
+
+          <button type="button" id="gradeSubmitBtn" class="btn btn-primary btn-lg btn-block">
+            Mark My Answer
+          </button>
+        </div>
+      </div>
+
+      <!-- Grading Output -->
+      <div id="gradeResultArea" class="grade-result-area hidden"></div>
     </section>
   </main>
 
