@@ -1,23 +1,25 @@
-"""Hybrid Multi-Model Neural Bridge for Haroony AI.
+"""Hybrid Multi-Key / Multi-Model Neural Bridge for Haroony AI.
 
 100% server-side & secure:
 - Reads credentials ONLY from server environment variables (.env gitignored / hosting Secrets).
+- Supports MULTI-KEY ROUND-ROBIN + AUTOMATIC FAILOVER POOLS (comma/newline-separated)
+  so multiple free-tier official API keys scale capacity seamlessly without rate limits:
+  - GROQ_API_KEYS (or GROQ_API_KEY)         — fast open-source Llama-3.3-70B / Qwen / Llama-3.1-8B
+  - GEMINI_API_KEYS (or GEMINI_API_KEY)     — multimodal vision + reasoning
+  - CEREBRAS_API_KEYS (or CEREBRAS_API_KEY) — ultra-fast open-source Llama-3.3-70B / Qwen
+  - OPENROUTER_API_KEYS (or OPENROUTER_API_KEY) — free/open-source model pool
+  - HF_TOKENS (or HF_TOKEN / HUGGINGFACE_API_KEY) — HuggingFace Inference Router
+  - MISTRAL_API_KEYS (or MISTRAL_API_KEY)   — Mistral free-tier pool
+  - OPENAI_API_KEYS (or OPENAI_API_KEY)     — optional cloud multimodal
+  - OLLAMA_BASE_URL                         — unlimited local open-source Ollama models
 - NEVER exposes third-party provider names or API keys to the frontend UI.
-- Supports unlimited, zero-rate-limit cascading across Cloud + Open-Source LLMs:
-  1. Cloud Multimodal Engine A (GEMINI_API_KEY)
-  2. Cloud Multimodal Engine B (OPENAI_API_KEY)
-  3. Open-Source Groq Engine (GROQ_API_KEY: llama-3.3-70b-versatile / qwen-qwq-32b)
-  4. Open-Source HuggingFace Router (HF_TOKEN: Qwen/Qwen2.5-72B-Instruct / Llama-3.3-70B)
-  5. Open-Source OpenRouter Pool (OPENROUTER_API_KEY: open-source free/fast models)
-  6. Unlimited Local Ollama Multi-Model Pool (OLLAMA_BASE_URL: auto-discovers qwen2.5-vl, qwen2.5, llama3.2, deepseek-r1, mistral, phi4)
-  7. Custom OpenAI-Compatible Endpoint (OPENAI_COMPAT_BASE_URL: vLLM / LocalAI / Together)
-  8. Unlimited Built-In Harony Physics Engine (SymPy + 445-chunk RAG + 19-module Concept Atlas + MS)
 """
 from __future__ import annotations
 
 import base64
 import os
 import re
+import threading
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -31,7 +33,7 @@ HAROONY_SYSTEM_PROMPT = (
     "1. PHYSICS ONLY: Answer ONLY Physics questions. Refuse non-physics requests politely.\n"
     "2. REASON FROM FIRST PRINCIPLES FOR ANY QUESTION: Answer the student's EXACT question directly and accurately, "
     "even if it is a novel scenario or 'why/what happens if' question not word-for-word in the context. "
-    "NEVER force an unrelated snippet into your reply.\n"
+    "NEVER force an unrelated snippet into your reply, and NEVER repeat an earlier turn's answer when the student switches topic.\n"
     "3. ALIGN WITH HARONY NOTES & CAMBRIDGE 0625 MARK SCHEMES: Use exact definitions, formulas, and bold key marking phrases.\n"
     "4. 4-STEP CALCULATION FORMAT: Formula -> Substitution -> Calculation -> Final Answer with Units (2-3 sig figs).\n"
     "5. IMAGE ACCURACY: When an image is attached, read every label, graph axis, circuit symbol, and number carefully.\n"
@@ -49,6 +51,33 @@ PREFERRED_OLLAMA_MODELS = [
     "gemma2:9b",
 ]
 
+_POOL_LOCK = threading.Lock()
+_POOL_CURSORS: Dict[str, int] = {}
+
+
+def _get_key_pool(*env_names: str) -> List[str]:
+    """Collect unique non-empty API keys from one or more env vars (comma/semicolon/newline-separated)
+    and rotate the starting index round-robin so multiple free-tier keys share load evenly."""
+    raw_keys: List[str] = []
+    seen = set()
+    for name in env_names:
+        val = os.environ.get(name, "").strip()
+        if not val:
+            continue
+        for token in re.split(r"[,;\s\n]+", val):
+            k = token.strip()
+            if k and k not in seen:
+                seen.add(k)
+                raw_keys.append(k)
+    if len(raw_keys) <= 1:
+        return raw_keys
+
+    pool_id = "|".join(env_names)
+    with _POOL_LOCK:
+        start = _POOL_CURSORS.get(pool_id, 0) % len(raw_keys)
+        _POOL_CURSORS[pool_id] = (start + 1) % len(raw_keys)
+    return raw_keys[start:] + raw_keys[:start]
+
 
 async def _call_gemini(
     messages: List[Dict[str, str]],
@@ -56,8 +85,8 @@ async def _call_gemini(
     image_mime: str,
     max_tokens: int = 900,
 ) -> Optional[str]:
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not api_key:
+    keys = _get_key_pool("GEMINI_API_KEYS", "GEMINI_API_KEY")
+    if not keys:
         return None
     model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
 
@@ -91,21 +120,24 @@ async def _call_gemini(
     if system_parts:
         payload["systemInstruction"] = {"parts": system_parts}
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-    try:
-        async with httpx.AsyncClient(timeout=28.0) as client:
-            resp = await client.post(url, json=payload)
-            if resp.status_code != 200:
-                return None
-            data = resp.json()
-            cands = data.get("candidates") or []
-            if not cands:
-                return None
-            parts = cands[0].get("content", {}).get("parts") or []
-            out = "\n".join(p.get("text", "") for p in parts if p.get("text")).strip()
-            return out or None
-    except Exception:
-        return None
+    for api_key in keys:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        try:
+            async with httpx.AsyncClient(timeout=26.0) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code != 200:
+                    continue
+                data = resp.json()
+                cands = data.get("candidates") or []
+                if not cands:
+                    continue
+                parts = cands[0].get("content", {}).get("parts") or []
+                out = "\n".join(p.get("text", "") for p in parts if p.get("text")).strip()
+                if out:
+                    return out
+        except Exception:
+            continue
+    return None
 
 
 async def _call_openai_style(
@@ -139,7 +171,7 @@ async def _call_openai_style(
             oai_msgs.append({"role": m.get("role", "user"), "content": m.get("content", "")})
 
     try:
-        async with httpx.AsyncClient(timeout=26.0) as client:
+        async with httpx.AsyncClient(timeout=24.0) as client:
             resp = await client.post(
                 endpoint_url,
                 headers=headers,
@@ -161,20 +193,49 @@ async def _call_openai_style(
     return None
 
 
+async def _call_openai_pool(
+    endpoint_url: str,
+    keys: List[str],
+    models: List[str],
+    messages: List[Dict[str, str]],
+    image_bytes: Optional[bytes] = None,
+    image_mime: str = "image/jpeg",
+    max_tokens: int = 900,
+    supports_vision: bool = False,
+) -> Optional[str]:
+    if not keys:
+        return None
+    for api_key in keys:
+        for model in models:
+            if not model:
+                continue
+            res = await _call_openai_style(
+                endpoint_url,
+                api_key,
+                model,
+                messages,
+                image_bytes,
+                image_mime,
+                max_tokens=max_tokens,
+                supports_vision=supports_vision,
+            )
+            if res:
+                return res
+    return None
+
+
 async def _call_openai(
     messages: List[Dict[str, str]],
     image_bytes: Optional[bytes],
     image_mime: str,
     max_tokens: int = 900,
 ) -> Optional[str]:
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        return None
+    keys = _get_key_pool("OPENAI_API_KEYS", "OPENAI_API_KEY")
     model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
-    return await _call_openai_style(
+    return await _call_openai_pool(
         "https://api.openai.com/v1/chat/completions",
-        api_key,
-        model,
+        keys,
+        [model],
         messages,
         image_bytes,
         image_mime,
@@ -187,80 +248,85 @@ async def _call_groq_opensource(
     messages: List[Dict[str, str]],
     max_tokens: int = 900,
 ) -> Optional[str]:
-    api_key = os.environ.get("GROQ_API_KEY", "").strip()
-    if not api_key:
-        return None
-    for model in (
-        os.environ.get("GROQ_MODEL", "").strip() or "llama-3.3-70b-versatile",
-        "qwen-qwq-32b",
-        "llama-3.1-8b-instant",
-    ):
-        res = await _call_openai_style(
-            "https://api.groq.com/openai/v1/chat/completions",
-            api_key,
-            model,
-            messages,
-            None,
-            "image/jpeg",
-            max_tokens=max_tokens,
-            supports_vision=False,
-        )
-        if res:
-            return res
-    return None
+    keys = _get_key_pool("GROQ_API_KEYS", "GROQ_API_KEY")
+    primary = os.environ.get("GROQ_MODEL", "").strip() or "llama-3.3-70b-versatile"
+    models = list(dict.fromkeys([primary, "llama-3.3-70b-versatile", "qwen-qwq-32b", "llama-3.1-8b-instant"]))
+    return await _call_openai_pool(
+        "https://api.groq.com/openai/v1/chat/completions",
+        keys,
+        models,
+        messages,
+        max_tokens=max_tokens,
+        supports_vision=False,
+    )
+
+
+async def _call_cerebras_opensource(
+    messages: List[Dict[str, str]],
+    max_tokens: int = 900,
+) -> Optional[str]:
+    keys = _get_key_pool("CEREBRAS_API_KEYS", "CEREBRAS_API_KEY")
+    primary = os.environ.get("CEREBRAS_MODEL", "").strip() or "llama-3.3-70b"
+    models = list(dict.fromkeys([primary, "llama-3.3-70b", "qwen-3-32b", "llama3.1-8b"]))
+    return await _call_openai_pool(
+        "https://api.cerebras.ai/v1/chat/completions",
+        keys,
+        models,
+        messages,
+        max_tokens=max_tokens,
+        supports_vision=False,
+    )
 
 
 async def _call_huggingface_opensource(
     messages: List[Dict[str, str]],
     max_tokens: int = 900,
 ) -> Optional[str]:
-    hf_token = (os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY") or "").strip()
-    if not hf_token:
-        return None
-    for model in (
-        os.environ.get("HF_MODEL", "").strip() or "Qwen/Qwen2.5-72B-Instruct",
-        "meta-llama/Llama-3.3-70B-Instruct",
-        "mistralai/Mistral-Small-24B-Instruct-2501",
-    ):
-        res = await _call_openai_style(
-            "https://router.huggingface.co/v1/chat/completions",
-            hf_token,
-            model,
-            messages,
-            None,
-            "image/jpeg",
-            max_tokens=max_tokens,
-            supports_vision=False,
-        )
-        if res:
-            return res
-    return None
+    keys = _get_key_pool("HF_TOKENS", "HF_TOKEN", "HUGGINGFACE_API_KEY")
+    primary = os.environ.get("HF_MODEL", "").strip() or "Qwen/Qwen2.5-72B-Instruct"
+    models = list(dict.fromkeys([primary, "Qwen/Qwen2.5-72B-Instruct", "meta-llama/Llama-3.3-70B-Instruct"]))
+    return await _call_openai_pool(
+        "https://router.huggingface.co/v1/chat/completions",
+        keys,
+        models,
+        messages,
+        max_tokens=max_tokens,
+        supports_vision=False,
+    )
 
 
 async def _call_openrouter_opensource(
     messages: List[Dict[str, str]],
     max_tokens: int = 900,
 ) -> Optional[str]:
-    api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
-    if not api_key:
-        return None
-    for model in (
-        os.environ.get("OPENROUTER_MODEL", "").strip() or "meta-llama/llama-3.3-70b-instruct:free",
-        "qwen/qwen-2.5-72b-instruct:free",
-    ):
-        res = await _call_openai_style(
-            "https://openrouter.ai/api/v1/chat/completions",
-            api_key,
-            model,
-            messages,
-            None,
-            "image/jpeg",
-            max_tokens=max_tokens,
-            supports_vision=False,
-        )
-        if res:
-            return res
-    return None
+    keys = _get_key_pool("OPENROUTER_API_KEYS", "OPENROUTER_API_KEY")
+    primary = os.environ.get("OPENROUTER_MODEL", "").strip() or "meta-llama/llama-3.3-70b-instruct:free"
+    models = list(dict.fromkeys([primary, "meta-llama/llama-3.3-70b-instruct:free", "qwen/qwen-2.5-72b-instruct:free"]))
+    return await _call_openai_pool(
+        "https://openrouter.ai/api/v1/chat/completions",
+        keys,
+        models,
+        messages,
+        max_tokens=max_tokens,
+        supports_vision=False,
+    )
+
+
+async def _call_mistral_opensource(
+    messages: List[Dict[str, str]],
+    max_tokens: int = 900,
+) -> Optional[str]:
+    keys = _get_key_pool("MISTRAL_API_KEYS", "MISTRAL_API_KEY")
+    primary = os.environ.get("MISTRAL_MODEL", "").strip() or "mistral-small-latest"
+    models = list(dict.fromkeys([primary, "mistral-small-latest", "open-mistral-nemo"]))
+    return await _call_openai_pool(
+        "https://api.mistral.ai/v1/chat/completions",
+        keys,
+        models,
+        messages,
+        max_tokens=max_tokens,
+        supports_vision=False,
+    )
 
 
 async def _call_ollama(
@@ -276,7 +342,6 @@ async def _call_ollama(
     primary_model = (os.environ.get("OLLAMA_MODEL") or settings.get("ollama_model") or "qwen2.5-vl:7b").strip()
     candidate_models = [primary_model]
 
-    # Auto-discover installed open-source models on the local/remote Ollama instance
     try:
         async with httpx.AsyncClient(timeout=2.5) as client:
             tags_resp = await client.get(f"{base}/api/tags")
@@ -346,7 +411,7 @@ def _sanitize_provider_mentions(text: str) -> str:
     if not text:
         return text
     text = re.sub(
-        r"\b(?:Gemini|OpenAI|ChatGPT|GPT-4o?|Claude|Groq|OpenRouter|Llama|Qwen|Mistral|DeepSeek)\b",
+        r"\b(?:Gemini|OpenAI|ChatGPT|GPT-4o?|Claude|Groq|Cerebras|OpenRouter|Llama|Qwen|Mistral|DeepSeek)\b",
         "Haroony AI",
         text,
         flags=re.I,
@@ -361,7 +426,7 @@ async def try_neural_generation(
     image_bytes: Optional[bytes] = None,
     image_mime: str = "image/jpeg",
 ) -> Optional[str]:
-    """Cascade across configured server-side cloud + open-source LLM backends."""
+    """Cascade across multi-key server-side free-tier, cloud, and local open-source LLM pools."""
     settings = load_settings()
 
     messages: List[Dict[str, str]] = [{"role": "system", "content": HAROONY_SYSTEM_PROMPT}]
@@ -381,10 +446,12 @@ async def try_neural_generation(
 
     for caller in (
         lambda: _call_gemini(messages, image_bytes, image_mime),
-        lambda: _call_openai(messages, image_bytes, image_mime),
         lambda: _call_groq_opensource(messages),
-        lambda: _call_huggingface_opensource(messages),
+        lambda: _call_cerebras_opensource(messages),
         lambda: _call_openrouter_opensource(messages),
+        lambda: _call_huggingface_opensource(messages),
+        lambda: _call_mistral_opensource(messages),
+        lambda: _call_openai(messages, image_bytes, image_mime),
         lambda: _call_ollama(settings, messages, image_bytes),
         lambda: _call_openai_compat(settings, messages, image_bytes, image_mime),
     ):
@@ -398,19 +465,12 @@ async def try_neural_generation(
 async def try_neural_vision_ocr(
     image_bytes: bytes,
     image_mime: str = "image/jpeg",
-    purpose: str = "physics_answer",
+    purpose: str = "physics_question",
 ) -> Optional[str]:
-    """Optional high-accuracy vision transcription for handwritten student exam papers."""
+    """Optional high-accuracy vision transcription for Physics problem screenshots."""
     if not image_bytes:
         return None
-    prompt = (
-        "Transcribe ALL text, equations, numbers, units, and handwritten working from this Physics exam image "
-        "verbatim as plain text. Do not invent words the student did not write. Keep question labels like (a), (b), (i) intact."
-    )
-    if purpose == "physics_question":
-        prompt = (
-            "Transcribe ALL text, numbers, units, and diagram/graph labels from this Physics problem image cleanly."
-        )
+    prompt = "Transcribe ALL text, numbers, units, and diagram/graph labels from this Physics problem image cleanly."
     msgs = [{"role": "user", "content": prompt}]
     settings = load_settings()
     for caller in (
@@ -425,10 +485,18 @@ async def try_neural_vision_ocr(
 
 
 async def has_active_server_llm() -> bool:
-    """Return True if at least one real cloud or local Ollama LLM is configured/reachable."""
+    """Return True if at least one multi-key server LLM or local Ollama LLM is configured/reachable."""
     if any(
         os.environ.get(k, "").strip()
-        for k in ("GEMINI_API_KEY", "OPENAI_API_KEY", "GROQ_API_KEY", "HF_TOKEN", "HUGGINGFACE_API_KEY", "OPENROUTER_API_KEY")
+        for k in (
+            "GEMINI_API_KEYS", "GEMINI_API_KEY",
+            "GROQ_API_KEYS", "GROQ_API_KEY",
+            "CEREBRAS_API_KEYS", "CEREBRAS_API_KEY",
+            "OPENROUTER_API_KEYS", "OPENROUTER_API_KEY",
+            "HF_TOKENS", "HF_TOKEN", "HUGGINGFACE_API_KEY",
+            "MISTRAL_API_KEYS", "MISTRAL_API_KEY",
+            "OPENAI_API_KEYS", "OPENAI_API_KEY",
+        )
     ):
         return True
     settings = load_settings()
@@ -444,109 +512,3 @@ async def has_active_server_llm() -> bool:
         except Exception:
             return False
     return False
-
-
-async def try_neural_grade_unmatched(
-    student_text: str,
-    ms_title: str = "",
-    ms_text: str = "",
-) -> Optional[Dict[str, Any]]:
-    """Grade any freeform/unmatched Physics question + student answer using a real server LLM."""
-    if not student_text.strip():
-        return None
-    import json
-    sys_msg = (
-        "You are Haroony AI, a strict Cambridge IGCSE (0625) & A-Level (9702) Physics Examiner.\n"
-        "Evaluate ONLY the student's actual answer against Physics laws (and any Mark Scheme provided).\n"
-        "Return ONLY valid JSON matching:\n"
-        '{"awarded_marks": int, "max_marks": int, "examiner_feedback": "2-3 sentences", "model_answer": "concise ideal answer", "points": [{"code":"B1","marks_awarded":1,"max_marks":1,"status":"awarded","comment":"reason"}]}'
-    )
-    user_msg = (
-        (f"Mark Scheme ({ms_title}):\n{ms_text[:1500]}\n\n" if (ms_title or ms_text) else "")
-        + f"Student Submission:\n{student_text[:2000]}\n\n"
-        + "Be 100% honest: if the student's answer is wrong, missing, or says 'I don't know', award 0 for those marks."
-    )
-    msgs = [{"role": "system", "content": sys_msg}, {"role": "user", "content": user_msg}]
-    settings = load_settings()
-    raw = None
-    for caller in (
-        lambda: _call_gemini(msgs, None, "image/jpeg", max_tokens=500),
-        lambda: _call_openai(msgs, None, "image/jpeg", max_tokens=500),
-        lambda: _call_groq_opensource(msgs, max_tokens=500),
-        lambda: _call_huggingface_opensource(msgs, max_tokens=500),
-        lambda: _call_openrouter_opensource(msgs, max_tokens=500),
-        lambda: _call_ollama(settings, msgs, None),
-        lambda: _call_openai_compat(settings, msgs, None, "image/jpeg", max_tokens=500),
-    ):
-        raw = await caller()
-        if raw:
-            break
-    if not raw:
-        return None
-    try:
-        m = re.search(r"\{[\s\S]*\}", raw)
-        if not m:
-            return None
-        parsed = json.loads(m.group(0))
-        mx = max(1, int(parsed.get("max_marks", 1)))
-        aw = max(0, min(mx, int(parsed.get("awarded_marks", 0))))
-        pct = round(100.0 * aw / mx, 1)
-        grade_letter = "A*" if pct >= 90 else "A" if pct >= 80 else "B" if pct >= 70 else "C" if pct >= 60 else "D" if pct >= 50 else "E" if pct >= 40 else "U"
-        return {
-            "ok": True,
-            "mode": "neural_examiner",
-            "mark_scheme_title": ms_title or "Haroony AI Physics Examiner",
-            "awarded_marks": aw,
-            "max_marks": mx,
-            "percentage": pct,
-            "grade": grade_letter,
-            "examiner_feedback": _sanitize_provider_mentions(str(parsed.get("examiner_feedback", ""))),
-            "questions": [
-                {
-                    "question_id": "AI Examiner Check",
-                    "title": "Physics Reasoning & Accuracy",
-                    "awarded_marks": aw,
-                    "max_marks": mx,
-                    "points": parsed.get("points") if isinstance(parsed.get("points"), list) else [],
-                    "model_answer": _sanitize_provider_mentions(str(parsed.get("model_answer", ""))),
-                }
-            ],
-            "extracted_student_text": student_text,
-        }
-    except Exception:
-        return None
-
-
-async def try_neural_examiner_feedback(
-    student_text: str,
-    ms_title: str,
-    ms_summary: str,
-    awarded: int,
-    max_marks: int,
-) -> Optional[str]:
-    """Generate concise, honest Cambridge examiner coaching based strictly on real MS marks awarded."""
-    if not student_text.strip():
-        return None
-    prompt = (
-        f"Mark Scheme: {ms_title}\n"
-        f"Score already awarded by deterministic Cambridge rules: {awarded}/{max_marks}\n"
-        f"Official Marking Points:\n{ms_summary[:1800]}\n\n"
-        f"Student's actual answer:\n{student_text[:1500]}\n\n"
-        "Give 2-3 crisp sentences of Cambridge 0625 examiner feedback explaining ONLY what the student got right and what specific keyword/unit/step they missed. Do NOT change the score."
-    )
-    msgs = [
-        {"role": "system", "content": HAROONY_SYSTEM_PROMPT},
-        {"role": "user", "content": prompt},
-    ]
-    settings = load_settings()
-    for caller in (
-        lambda: _call_gemini(msgs, None, "image/jpeg", max_tokens=300),
-        lambda: _call_openai(msgs, None, "image/jpeg", max_tokens=300),
-        lambda: _call_groq_opensource(msgs, max_tokens=300),
-        lambda: _call_huggingface_opensource(msgs, max_tokens=300),
-        lambda: _call_ollama(settings, msgs, None),
-    ):
-        res = await caller()
-        if res:
-            return _sanitize_provider_mentions(res)
-    return None

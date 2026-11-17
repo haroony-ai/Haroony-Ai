@@ -199,6 +199,38 @@ def run_all_tests() -> None:
         assert p4_grade["ok"] is True and p4_grade["awarded_marks"] >= 1
         assert p4_grade["questions"][0]["video_url"] == "https://youtu.be/BmUcRU4BnI4"
 
+        # 14. Clean Instant UI (No Corrector / No Browser LLM Download) + Multi-Turn Topic Switching + Physics Reasoner
+        assert "Mark My Answer" not in r.text and "tab-grader" not in r.text and "neuralBoostBtn" not in r.text
+        app_js_txt = client.get("/static/app.js").text
+        assert "enableSmartAI" not in app_js_txt and "tab-grader" not in app_js_txt
+
+        # Multi-turn same-chat topic switching (must NEVER repeat Turn 1!)
+        import json as _json
+        t1 = client.post("/api/chat", data={"message": "Explain convection in fluids", "history": "[]"}).json()
+        assert "convection" in t1["reply"].lower()
+        hist = [
+            {"role": "user", "content": "Explain convection in fluids"},
+            {"role": "assistant", "content": t1["reply"]},
+        ]
+        t2 = client.post("/api/chat", data={"message": "Explain Ohm's law", "history": _json.dumps(hist)}).json()
+        assert t2["ok"] is True and t2["reply"] != t1["reply"]
+        assert "ohm" in t2["reply"].lower() or "current" in t2["reply"].lower() or "resistance" in t2["reply"].lower()
+        assert all(c["unit"] == "Unit 3: Electricity" for c in t2.get("notes_cards", []))
+
+        hist.extend([
+            {"role": "user", "content": "Explain Ohm's law"},
+            {"role": "assistant", "content": t2["reply"]},
+        ])
+        t3 = client.post("/api/chat", data={"message": "What is redshift?", "history": _json.dumps(hist)}).json()
+        assert t3["ok"] is True and t3["reply"] != t2["reply"] and t3["reply"] != t1["reply"]
+        assert "redshift" in t3["reply"].lower() or "universe" in t3["reply"].lower() or "wavelength" in t3["reply"].lower()
+
+        # Proportionality & Comparison instant reasoning
+        p_ke = client.post("/api/chat", data={"message": "What happens to kinetic energy if speed is doubled?"}).json()
+        assert p_ke["ok"] is True and "4" in p_ke["reply"]
+        p_evap = client.post("/api/chat", data={"message": "What is the difference between evaporation and boiling?"}).json()
+        assert p_evap["ok"] is True and "surface" in p_evap["reply"].lower()
+
     print("ALL HAROONY AI 2026/2027 INTEGRATION TESTS PASSED PERFECTLY!")
 
 
