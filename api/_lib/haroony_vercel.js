@@ -103,7 +103,7 @@ async function callGemini(messages, imageBuffer, imageMime, maxTokens = 1100) {
   const keys = getKeyPool("GEMINI_API_KEYS", "GEMINI_API_KEY");
   if (!keys.length) return null;
   const primary = (process.env.GEMINI_MODEL || "gemini-2.5-flash").trim() || "gemini-2.5-flash";
-  const models = [...new Set([primary, "gemini-2.5-flash", "gemini-2.0-flash"])];
+  const models = [...new Set([primary, "gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash"])];
 
   const systemParts = [];
   const contents = [];

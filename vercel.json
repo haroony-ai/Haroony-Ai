@@ -1,17 +1,32 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm install --no-audit --no-fund",
+  "buildCommand": "",
+  "outputDirectory": ".",
   "cleanUrls": true,
   "functions": {
     "api/**/*.js": {
-      "maxDuration": 60,
-      "includeFiles": "{static/browser_kb.json,static/browser_qa.json,static/browser_engine.js,data/training/gemini_sft_dataset.jsonl,data/training/openai_sft_dataset.jsonl}"
+      "includeFiles": "{static/browser_engine.js,static/browser_kb.json,static/browser_qa.json,data/training/gemini_sft_dataset.jsonl,data/training/openai_sft_dataset.jsonl}",
+      "maxDuration": 60
     }
   },
-  "rewrites": [
-    { "source": "/api/status", "destination": "/api/status" },
-    { "source": "/api/chat", "destination": "/api/chat" },
-    { "source": "/api/feedback", "destination": "/api/feedback" },
-    { "source": "/api/notes", "destination": "/api/notes" },
-    { "source": "/api/admin/train", "destination": "/api/admin/train" }
+  "headers": [
+    {
+      "source": "/static/notes_pages/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/static/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/static/(browser_kb|browser_qa).json",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+    }
   ]
 }

@@ -1,0 +1,20 @@
+# Python server + ML artifacts are not used by the Vercel (Node serverless) deployment
+backend/
+models/
+scripts/
+google_drive/
+uploads_tmp/
+.venv/
+__pycache__/
+Dockerfile
+requirements.txt
+render.yaml
+netlify.toml
+.github/
+data/harony_question_bank.json
+data/mark_schemes.json
+data/video_solutions.json
+data/harony_notes_chunks.json
+data/harony_concept_atlas.json
+data/training/harony_sft_dataset.jsonl
+data/training/haroony_sft_dataset.jsonl

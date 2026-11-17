@@ -936,7 +936,7 @@
   }
 
   // ==================== NEURAL TUTOR PROMPT BUILDER ====================
-  function buildTutorMessages(userQuestion, history, solved, scoredChunks, msTips, ocrText, conceptEntry) {
+  function buildRagContextLines(solved, scoredChunks, msTips, conceptEntry, qbHits) {
     const ctxLines = [];
     if (solved) {
       ctxLines.push(
@@ -959,6 +959,20 @@
     for (const mt of msTips.slice(0, 2)) {
       ctxLines.push(`[Cambridge Mark Scheme Phrase (${mt.msTitle} Q${mt.q.question_id})]: ${mt.q.summary_answer}`);
     }
+    for (const qbWrap of (qbHits || []).slice(0, 2)) {
+      const it = qbWrap && qbWrap.item;
+      if (!it) continue;
+      const qTxt = String(it.q || "").replace(/https?:\/\/\S+/g, "").trim().slice(0, 420);
+      const msTxt = Array.isArray(it.ms) ? it.ms.map((m) => (typeof m === "string" ? m : m && (m.text || m.summary_answer) || "")).filter(Boolean).join(" | ").slice(0, 420) : "";
+      if (qTxt && msTxt) {
+        ctxLines.push(`[Harony Past-Paper Bank — ${it.bk || "Harony 2027"} ${(it.pc && it.pc[0]) || it.ch || ""}]: Q: ${qTxt} — MS: ${msTxt}`);
+      }
+    }
+    return ctxLines;
+  }
+
+  function buildTutorMessages(userQuestion, history, solved, scoredChunks, msTips, ocrText, conceptEntry, qbHits) {
+    const ctxLines = buildRagContextLines(solved, scoredChunks, msTips, conceptEntry, qbHits);
 
     const sysPrompt =
       "You are Haroony AI, Mr. Haroony's expert, friendly IGCSE & A-Level Physics tutor from Harony Physics Clinic.\n" +
@@ -1968,7 +1982,7 @@
       let finalReply = null;
       if (global.HaroonyNeuralAI && global.HaroonyNeuralAI.isReady && global.HaroonyNeuralAI.isReady()) {
         try {
-          const messages = buildTutorMessages(userMsg, history, solved, scoredChunks, msTips, ocrText, conceptEntry);
+          const messages = buildTutorMessages(userMsg, history, solved, scoredChunks, msTips, ocrText, conceptEntry, qbHits);
           finalReply = await global.HaroonyNeuralAI.generate(messages, {
             maxTokens: 480,
             temperature: 0.2,
@@ -1991,6 +2005,8 @@
       const resolvedTopic = primaryTopic || (conceptEntry && conceptEntry.topic) || "Physics";
       const interactionId = recordOnlineInteraction(combined, resolvedUnit, resolvedTopic, scoredChunks.length ? scoredChunks[0].s : 4.0);
 
+      const ragContext = buildRagContextLines(solved, scoredChunks, msTips, conceptEntry, qbHits).join("\n");
+
       return {
         ok: true,
         refused: false,
@@ -2002,6 +2018,7 @@
         interaction_id: interactionId,
         unit: resolvedUnit,
         topic: resolvedTopic,
+        rag_context: ragContext,
         engine: "Haroony AI",
       };
     },
