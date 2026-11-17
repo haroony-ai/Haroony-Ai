@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: haroony-ai-backend
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/status
+    envVars:
+      - key: HAROONY_LLM_MODE
+        value: dual
+      - key: GEMINI_API_KEYS
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OPENAI_API_KEYS
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: HAROONY_TEACHER_PIN
+        value: "0625"
