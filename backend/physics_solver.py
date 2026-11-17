@@ -869,4 +869,71 @@ def try_solve_physics_problem(question_text: str) -> Optional[SolvedPhysicsProbl
             "Ensure speed (`m/s`) and time (`s`) use matching time units before multiplying!",
         )
 
+    # 21. Momentum: p = m × v
+    if "momentum" in low and q["mass"] and q["speed"] and "impulse" not in low:
+        m, m_str = q["mass"][0]
+        v, v_str = q["speed"][0]
+        p = m * v
+        return make_res(
+            "Linear Momentum (Unit 1: Momentum & Impulse)",
+            "p = m × v",
+            "momentum = mass × velocity",
+            [m_str, v_str],
+            [f"`p = {format_clean_float(m)} × {format_clean_float(v)}`", f"`p = {format_clean_float(p)} kg m/s`"],
+            p,
+            "kg m/s",
+            "Momentum is a **vector** quantity (unit: `kg m/s` or `N s`).",
+        )
+
+    # 22. Echo / Ultrasound Depth: d = (v × t) / 2
+    if any(w in low for w in ("echo", "ultrasound", "sonar", "depth", "cliff", "seabed")) and q["speed"] and q["time"]:
+        v, v_str = q["speed"][0]
+        t, t_str = q["time"][0]
+        d = (v * t) / 2.0
+        return make_res(
+            "Echo / Ultrasound Distance (Unit 6: Sound Waves)",
+            "d = (v × t) / 2",
+            "distance = (wave speed × echo time) ÷ 2",
+            [v_str, t_str],
+            [f"`d = ({format_clean_float(v)} × {format_clean_float(t)}) / 2`", f"`d = {format_clean_float(d)} m`"],
+            d,
+            "m",
+            "Divide by **2** because the sound travels **there AND back**!",
+        )
+
+    # 23. Critical Angle from Refractive Index: sin c = 1 / n
+    if "critical angle" in low and not q["mass"] and not q["speed"]:
+        nm = re.search(r"refractive\s+index[^0-9]*([0-9]+(?:\.[0-9]+)?)", low)
+        if nm:
+            n_val = float(nm.group(1))
+            if n_val > 1.0:
+                c_deg = math.degrees(math.asin(1.0 / n_val))
+                return make_res(
+                    "Critical Angle & Total Internal Reflection (Unit 6: Light)",
+                    "sin c = 1 / n",
+                    "sine of critical angle = 1 ÷ refractive index",
+                    [f"n = {format_clean_float(n_val)}"],
+                    [f"`sin c = 1 / {format_clean_float(n_val)} = {format_clean_float(1.0 / n_val)}`", f"`c = arcsin({format_clean_float(1.0 / n_val)}) = {format_clean_float(c_deg)}°`"],
+                    c_deg,
+                    "°",
+                    "Total internal reflection occurs when light travels from **denser to less dense** medium with angle of incidence **`i > c`**.",
+                )
+
+    # 24. Orbital Speed: v = 2 π r / T
+    if ("orbital speed" in low or "orbit" in low) and q["length"] and q["time"]:
+        r, r_str = q["length"][0]
+        t_val, t_str = q["time"][0]
+        if t_val > 0:
+            v = (2.0 * math.pi * r) / t_val
+            return make_res(
+                "Orbital Speed (Unit 7: Space Physics)",
+                "v = 2 π r / T",
+                "orbital speed = circumference of orbit ÷ orbital period",
+                [r_str.replace("d =", "r ="), t_str.replace("t =", "T =")],
+                [f"`v = (2 × π × {format_clean_float(r)}) / {format_clean_float(t_val)}`", f"`v = {format_clean_float(v)} m/s`"],
+                v,
+                "m/s",
+                "Convert orbital radius to **metres** and orbital period to **seconds** (e.g. `1 day = 86,400 s`).",
+            )
+
     return None

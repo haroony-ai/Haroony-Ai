@@ -289,6 +289,27 @@ def run_all_tests() -> None:
         tilt_ocr = extract_text_from_image_bytes(buf2.getvalue())
         assert "resistance" in tilt_ocr["text"].lower() and "12" in tilt_ocr["text"], f"Tilted shadow OCR failed: {tilt_ocr}"
 
+        # 17. Full 2027 Question Bank + Expanded Solver & Concept Atlas (35 modules)
+        from backend.app import kb
+        assert len(kb.question_bank) >= 1500, f"Expected >=1500 Question Bank pages, got {len(kb.question_bank)}"
+        assert len(kb.concept_atlas) >= 34, f"Expected >=34 Concept Atlas modules, got {len(kb.concept_atlas)}"
+
+        qb_hit = client.post(
+            "/api/chat",
+            data={"message": "Oil of density 0.80 g/cm3 is poured gently onto the surface of water of density 1.0 g/cm3. Describe and explain the final position of the oil."},
+        ).json()
+        assert qb_hit["ok"] is True and not qb_hit["refused"]
+        assert "floats" in qb_hit["reply"].lower() or "density" in qb_hit["reply"].lower()
+
+        echo_calc = client.post(
+            "/api/chat",
+            data={"message": "An ultrasound echo returns from the seabed after 0.4 s. Speed of sound in water is 1500 m/s. Find the depth."},
+        ).json()
+        assert echo_calc["ok"] is True and "300" in echo_calc["reply"], f"Echo calc failed: {echo_calc['reply']}"
+
+        quiz_res = client.post("/api/chat", data={"message": "Give me a practice question on moments"}).json()
+        assert quiz_res["ok"] is True and not quiz_res["refused"] and "practice" in quiz_res["reply"].lower()
+
     print("ALL HAROONY AI 2026/2027 INTEGRATION TESTS PASSED PERFECTLY!")
 
 

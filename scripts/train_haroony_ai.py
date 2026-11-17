@@ -19,13 +19,17 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import joblib
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.decomposition import TruncatedSVD
+from sklearn.ensemble import VotingClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import ComplementNB
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import normalize
+from sklearn.svm import LinearSVC
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
@@ -176,7 +180,17 @@ def load_concept_atlas() -> List[Dict[str, Any]]:
     return []
 
 
-def gather_training_pairs() -> Tuple[List[str], List[int]]:
+def load_question_bank() -> List[Dict[str, Any]]:
+    qb_path = DATA_DIR / "harony_question_bank.json"
+    if qb_path.exists():
+        try:
+            return json.loads(qb_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return []
+
+
+def gather_training_pairs(question_bank: Optional[List[Dict[str, Any]]] = None) -> Tuple[List[str], List[int]]:
     texts: List[str] = []
     labels: List[int] = []
 
@@ -201,6 +215,12 @@ def gather_training_pairs() -> Tuple[List[str], List[int]]:
             texts.append(pt)
             labels.append(1)
 
+    for qb in (question_bank or load_question_bank()):
+        q_txt = (qb.get("question_text") or "").strip()
+        if len(q_txt) >= 35:
+            texts.append(q_txt[:800])
+            labels.append(1)
+
     ms_path = DATA_DIR / "mark_schemes.json"
     if ms_path.exists():
         ms_list = json.loads(ms_path.read_text(encoding="utf-8"))
@@ -223,7 +243,7 @@ def gather_training_pairs() -> Tuple[List[str], List[int]]:
                 texts.append(txt)
                 labels.append(1)
 
-    for pos in POSITIVE_PHYSICS_TEMPLATES * 3:
+    for pos in POSITIVE_PHYSICS_TEMPLATES * 4:
         texts.append(pos)
         labels.append(1)
 
@@ -241,13 +261,14 @@ def train_unit_classifier(
     atlas: List[Dict[str, Any]],
     videos: List[Dict[str, Any]],
     ms_data: List[Dict[str, Any]],
+    question_bank: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[Pipeline, float]:
-    """Train a dedicated 7-Unit Physics Classifier to keep answers & videos locked on the right topic."""
+    """Train a 7-Unit Physics Ensemble Classifier (LogisticRegression + LinearSVC + ComplementNB)."""
     unit_texts: List[str] = []
     unit_labels: List[str] = []
 
     valid_units = {
-        "Unit 1: General Physics",
+        "Unit 1: Mechanics",
         "Unit 2: Thermal Physics",
         "Unit 3: Electricity",
         "Unit 4: Electromagnetism",
@@ -269,8 +290,16 @@ def train_unit_classifier(
         if u in valid_units:
             kws = " ".join(entry.get("keywords", []))
             pts = " ".join(entry.get("points", []))
-            for _ in range(4):
+            for _ in range(5):
                 unit_texts.append(f"{entry['topic']} {kws} {entry['summary']} {pts}")
+                unit_labels.append(u)
+
+    for qb in (question_bank or []):
+        u = qb.get("unit", "")
+        if u in valid_units:
+            txt = f"{qb.get('chapter', '')} {qb.get('question_text', '')[:750]}".strip()
+            if len(txt) >= 25:
+                unit_texts.append(txt)
                 unit_labels.append(u)
 
     for v in videos:
@@ -293,15 +322,24 @@ def train_unit_classifier(
     X_tr, X_te, y_tr, y_te = train_test_split(
         unit_texts, unit_labels, test_size=0.15, random_state=42, stratify=unit_labels
     )
+    ensemble = VotingClassifier(
+        estimators=[
+            ("lr", LogisticRegression(C=3.5, max_iter=1000, class_weight="balanced")),
+            ("svc", CalibratedClassifierCV(LinearSVC(C=1.2, class_weight="balanced", max_iter=3000), cv=3)),
+            ("cnb", ComplementNB(alpha=0.35)),
+        ],
+        voting="soft",
+        weights=[2, 2, 1],
+    )
     pipe = Pipeline([
         (
             "features",
             FeatureUnion([
-                ("word", TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, max_features=18000)),
-                ("char", TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), sublinear_tf=True, max_features=15000)),
+                ("word", TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, max_features=25000)),
+                ("char", TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), sublinear_tf=True, max_features=18000)),
             ]),
         ),
-        ("clf", LogisticRegression(C=3.5, max_iter=1000, class_weight="balanced")),
+        ("clf", ensemble),
     ])
     pipe.fit(X_tr, y_tr)
     u_acc = float(accuracy_score(y_te, pipe.predict(X_te)))
@@ -328,8 +366,9 @@ def export_sft_dataset(
     chunks: List[Dict[str, Any]],
     atlas: List[Dict[str, Any]],
     ms_data: List[Dict[str, Any]],
+    question_bank: Optional[List[Dict[str, Any]]] = None,
 ) -> int:
-    """Build complete instruction-tuning JSONL dataset across all 5 Harony books + Concept Atlas."""
+    """Build complete instruction-tuning JSONL dataset across all 5 Harony books + Question Bank + Concept Atlas."""
     rows: List[str] = []
     sys_msg = (
         "You are Haroony AI, the official Cambridge IGCSE (0625) & A-Level (9702) Physics assistant "
@@ -366,6 +405,20 @@ def export_sft_dataset(
                 {"role": "assistant", "content": txt[:1600]},
             ]
         }, ensure_ascii=False))
+
+    for qb in (question_bank or []):
+        q_txt = (qb.get("question_text") or "").strip()
+        ms_list = qb.get("ms_answers") or []
+        if len(q_txt) >= 35 and ms_list:
+            ans_parts = [f"**{m.get('title') or m.get('question_id')}** (`{m.get('max_marks', 0)} marks`):\n{m.get('answer', '')}" for m in ms_list if m.get("answer")]
+            if ans_parts:
+                rows.append(json.dumps({
+                    "messages": [
+                        {"role": "system", "content": sys_msg},
+                        {"role": "user", "content": q_txt[:1000]},
+                        {"role": "assistant", "content": "\n\n".join(ans_parts)[:1400]},
+                    ]
+                }, ensure_ascii=False))
 
     for ms in ms_data:
         if ms.get("id") == "harony-p2-cls-2027":
@@ -441,7 +494,8 @@ def export_browser_bundle(
 
 def train_all_models() -> Dict[str, Any]:
     atlas = load_concept_atlas()
-    texts, labels = gather_training_pairs()
+    question_bank = load_question_bank()
+    texts, labels = gather_training_pairs(question_bank)
 
     X_train, X_val, y_train, y_val = train_test_split(
         texts, labels, test_size=0.18, random_state=42, stratify=labels
@@ -451,8 +505,8 @@ def train_all_models() -> Dict[str, Any]:
         (
             "features",
             FeatureUnion([
-                ("word_tfidf", TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, max_features=22000)),
-                ("char_tfidf", TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), sublinear_tf=True, max_features=22000)),
+                ("word_tfidf", TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, max_features=24000)),
+                ("char_tfidf", TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), sublinear_tf=True, max_features=24000)),
             ]),
         ),
         ("clf", LogisticRegression(C=3.0, max_iter=1000, class_weight="balanced")),
@@ -499,6 +553,23 @@ def train_all_models() -> Dict[str, Any]:
         MODELS_DIR / "harony_retriever.joblib",
     )
 
+    if question_bank:
+        qb_docs = [
+            f"{q.get('unit', '')} {q.get('chapter', '')} {' '.join(q.get('paper_codes', []))} {q.get('question_text', '')} "
+            + " ".join(m.get("answer", "") for m in q.get("ms_answers", []))
+            for q in question_bank
+        ]
+        qb_tfidf = TfidfVectorizer(ngram_range=(1, 2), stop_words="english", sublinear_tf=True, max_features=35000)
+        qb_matrix = qb_tfidf.fit_transform(qb_docs)
+        joblib.dump(
+            {
+                "qb_count": len(question_bank),
+                "tfidf": qb_tfidf,
+                "matrix": qb_matrix,
+            },
+            MODELS_DIR / "question_bank_retriever.joblib",
+        )
+
     ms_data: List[Dict[str, Any]] = []
     if (DATA_DIR / "mark_schemes.json").exists():
         ms_data = json.loads((DATA_DIR / "mark_schemes.json").read_text(encoding="utf-8"))
@@ -509,12 +580,12 @@ def train_all_models() -> Dict[str, Any]:
     if (DATA_DIR / "video_solutions.json").exists():
         videos = json.loads((DATA_DIR / "video_solutions.json").read_text(encoding="utf-8"))
 
-    _, unit_acc = train_unit_classifier(chunks, atlas, videos, ms_data)
+    _, unit_acc = train_unit_classifier(chunks, atlas, videos, ms_data, question_bank)
     intent_acc = train_intent_classifier()
-    sft_rows = export_sft_dataset(chunks, atlas, ms_data)
+    sft_rows = export_sft_dataset(chunks, atlas, ms_data, question_bank)
 
     metrics = {
-        "model_name": "Haroony-Physics-AI-v3 (Multi-Model Open-Source + Harony 2026/2027 Books)",
+        "model_name": "Haroony-Physics-AI-v4 (Full 2026/2027 Books + Ensemble ML + Question Bank)",
         "trained_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "guardrail_samples": len(texts),
         "validation_accuracy": round(acc, 4),
@@ -526,6 +597,7 @@ def train_all_models() -> Dict[str, Any]:
         "sft_instruction_pairs": sft_rows,
         "concept_atlas_topics": len(atlas),
         "indexed_notes_chunks": len(chunks),
+        "indexed_question_bank_pages": len(question_bank),
         "semantic_dimensions": n_comp,
         "mark_schemes_loaded": ms_count,
         "mark_scheme_question_parts": ms_questions,

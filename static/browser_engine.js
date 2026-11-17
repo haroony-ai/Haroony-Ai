@@ -7,6 +7,8 @@
 
   let kbPromise = null;
   let kbData = null;
+  let qaPromise = null;
+  let qaData = null;
 
   const REFUSAL_MSG =
     "I'm **Haroony AI**, and I specialize exclusively in **Physics** (IGCSE & A-Level Physics tutoring).\n\n" +
@@ -189,6 +191,42 @@
         });
     }
     return kbPromise;
+  }
+
+  async function ensureQA() {
+    if (qaData) return qaData;
+    if (!qaPromise) {
+      qaPromise = fetch("static/browser_qa.json")
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => [])
+        .then((arr) => {
+          qaData = Array.isArray(arr) ? arr : [];
+          return qaData;
+        });
+    }
+    return qaPromise;
+  }
+
+  function searchQuestionBank(qaList, query, topK = 2, preferredUnit = null) {
+    if (!Array.isArray(qaList) || !qaList.length) return [];
+    const qToks = Array.from(new Set(tokenize(query).filter((w) => !STOPWORDS.has(w) && w.length >= 3)));
+    if (!qToks.length) return [];
+    const isPaperCode = /\b20\d{2}\b|\bp[24]\b|\bv[123]\b|\bq\d+/i.test(query);
+    const scored = [];
+    for (const item of qaList) {
+      if (preferredUnit && !isPaperCode && item.u && item.u !== preferredUnit) continue;
+      const hay = `${item.ch || ""} ${(item.pc || []).join(" ")} ${item.q || ""}`.toLowerCase();
+      let hits = 0;
+      for (const tok of qToks) {
+        if (hay.includes(tok)) hits += tok.length >= 6 || /\d/.test(tok) ? 1.8 : 1.0;
+      }
+      const ratio = hits / Math.max(qToks.length, 2);
+      if (hits >= 2.2 && ratio >= 0.42) {
+        scored.push({ s: ratio, item });
+      }
+    }
+    scored.sort((a, b) => b.s - a.s);
+    return scored.slice(0, topK);
   }
 
   function tokenize(s) {
@@ -938,9 +976,38 @@
       }
       if (low.includes("fission") && low.includes("fusion")) {
         return (
-          "### ⚡ Nuclear Fission vs Fusion *(Unit 7 — Nuclear Physics)*\n\n" +
+          "### ⚡ Nuclear Fission vs Fusion *(Unit 5 — Nuclear Physics)*\n\n" +
           "- **Fission:** A **heavy unstable nucleus** (e.g. U-235) **splits** into smaller nuclei + neutrons + energy.\n" +
           "- **Fusion:** Two **light nuclei** (hydrogen isotopes) **join** at extreme temperature & pressure to form helium + energy."
+        );
+      }
+      if (low.includes("conduction") && (low.includes("convection") || low.includes("radiation"))) {
+        return (
+          "### ⚡ Conduction, Convection & Infrared Radiation *(Unit 2 — Thermal Physics)*\n\n" +
+          "- **Conduction (solids):** Atoms vibrate and pass kinetic energy; metals conduct fastest via **delocalised (free) electrons**.\n" +
+          "- **Convection (liquids & gases only):** Heated fluid expands, becomes **less dense and rises**, while cooler denser fluid sinks (**convection current**).\n" +
+          "- **Infrared Radiation (no medium needed):** EM wave transfer — works through a **vacuum**; dull black surfaces are best emitters/absorbers."
+        );
+      }
+      if (low.includes("transverse") && low.includes("longitudinal")) {
+        return (
+          "### ⚡ Transverse vs Longitudinal Waves *(Unit 6 — Waves)*\n\n" +
+          "- **Transverse:** Vibrations are **perpendicular (90°)** to wave travel (light, water, EM waves).\n" +
+          "- **Longitudinal:** Vibrations are **parallel** to wave travel via **compressions & rarefactions** (sound waves)."
+        );
+      }
+      if (low.includes("soft iron") && low.includes("steel")) {
+        return (
+          "### ⚡ Soft Iron vs Steel *(Unit 4 — Electromagnetism)*\n\n" +
+          "- **Soft Iron:** Magnetises and demagnetises **easily** (temporary magnet → electromagnet & transformer cores).\n" +
+          "- **Steel:** Retains magnetism (permanent magnet → bar magnets & compass needles)."
+        );
+      }
+      if (low.includes("real") && low.includes("virtual") && (low.includes("image") || low.includes("lens") || low.includes("mirror"))) {
+        return (
+          "### ⚡ Real Image vs Virtual Image *(Unit 6 — Light & Lenses)*\n\n" +
+          "- **Real Image:** Formed where light rays actually intersect; **can be projected onto a screen** (inverted).\n" +
+          "- **Virtual Image:** Light rays only appear to come from behind the mirror/lens; **cannot be formed on a screen** (upright)."
         );
       }
     }
@@ -974,7 +1041,7 @@
     return null;
   }
 
-  function buildSynthesizedFallbackReply(query, solved, scoredChunks, msTips, ocrText, conceptEntry) {
+  function buildSynthesizedFallbackReply(query, solved, scoredChunks, msTips, ocrText, conceptEntry, qbHits = []) {
     const sections = [];
     if (ocrText) {
       const prev = ocrText.slice(0, 320) + (ocrText.length > 320 ? "…" : "");
@@ -1047,6 +1114,15 @@
           .join("\n");
         const cite = bestTop.page ? `${bestTop.source} p.${bestTop.page}` : bestTop.source;
         sections.push(`### 📘 ${bestTop.topic} *(${bestTop.unit} — ${cite})*\n\n${ranked}`);
+      }
+    }
+    if (qbHits && qbHits.length && !solved && !reasoned && (ocrText || qbHits[0].s >= 0.72)) {
+      const qb0 = qbHits[0].item;
+      const msRows = (qb0.ms || []).filter((m) => m.a).map((m) => `- **${m.id}** *(${m.mk} marks)*: ${m.a}`);
+      if (msRows.length) {
+        sections.push(
+          `### 📝 Matched Harony 2027 Past-Paper & Official Mark Scheme *(${qb0.bk} — ${qb0.ch})*\n${msRows.join("\n")}`
+        );
       }
     }
     if (msTips.length && !solved && !reasoned) {
@@ -1614,7 +1690,7 @@
 
     async chat(message, history, fileObj, callbacks = {}) {
       const { onProgress = null, onToken = null } = callbacks;
-      const kb = await ensureKB();
+      const [kb, qaList] = await Promise.all([ensureKB(), ensureQA()]);
 
       let userMsg = String(message || "").trim();
       let ocrText = "";
@@ -1715,13 +1791,56 @@
         };
       }
 
+      if (/\b(?:quiz\s+me|test\s+me|practice\s+question|give\s+me\s+a\s+question)\b/i.test(combined)) {
+        const qbPicks = searchQuestionBank(qaList, searchQuery, 5).filter((x) => x.item.ms && x.item.ms.length && (x.item.q || "").length >= 60);
+        if (qbPicks.length) {
+          const picked = qbPicks[Math.floor(Math.random() * qbPicks.length)].item;
+          const qClean = String(picked.q || "").replace(/https?:\/\/\S+/g, "").trim().slice(0, 460);
+          const pc = (picked.pc && picked.pc[0]) || picked.ch || "Cambridge 0625";
+          const qVids = (picked.yt || []).map((u) => ({
+            book: picked.bk || "Harony 2027",
+            unit: picked.u || "",
+            chapter: picked.ch || "",
+            label: pc,
+            video_url: u,
+          }));
+          return {
+            ok: true,
+            refused: false,
+            category: "physics",
+            reply:
+              `### 📝 IGCSE Physics Past-Paper Practice — ${picked.ch || picked.u}\n` +
+              `**Source:** \`${picked.bk}\` *(${pc})*\n\n> ${qClean}\n\n` +
+              `*Reply here with your working and answer and I will walk you through the official Cambridge 0625 mark scheme!*`,
+            notes_cards: [],
+            video_links: qVids,
+            ocr_text: null,
+            engine: "Haroony Physics AI Examiner (Full 2027 Bank)",
+          };
+        }
+      }
+
       const solved = solvePhysicsProblem(combined);
       const scoredChunks = searchChunksScored(kb, searchQuery, 3);
       const primaryUnit = scoredChunks.length && scoredChunks[0].s >= 4.0 ? scoredChunks[0].ch.unit : null;
       const primaryTopic = scoredChunks.length ? scoredChunks[0].ch.topic : null;
       const conceptEntry = matchConceptAtlas(kb, searchQuery);
+      const qbHits = searchQuestionBank(qaList, searchQuery, 2, primaryUnit);
       const msTips = searchMsTips(kb, searchQuery, 2);
       const vids = searchVideos(kb, searchQuery, 3, primaryUnit, primaryTopic);
+      for (const qbWrap of qbHits) {
+        for (const ytUrl of qbWrap.item.yt || []) {
+          if (vids.length < 3 && !vids.some((v) => v.video_url === ytUrl)) {
+            vids.push({
+              book: qbWrap.item.bk || "Harony 2027",
+              unit: qbWrap.item.u || "",
+              chapter: qbWrap.item.ch || "",
+              label: (qbWrap.item.pc && qbWrap.item.pc[0]) || qbWrap.item.ch || "Past Paper Walkthrough",
+              video_url: ytUrl,
+            });
+          }
+        }
+      }
 
       // Only attach visual reference cards if strongly relevant to the question!
       const strongCards = scoredChunks
@@ -1745,7 +1864,7 @@
       }
 
       if (!finalReply) {
-        finalReply = buildSynthesizedFallbackReply(searchQuery, solved, scoredChunks, msTips, ocrText, conceptEntry);
+        finalReply = buildSynthesizedFallbackReply(searchQuery, solved, scoredChunks, msTips, ocrText, conceptEntry, qbHits);
       } else if (ocrText && !finalReply.includes("Read from")) {
         const prev = ocrText.slice(0, 240) + (ocrText.length > 240 ? "…" : "");
         finalReply = `**📷 Read from your uploaded file:**\n> ${prev.replace(/\n/g, "\n> ")}\n\n${finalReply}`;
