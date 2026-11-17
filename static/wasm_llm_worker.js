@@ -1,6 +1,9 @@
 import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2";
 
 env.allowLocalModels = false;
+if (env.backends && env.backends.onnx && env.backends.onnx.wasm) {
+  env.backends.onnx.wasm.proxy = false;
+}
 
 let generatorPromise = null;
 let activeModelId = "onnx-community/Qwen2.5-0.5B-Instruct";
@@ -22,6 +25,7 @@ async function getGenerator(requestedModel, onProgress) {
           activeModelId = modelId;
           return await pipeline("text-generation", modelId, {
             dtype: "q4",
+            device: "wasm",
             progress_callback: (info) => {
               if (onProgress && info && typeof info.progress === "number") {
                 onProgress(Math.round(info.progress));
@@ -61,7 +65,7 @@ self.onmessage = async (event) => {
         self.postMessage({ id, type: "progress", text: `Loading open-source AI (${pct}%)…`, progress: pct });
       });
       const out = await gen(messages, {
-        max_new_tokens: maxTokens || 420,
+        max_new_tokens: maxTokens || 520,
         temperature: temperature ?? 0.25,
         do_sample: (temperature ?? 0.25) > 0.05,
       });

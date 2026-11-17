@@ -278,13 +278,20 @@
           console.error("Browser engine init error:", err);
         }
       }
-      if (window.HaroonyNeuralAI && window.HaroonyNeuralAI.autoWarmIfCached) {
-        window.HaroonyNeuralAI.autoWarmIfCached();
+      if (window.HaroonyNeuralAI && window.HaroonyNeuralAI.enableSmartAI) {
+        setTimeout(() => window.HaroonyNeuralAI.enableSmartAI(), 900);
       }
-    } else if (neuralBoostBtn) {
-      neuralBoostBtn.textContent = "✓ Deep AI Active";
-      neuralBoostBtn.classList.add("grade-badge-green");
-      neuralBoostBtn.title = "Server-side multi-model Physics AI active";
+    } else if (statusData.server_llm_active) {
+      if (neuralBoostBtn) {
+        neuralBoostBtn.textContent = "✓ Deep AI Active";
+        neuralBoostBtn.classList.add("grade-badge-green");
+        neuralBoostBtn.title = "Server-side multi-model Physics AI active";
+      }
+    } else {
+      // Server running without cloud/Ollama keys: auto-boot real in-browser Open-Source LLM!
+      if (window.HaroonyNeuralAI && window.HaroonyNeuralAI.enableSmartAI) {
+        setTimeout(() => window.HaroonyNeuralAI.enableSmartAI(), 900);
+      }
     }
 
     if (statusData && Array.isArray(statusData.mark_schemes)) {
@@ -559,6 +566,43 @@
     };
   }
 
+  async function enhanceServerReplyWithNeural(userText, data, liveBubble) {
+    if (!window.HaroonyNeuralAI || !window.HaroonyNeuralAI.isReady || !window.HaroonyNeuralAI.isReady()) return data;
+    if (data.refused || data.category !== "physics" || data.neural_generated) return data;
+    try {
+      const sysPrompt =
+        "You are Haroony AI, Mr. Haroony's expert IGCSE & A-Level Physics tutor from Harony Physics Clinic.\n" +
+        "Answer ONLY Physics questions. Reason from Physics first principles to answer the student's EXACT question directly and accurately — NEVER parrot unrelated notes or memorize fixed lines. " +
+        "For calculations, show Formula -> Substitution -> Calculation -> Final Answer with units (2-3 sig figs). Bold key Cambridge 0625 marking phrases.";
+
+      const msgs = [{ role: "system", content: sysPrompt }];
+      for (const h of chatHistory.slice(-4)) {
+        msgs.push({ role: h.role, content: String(h.content).slice(0, 700) });
+      }
+      let usr = userText || "Please solve/explain this uploaded Physics problem.";
+      if (data.ocr_text) usr += `\n\nExtracted text from uploaded file:\n${data.ocr_text.slice(0, 1400)}`;
+      if (data.solved_markdown) usr += `\n\nVerified Symbolic Calculation:\n${data.solved_markdown.slice(0, 1200)}`;
+      if (data.rag_context) usr += `\n\n---\nHarony Physics Reference Context (use only what directly applies to the question):\n${data.rag_context.slice(0, 1800)}`;
+      msgs.push({ role: "user", content: usr });
+
+      const genText = await window.HaroonyNeuralAI.generate(msgs, {
+        maxTokens: 650,
+        temperature: 0.2,
+        onProgress: (st) => liveBubble.setStatus(st),
+        onToken: (full) => liveBubble.streamPreview(full),
+      });
+      if (genText) {
+        let finalMd = genText;
+        if (data.ocr_text && !finalMd.includes("Read from")) {
+          const prev = data.ocr_text.slice(0, 240) + (data.ocr_text.length > 240 ? "…" : "");
+          finalMd = `**📷 Read from your uploaded file:**\n> ${prev.replace(/\n/g, "\n> ")}\n\n${finalMd}`;
+        }
+        data.reply = finalMd;
+      }
+    } catch (_) {}
+    return data;
+  }
+
   chatForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const text = chatInput.value.trim();
@@ -587,7 +631,7 @@
         const raw = await resp.json();
         data = !resp.ok
           ? { refused: true, reply: raw.detail || "Something went wrong. Please try again.", notes_cards: [] }
-          : raw;
+          : await enhanceServerReplyWithNeural(text, raw, liveBubble);
       } else {
         data = await window.HaroonyBrowserEngine.chat(
           text,
@@ -1031,6 +1075,23 @@
             },
             setLoaderMsg
           );
+        }
+
+        if (
+          (!result || !result.ok) &&
+          !chosenMsId &&
+          !pastedMs &&
+          !uploadedMs &&
+          window.HaroonyNeuralAI &&
+          window.HaroonyNeuralAI.isReady &&
+          window.HaroonyNeuralAI.isReady()
+        ) {
+          const fallbackText = (result && result.extracted_student_text) || stuTxt;
+          if (fallbackText) {
+            setLoaderMsg("Evaluating your Physics reasoning with Haroony Neural AI…");
+            const llmGraded = await window.HaroonyNeuralAI.gradeSubmissionWithLLM(fallbackText);
+            if (llmGraded && llmGraded.ok) result = llmGraded;
+          }
         }
 
         renderGradeResult(result);
