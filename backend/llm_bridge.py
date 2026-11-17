@@ -1,18 +1,23 @@
-"""Hybrid Multi-Tier Neural Bridge for Haroony AI.
+"""Hybrid Multi-Model Neural Bridge for Haroony AI.
 
 100% server-side & secure:
-- Reads credentials ONLY from server environment variables (.env gitignored / cloud Secrets).
-- NEVER exposes provider names (Gemini / OpenAI / etc.) or API keys to the frontend UI.
-- Supports unlimited, zero-rate-limit cascading:
-  Tier 1: Multimodal Cloud Engine A (env var GEMINI_API_KEY)
-  Tier 2: Multimodal Cloud Engine B (env var OPENAI_API_KEY)
-  Tier 3: Unlimited Self-Hosted Open-Source Model (Ollama / OpenAI-compatible vLLM/Qwen)
-  Tier 4: Unlimited Built-In Harony Physics Engine (SymPy + 445-chunk Harony RAG + Cambridge MS)
+- Reads credentials ONLY from server environment variables (.env gitignored / hosting Secrets).
+- NEVER exposes third-party provider names or API keys to the frontend UI.
+- Supports unlimited, zero-rate-limit cascading across Cloud + Open-Source LLMs:
+  1. Cloud Multimodal Engine A (GEMINI_API_KEY)
+  2. Cloud Multimodal Engine B (OPENAI_API_KEY)
+  3. Open-Source Groq Engine (GROQ_API_KEY: llama-3.3-70b-versatile / qwen-qwq-32b)
+  4. Open-Source HuggingFace Router (HF_TOKEN: Qwen/Qwen2.5-72B-Instruct / Llama-3.3-70B)
+  5. Open-Source OpenRouter Pool (OPENROUTER_API_KEY: open-source free/fast models)
+  6. Unlimited Local Ollama Multi-Model Pool (OLLAMA_BASE_URL: auto-discovers qwen2.5-vl, qwen2.5, llama3.2, deepseek-r1, mistral, phi4)
+  7. Custom OpenAI-Compatible Endpoint (OPENAI_COMPAT_BASE_URL: vLLM / LocalAI / Together)
+  8. Unlimited Built-In Harony Physics Engine (SymPy + 445-chunk RAG + 19-module Concept Atlas + MS)
 """
 from __future__ import annotations
 
 import base64
 import os
+import re
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -30,6 +35,18 @@ HAROONY_SYSTEM_PROMPT = (
     "5. IMAGE ACCURACY: When an image is attached, read every label, graph axis, circuit symbol, and number carefully.\n"
 )
 
+PREFERRED_OLLAMA_MODELS = [
+    "qwen2.5-vl:7b",
+    "qwen2.5:7b",
+    "qwen2.5:3b",
+    "llama3.2:3b",
+    "llama3.1:8b",
+    "deepseek-r1:7b",
+    "mistral:7b",
+    "phi4:latest",
+    "gemma2:9b",
+]
+
 
 async def _call_gemini(
     messages: List[Dict[str, str]],
@@ -42,7 +59,6 @@ async def _call_gemini(
         return None
     model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
 
-    # Build Gemini REST generateContent payload
     system_parts = []
     contents = []
     for m in messages:
@@ -90,20 +106,25 @@ async def _call_gemini(
         return None
 
 
-async def _call_openai(
+async def _call_openai_style(
+    endpoint_url: str,
+    api_key: str,
+    model: str,
     messages: List[Dict[str, str]],
     image_bytes: Optional[bytes],
     image_mime: str,
     max_tokens: int = 900,
+    supports_vision: bool = True,
 ) -> Optional[str]:
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
+    if not endpoint_url or not model:
         return None
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
+    headers: Dict[str, str] = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
 
     oai_msgs: List[Dict[str, Any]] = []
     for idx, m in enumerate(messages):
-        if idx == len(messages) - 1 and image_bytes and m.get("role") == "user":
+        if supports_vision and idx == len(messages) - 1 and image_bytes and m.get("role") == "user":
             b64 = base64.b64encode(image_bytes).decode("ascii")
             oai_msgs.append({
                 "role": "user",
@@ -116,10 +137,10 @@ async def _call_openai(
             oai_msgs.append({"role": m.get("role", "user"), "content": m.get("content", "")})
 
     try:
-        async with httpx.AsyncClient(timeout=28.0) as client:
+        async with httpx.AsyncClient(timeout=26.0) as client:
             resp = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={"Authorization": f"Bearer {api_key}"},
+                endpoint_url,
+                headers=headers,
                 json={
                     "model": model,
                     "messages": oai_msgs,
@@ -135,6 +156,109 @@ async def _call_openai(
                 return choices[0].get("message", {}).get("content", "").strip() or None
     except Exception:
         return None
+    return None
+
+
+async def _call_openai(
+    messages: List[Dict[str, str]],
+    image_bytes: Optional[bytes],
+    image_mime: str,
+    max_tokens: int = 900,
+) -> Optional[str]:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        return None
+    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
+    return await _call_openai_style(
+        "https://api.openai.com/v1/chat/completions",
+        api_key,
+        model,
+        messages,
+        image_bytes,
+        image_mime,
+        max_tokens=max_tokens,
+        supports_vision=True,
+    )
+
+
+async def _call_groq_opensource(
+    messages: List[Dict[str, str]],
+    max_tokens: int = 900,
+) -> Optional[str]:
+    api_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if not api_key:
+        return None
+    for model in (
+        os.environ.get("GROQ_MODEL", "").strip() or "llama-3.3-70b-versatile",
+        "qwen-qwq-32b",
+        "llama-3.1-8b-instant",
+    ):
+        res = await _call_openai_style(
+            "https://api.groq.com/openai/v1/chat/completions",
+            api_key,
+            model,
+            messages,
+            None,
+            "image/jpeg",
+            max_tokens=max_tokens,
+            supports_vision=False,
+        )
+        if res:
+            return res
+    return None
+
+
+async def _call_huggingface_opensource(
+    messages: List[Dict[str, str]],
+    max_tokens: int = 900,
+) -> Optional[str]:
+    hf_token = (os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY") or "").strip()
+    if not hf_token:
+        return None
+    for model in (
+        os.environ.get("HF_MODEL", "").strip() or "Qwen/Qwen2.5-72B-Instruct",
+        "meta-llama/Llama-3.3-70B-Instruct",
+        "mistralai/Mistral-Small-24B-Instruct-2501",
+    ):
+        res = await _call_openai_style(
+            "https://router.huggingface.co/v1/chat/completions",
+            hf_token,
+            model,
+            messages,
+            None,
+            "image/jpeg",
+            max_tokens=max_tokens,
+            supports_vision=False,
+        )
+        if res:
+            return res
+    return None
+
+
+async def _call_openrouter_opensource(
+    messages: List[Dict[str, str]],
+    max_tokens: int = 900,
+) -> Optional[str]:
+    api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+    if not api_key:
+        return None
+    for model in (
+        os.environ.get("OPENROUTER_MODEL", "").strip() or "meta-llama/llama-3.3-70b-instruct:free",
+        "qwen/qwen-2.5-72b-instruct:free",
+    ):
+        res = await _call_openai_style(
+            "https://openrouter.ai/api/v1/chat/completions",
+            api_key,
+            model,
+            messages,
+            None,
+            "image/jpeg",
+            max_tokens=max_tokens,
+            supports_vision=False,
+        )
+        if res:
+            return res
+    return None
 
 
 async def _call_ollama(
@@ -142,29 +266,51 @@ async def _call_ollama(
     messages: List[Dict[str, str]],
     image_bytes: Optional[bytes],
 ) -> Optional[str]:
-    if not settings.get("ollama_enabled"):
+    base = (os.environ.get("OLLAMA_BASE_URL") or settings.get("ollama_base_url") or "http://127.0.0.1:11434").rstrip("/")
+    enabled = bool(settings.get("ollama_enabled") or os.environ.get("OLLAMA_ENABLED", "").lower() == "true" or os.environ.get("OLLAMA_BASE_URL"))
+    if not enabled:
         return None
-    base = (settings.get("ollama_base_url") or "http://127.0.0.1:11434").rstrip("/")
-    model = settings.get("ollama_model") or "qwen2.5-vl:7b"
 
-    ollama_msgs: List[Dict[str, Any]] = []
-    for idx, m in enumerate(messages):
-        item: Dict[str, Any] = {"role": m.get("role", "user"), "content": m.get("content", "")}
-        if idx == len(messages) - 1 and image_bytes and m.get("role") == "user":
-            item["images"] = [base64.b64encode(image_bytes).decode("ascii")]
-        ollama_msgs.append(item)
+    primary_model = (os.environ.get("OLLAMA_MODEL") or settings.get("ollama_model") or "qwen2.5-vl:7b").strip()
+    candidate_models = [primary_model]
 
+    # Auto-discover installed open-source models on the local/remote Ollama instance
     try:
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            resp = await client.post(
-                f"{base}/api/chat",
-                json={"model": model, "messages": ollama_msgs, "stream": False},
-            )
-            if resp.status_code == 200:
-                content = resp.json().get("message", {}).get("content", "").strip()
-                return content or None
+        async with httpx.AsyncClient(timeout=2.5) as client:
+            tags_resp = await client.get(f"{base}/api/tags")
+            if tags_resp.status_code == 200:
+                installed = [m.get("name", "") for m in tags_resp.json().get("models", []) if m.get("name")]
+                for pm in PREFERRED_OLLAMA_MODELS:
+                    if pm in installed and pm not in candidate_models:
+                        candidate_models.append(pm)
+                for im in installed:
+                    if im not in candidate_models:
+                        candidate_models.append(im)
     except Exception:
         return None
+
+    for model in candidate_models[:3]:
+        ollama_msgs: List[Dict[str, Any]] = []
+        is_vision_model = any(v in model.lower() for v in ("vl", "vision", "llava", "minicpm-v"))
+        for idx, m in enumerate(messages):
+            item: Dict[str, Any] = {"role": m.get("role", "user"), "content": m.get("content", "")}
+            if is_vision_model and idx == len(messages) - 1 and image_bytes and m.get("role") == "user":
+                item["images"] = [base64.b64encode(image_bytes).decode("ascii")]
+            ollama_msgs.append(item)
+
+        try:
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                resp = await client.post(
+                    f"{base}/api/chat",
+                    json={"model": model, "messages": ollama_msgs, "stream": False},
+                )
+                if resp.status_code == 200:
+                    content = resp.json().get("message", {}).get("content", "").strip()
+                    if content:
+                        return content
+        except Exception:
+            continue
+    return None
 
 
 async def _call_openai_compat(
@@ -180,47 +326,29 @@ async def _call_openai_compat(
     model = settings.get("openai_compat_model") or ""
     if not base or not model:
         return None
-
-    headers: Dict[str, str] = {"Content-Type": "application/json"}
     api_key = (settings.get("openai_compat_api_key") or "").strip()
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-
-    compat_msgs: List[Dict[str, Any]] = []
-    for idx, m in enumerate(messages):
-        if idx == len(messages) - 1 and image_bytes and m.get("role") == "user":
-            b64 = base64.b64encode(image_bytes).decode("ascii")
-            compat_msgs.append({
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": m.get("content", "")},
-                    {"type": "image_url", "image_url": {"url": f"data:{image_mime};base64,{b64}"}},
-                ],
-            })
-        else:
-            compat_msgs.append({"role": m.get("role", "user"), "content": m.get("content", "")})
-
-    try:
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            resp = await client.post(
-                f"{base}/chat/completions",
-                headers=headers,
-                json={"model": model, "messages": compat_msgs, "temperature": 0.2, "max_tokens": max_tokens},
-            )
-            if resp.status_code == 200:
-                choices = resp.json().get("choices") or []
-                if choices:
-                    return choices[0].get("message", {}).get("content", "").strip() or None
-    except Exception:
-        return None
+    return await _call_openai_style(
+        f"{base}/chat/completions",
+        api_key,
+        model,
+        messages,
+        image_bytes,
+        image_mime,
+        max_tokens=max_tokens,
+        supports_vision=True,
+    )
 
 
 def _sanitize_provider_mentions(text: str) -> str:
     """Ensure internal model/vendor names never leak into student-facing text."""
     if not text:
         return text
-    import re
-    text = re.sub(r"\b(?:Gemini|OpenAI|ChatGPT|GPT-4o?|Claude)\b", "Haroony AI", text, flags=re.I)
+    text = re.sub(
+        r"\b(?:Gemini|OpenAI|ChatGPT|GPT-4o?|Claude|Groq|OpenRouter|Llama|Qwen|Mistral|DeepSeek)\b",
+        "Haroony AI",
+        text,
+        flags=re.I,
+    )
     return text
 
 
@@ -231,7 +359,7 @@ async def try_neural_generation(
     image_bytes: Optional[bytes] = None,
     image_mime: str = "image/jpeg",
 ) -> Optional[str]:
-    """Cascade across configured server-side neural backends with automatic unlimited fallback."""
+    """Cascade across configured server-side cloud + open-source LLM backends."""
     settings = load_settings()
 
     messages: List[Dict[str, str]] = [{"role": "system", "content": HAROONY_SYSTEM_PROMPT}]
@@ -249,10 +377,12 @@ async def try_neural_generation(
     )
     messages.append({"role": "user", "content": prompt_with_ctx})
 
-    # Cascade: Cloud A -> Cloud B -> Open-Source Ollama -> OpenAI-Compat -> None (local engine handles it!)
     for caller in (
         lambda: _call_gemini(messages, image_bytes, image_mime),
         lambda: _call_openai(messages, image_bytes, image_mime),
+        lambda: _call_groq_opensource(messages),
+        lambda: _call_huggingface_opensource(messages),
+        lambda: _call_openrouter_opensource(messages),
         lambda: _call_ollama(settings, messages, image_bytes),
         lambda: _call_openai_compat(settings, messages, image_bytes, image_mime),
     ):
@@ -317,6 +447,8 @@ async def try_neural_examiner_feedback(
     for caller in (
         lambda: _call_gemini(msgs, None, "image/jpeg", max_tokens=300),
         lambda: _call_openai(msgs, None, "image/jpeg", max_tokens=300),
+        lambda: _call_groq_opensource(msgs, max_tokens=300),
+        lambda: _call_huggingface_opensource(msgs, max_tokens=300),
         lambda: _call_ollama(settings, msgs, None),
     ):
         res = await caller()

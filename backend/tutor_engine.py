@@ -221,19 +221,38 @@ class HaroonyTutorEngine:
         if re.search(r"\b(?:quiz\s+me|test\s+me|practice\s+question|give\s+me\s+a\s+question)\b", combined_query, re.I):
             return self._generate_practice_question(search_query)
 
-        # 4. Run Symbolic Physics Calculation Solver + Harony Notes Semantic Retrieval
+        # 4. Run Symbolic Physics Calculation Solver + Trained Unit/Intent Classifiers + Harony RAG
         solved = try_solve_physics_problem(combined_query)
-        raw_note_hits = self.kb.search(search_query, top_k=4)
-        primary_unit = raw_note_hits[0].get("unit") if raw_note_hits and raw_note_hits[0].get("score", 0.0) >= 0.24 else None
+        predicted_unit = self.kb.predict_unit(search_query)
+        predicted_intent = self.kb.predict_intent(search_query)
+        raw_note_hits = self.kb.search(search_query, top_k=5)
+        primary_unit = (
+            raw_note_hits[0].get("unit")
+            if raw_note_hits and raw_note_hits[0].get("score", 0.0) >= 0.24
+            else predicted_unit
+        )
         primary_topic = raw_note_hits[0].get("topic") if raw_note_hits else None
         note_hits = [nh for nh in raw_note_hits if not primary_unit or nh.get("unit") == primary_unit][:3]
+        if not note_hits and raw_note_hits:
+            note_hits = raw_note_hits[:3]
+        concept_entry = self.kb.match_concept_atlas(search_query, preferred_unit=primary_unit)
+        if not concept_entry:
+            concept_entry = self.kb.match_concept_atlas(search_query)
         ms_tips = find_related_ms_tips(search_query, self.kb)
         vid_hits = self.kb.search_videos(search_query, top_k=3, preferred_unit=primary_unit, preferred_topic=primary_topic)
 
-        # Build context block for optional neural LLM enhancement
+        # Build rich context block for neural LLM generation
         ctx_parts = []
         if solved:
             ctx_parts.append(solved.to_markdown())
+        if concept_entry:
+            ctx_parts.append(
+                f"[Harony Concept Guide — {concept_entry['topic']} ({concept_entry['unit']})]:\n"
+                f"{concept_entry['summary']}\n"
+                + "\n".join(concept_entry.get("points", []))
+                + (f"\nFormulas: {', '.join(concept_entry.get('formulas', []))}" if concept_entry.get("formulas") else "")
+                + (f"\nExaminer Trap: {concept_entry['examiner_trap']}" if concept_entry.get("examiner_trap") else "")
+            )
         for nh in note_hits:
             ctx_parts.append(f"[Harony Notes p.{nh.get('page')} - {nh.get('unit')} / {nh.get('topic')}]:\n{nh.get('text')}")
         for mt in ms_tips:
@@ -282,7 +301,7 @@ class HaroonyTutorEngine:
                 "engine": "Haroony AI (Neural + Harony 2026/2027 RAG)",
             }
 
-        # 5. Compose rich, exam-grade local response from Symbolic Solver + Harony Notes + Cambridge MS
+        # 5. Compose rich, exam-grade local response from Symbolic Solver + Concept Atlas + Harony Notes + Cambridge MS
         sections: List[str] = []
 
         if ocr_text and has_file:
@@ -292,6 +311,15 @@ class HaroonyTutorEngine:
         if solved:
             sections.append(solved.to_markdown())
 
+        if concept_entry and not solved:
+            c_pts = "\n".join(f"- {p}" for p in concept_entry.get("points", []))
+            c_md = f"### ⚡ {concept_entry['topic']} *({concept_entry['unit']})*\n\n{concept_entry['summary']}\n\n{c_pts}"
+            if concept_entry.get("formulas"):
+                c_md += "\n\n**Key Equations:**\n" + "\n".join(f"- `{fm}`" for fm in concept_entry["formulas"])
+            if concept_entry.get("examiner_trap"):
+                c_md += f"\n\n> **Examiner Trap:** {concept_entry['examiner_trap']}"
+            sections.append(c_md)
+
         if note_hits:
             primary = note_hits[0]
             p_topic = primary.get("topic", "IGCSE Physics")
@@ -300,17 +328,16 @@ class HaroonyTutorEngine:
             header_cite = f"Harony Notes p.{p_page}" if p_page else primary.get("source", "Harony Notes")
 
             bullets = format_note_text_cleanly(primary.get("text", ""), p_topic)
-            # Also blend complementary points from 2nd matching page if same topic
             if len(note_hits) >= 2 and note_hits[1].get("topic") == p_topic and not solved:
                 extra_bullets = format_note_text_cleanly(note_hits[1].get("text", ""), p_topic)
                 for eb in extra_bullets[:5]:
                     if eb not in bullets:
                         bullets.append(eb)
 
-            max_bullets = 5 if solved else 9
+            max_bullets = 4 if (solved or concept_entry) else 9
             bullet_md = "\n".join(f"- {b}" for b in bullets[:max_bullets])
 
-            title_prefix = "Related Concept Notes" if solved else f"{p_topic}"
+            title_prefix = "Harony Notes Key Points" if (solved or concept_entry) else f"{p_topic}"
             sections.append(
                 f"### 📘 {title_prefix} *({p_unit} — {header_cite})*\n\n{bullet_md}"
             )
@@ -320,7 +347,7 @@ class HaroonyTutorEngine:
                 for fm in nh.get("formulas", []):
                     if fm not in all_formulas:
                         all_formulas.append(fm)
-            if all_formulas and not solved:
+            if all_formulas and not solved and not concept_entry:
                 fm_md = "\n".join(f"- `{fm}`" for fm in all_formulas[:4])
                 sections.append(f"**Key Equations & Relations:**\n{fm_md}")
 

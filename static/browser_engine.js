@@ -820,13 +820,43 @@
       }));
   }
 
+  function matchConceptAtlas(kb, query) {
+    const atlas = kb && Array.isArray(kb.concept_atlas) ? kb.concept_atlas : [];
+    if (!atlas.length || !query) return null;
+    const low = String(query).toLowerCase();
+    const qWords = new Set(tokenize(low));
+    let best = null;
+    let bestScore = 0;
+    for (const entry of atlas) {
+      let sc = 0;
+      for (const kw of entry.keywords || []) {
+        if (low.includes(kw)) sc += kw.includes(" ") ? 3.2 : 2.1;
+      }
+      for (const tw of tokenize(entry.topic || "")) {
+        if (qWords.has(tw) && tw.length >= 3) sc += 1.3;
+      }
+      if (sc > bestScore) {
+        bestScore = sc;
+        best = entry;
+      }
+    }
+    return bestScore >= 2.0 ? best : null;
+  }
+
   // ==================== NEURAL TUTOR PROMPT BUILDER ====================
-  function buildTutorMessages(userQuestion, history, solved, scoredChunks, msTips, ocrText) {
+  function buildTutorMessages(userQuestion, history, solved, scoredChunks, msTips, ocrText, conceptEntry) {
     const ctxLines = [];
     if (solved) {
       ctxLines.push(
         `VERIFIED EXACT CALCULATION (use these exact steps & numbers — do NOT recalculate differently):\n` +
           `Formula: ${solved.formula}\nResult: ${fmtNum(solved.value, 3)} ${solved.unit} (2 s.f.: ${fmtNum(solved.value, 2)} ${solved.unit})\n${solved.markdown}`
+      );
+    }
+    if (conceptEntry) {
+      ctxLines.push(
+        `[Harony Concept Guide — ${conceptEntry.topic} (${conceptEntry.unit})]: ${conceptEntry.summary} ` +
+          (conceptEntry.points || []).join(" ") +
+          (conceptEntry.formulas && conceptEntry.formulas.length ? ` Formulas: ${conceptEntry.formulas.join(", ")}` : "")
       );
     }
     for (const item of scoredChunks.slice(0, 2)) {
@@ -867,7 +897,7 @@
     return msgs;
   }
 
-  function buildSynthesizedFallbackReply(query, solved, scoredChunks, msTips, ocrText) {
+  function buildSynthesizedFallbackReply(query, solved, scoredChunks, msTips, ocrText, conceptEntry) {
     const sections = [];
     if (ocrText) {
       const prev = ocrText.slice(0, 320) + (ocrText.length > 320 ? "…" : "");
@@ -876,26 +906,35 @@
     if (solved) {
       sections.push(solved.markdown);
     }
-    // Check built-in crisp concept explanations
-    let matchedCore = null;
-    for (const c of CORE_CONCEPTS) {
-      if (c.match.test(query)) {
-        matchedCore = c;
-        break;
+    if (conceptEntry && !solved) {
+      const fams = (conceptEntry.formulas || []).map((f) => `- \`${f}\``).join("\n");
+      const pts = (conceptEntry.points || []).map((p) => `- ${p}`).join("\n");
+      let blk = `### ⚡ ${conceptEntry.topic} *(${conceptEntry.unit})*\n\n${conceptEntry.summary}\n\n**Key Exam Points:**\n${pts}`;
+      if (fams) blk += `\n\n**Key Equations:**\n${fams}`;
+      if (conceptEntry.examiner_trap) blk += `\n\n> **Examiner Trap:** ${conceptEntry.examiner_trap}`;
+      sections.push(blk);
+    } else {
+      // Check built-in core concept fallback
+      let matchedCore = null;
+      for (const c of CORE_CONCEPTS) {
+        if (c.match.test(query)) {
+          matchedCore = c;
+          break;
+        }
       }
-    }
-    if (matchedCore && !solved) {
-      const fams = matchedCore.formulas.map((f) => `- \`${f}\``).join("\n");
-      const pts = matchedCore.points.map((p) => `- ${p}`).join("\n");
-      sections.push(`### 📘 ${matchedCore.title}\n\n${matchedCore.summary}\n\n**Key Equations:**\n${fams}\n\n**Key Exam Points:**\n${pts}`);
-    } else if (scoredChunks.length && (!solved || scoredChunks[0].s >= 5.5)) {
-      const top = scoredChunks[0].ch;
-      const bullets = cleanNoteBullets(top.text, top.topic)
-        .slice(0, solved ? 4 : 7)
-        .map((b) => `- ${b}`)
-        .join("\n");
-      const cite = top.page ? `${top.source} p.${top.page}` : top.source;
-      sections.push(`### 📘 ${top.topic} *(${top.unit} — ${cite})*\n\n${bullets}`);
+      if (matchedCore && !solved) {
+        const fams = matchedCore.formulas.map((f) => `- \`${f}\``).join("\n");
+        const pts = matchedCore.points.map((p) => `- ${p}`).join("\n");
+        sections.push(`### 📘 ${matchedCore.title}\n\n${matchedCore.summary}\n\n**Key Equations:**\n${fams}\n\n**Key Exam Points:**\n${pts}`);
+      } else if (scoredChunks.length && (!solved || scoredChunks[0].s >= 5.5)) {
+        const top = scoredChunks[0].ch;
+        const bullets = cleanNoteBullets(top.text, top.topic)
+          .slice(0, solved ? 4 : 7)
+          .map((b) => `- ${b}`)
+          .join("\n");
+        const cite = top.page ? `${top.source} p.${top.page}` : top.source;
+        sections.push(`### 📘 ${top.topic} *(${top.unit} — ${cite})*\n\n${bullets}`);
+      }
     }
     if (msTips.length && !solved) {
       const tip = msTips[0];
@@ -1479,6 +1518,7 @@
       const scoredChunks = searchChunksScored(kb, searchQuery, 3);
       const primaryUnit = scoredChunks.length && scoredChunks[0].s >= 4.0 ? scoredChunks[0].ch.unit : null;
       const primaryTopic = scoredChunks.length ? scoredChunks[0].ch.topic : null;
+      const conceptEntry = matchConceptAtlas(kb, searchQuery);
       const msTips = searchMsTips(kb, searchQuery, 2);
       const vids = searchVideos(kb, searchQuery, 3, primaryUnit, primaryTopic);
 
@@ -1491,7 +1531,7 @@
       let finalReply = null;
       if (global.HaroonyNeuralAI && global.HaroonyNeuralAI.isReady && global.HaroonyNeuralAI.isReady()) {
         try {
-          const messages = buildTutorMessages(userMsg, history, solved, scoredChunks, msTips, ocrText);
+          const messages = buildTutorMessages(userMsg, history, solved, scoredChunks, msTips, ocrText, conceptEntry);
           finalReply = await global.HaroonyNeuralAI.generate(messages, {
             maxTokens: 480,
             temperature: 0.2,
@@ -1504,7 +1544,7 @@
       }
 
       if (!finalReply) {
-        finalReply = buildSynthesizedFallbackReply(searchQuery, solved, scoredChunks, msTips, ocrText);
+        finalReply = buildSynthesizedFallbackReply(searchQuery, solved, scoredChunks, msTips, ocrText, conceptEntry);
       } else if (ocrText && !finalReply.includes("Read from")) {
         const prev = ocrText.slice(0, 240) + (ocrText.length > 240 ? "…" : "");
         finalReply = `**📷 Read from your uploaded file:**\n> ${prev.replace(/\n/g, "\n> ")}\n\n${finalReply}`;
