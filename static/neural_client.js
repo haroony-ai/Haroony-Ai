@@ -1,10 +1,9 @@
 /* Haroony AI — Multi-Model Open-Source Browser LLM + Adaptive Document/Handwriting OCR
- * 1. Multi-model Open-Source LLM cascade in the browser (100% free, zero rate limits, zero API keys):
+ * 1. Real Generative Reasoning via Open-Source Browser LLMs (100% free, zero rate limits, zero keys):
  *    - Tier A (WebGPU GPU): Qwen2.5-1.5B-Instruct / Llama-3.2-1B-Instruct / SmolLM2-1.7B-Instruct / Qwen2.5-0.5B-Instruct
- *    - Tier B (Universal CPU/WASM via Transformers.js): Qwen2.5-0.5B-Instruct / SmolLM2-360M-Instruct
- * 2. Adaptive Threshold + Contrast-Boosted Upscaled Canvas OCR (Tesseract.js worker + PDF.js 2.2x render).
- * 3. Automatic 90-degree orientation fallback for sideways phone photos.
- * 4. Strictly branded as Haroony AI (no third-party provider names or keys in frontend).
+ *    - Tier B (Universal CPU/WASM): Qwen2.5-0.5B-Instruct / SmolLM2-360M-Instruct
+ * 2. Reasons from Physics first principles for ANY question & evaluates ANY custom answer in Mark My Answer.
+ * 3. Adaptive Threshold + Contrast-Boosted Upscaled Canvas OCR (Tesseract.js worker + PDF.js 2.2x render).
  */
 (function (global) {
   "use strict";
@@ -20,15 +19,15 @@
   const listeners = new Set();
 
   const WEBGPU_MODELS_DESKTOP = [
-    { id: "Qwen2.5-1.5B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1.5B (Qwen2.5)" },
-    { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1B (Llama 3.2)" },
-    { id: "SmolLM2-1.7B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1.7B (SmolLM2)" },
-    { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", label: "Haroony Neural 0.5B (Fast)" },
+    { id: "Qwen2.5-1.5B-Instruct-q4f16_1-MLC", label: "Qwen2.5 1.5B" },
+    { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", label: "Llama 3.2 1B" },
+    { id: "SmolLM2-1.7B-Instruct-q4f16_1-MLC", label: "SmolLM2 1.7B" },
+    { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", label: "Qwen2.5 0.5B" },
   ];
 
   const WEBGPU_MODELS_MOBILE = [
-    { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", label: "Haroony Neural 0.5B" },
-    { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1B" },
+    { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", label: "Qwen2.5 0.5B" },
+    { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", label: "Llama 3.2 1B" },
   ];
 
   function notify(stateInfo) {
@@ -52,7 +51,7 @@
           const d = ev.data || {};
           if (d.id !== reqId) return;
           if (d.type === "progress") {
-            if (onProgress) onProgress(d.text);
+            if (onProgress) onProgress(d.text, d.progress);
             notify({ state: "loading", progress: d.progress, text: d.text });
           } else if (d.type === "ready") {
             w.removeEventListener("message", onMsg);
@@ -81,15 +80,14 @@
     if (initPromise) return initPromise;
 
     engineState = "loading";
-    notify({ state: "loading", text: "Loading open-source Physics LLM…" });
+    notify({ state: "loading", text: "Loading Physics LLM…" });
 
     initPromise = (async () => {
-      // 1. Try WebGPU Open-Source Model Pool first (fastest GPU inference)
       if (typeof navigator !== "undefined" && navigator.gpu) {
         try {
           const adapter = await navigator.gpu.requestAdapter();
           if (adapter) {
-            const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.88");
+            const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.89");
             const worker = new Worker("static/llm_worker.js", { type: "module" });
             const pool = isMobileDevice() ? WEBGPU_MODELS_MOBILE : WEBGPU_MODELS_DESKTOP;
             const candidates = preferredModelId
@@ -104,9 +102,9 @@
                     const pct = typeof report.progress === "number" ? Math.round(report.progress * 100) : null;
                     const txt =
                       pct !== null && pct > 0 && pct < 100
-                        ? `Loading Haroony Neural LLM (${pct}%)…`
-                        : report.text || "Loading Haroony Neural LLM…";
-                    if (onProgress) onProgress(txt);
+                        ? `Loading Physics LLM (${pct}%)…`
+                        : report.text || "Loading Physics LLM…";
+                    if (onProgress) onProgress(txt, pct);
                     notify({ state: "loading", progress: pct, text: txt });
                   },
                 });
@@ -121,13 +119,12 @@
         } catch (_) {}
       }
 
-      // 2. Universal CPU/WASM Open-Source Fallback (works on Safari, Firefox, mobile, no GPU needed!)
       const wasmOk = await initWasmFallback(onProgress);
       if (wasmOk) return true;
 
       engineState = "failed";
       initPromise = null;
-      notify({ state: "failed", text: "Using instant built-in Harony engine" });
+      notify({ state: "failed", text: "Using built-in Harony engine" });
       return false;
     })();
 
@@ -421,8 +418,8 @@
 
   async function generateViaWasm(messages, opts = {}) {
     if (!wasmWorker) return null;
-    const { maxTokens = 480, temperature = 0.25, onProgress = null, timeoutMs = 22000 } = opts;
-    if (onProgress) onProgress("Thinking with Haroony Neural LLM…");
+    const { maxTokens = 520, temperature = 0.25, onProgress = null, timeoutMs = 28000 } = opts;
+    if (onProgress) onProgress("Thinking through the Physics…");
     return new Promise((resolve) => {
       const reqId = ++wasmReqCounter;
       const timer = setTimeout(() => resolve(null), timeoutMs);
@@ -453,8 +450,8 @@
 
     if (!mlcEngine) return null;
 
-    const { maxTokens = 560, temperature = 0.2, onProgress = null, onToken = null, timeoutMs = 15000 } = opts;
-    if (onProgress) onProgress("Generating explanation…");
+    const { maxTokens = 650, temperature = 0.2, onProgress = null, onToken = null, timeoutMs = 20000 } = opts;
+    if (onProgress) onProgress("Reasoning through the Physics…");
 
     const runStream = (async () => {
       const chunks = await mlcEngine.chat.completions.create({
@@ -488,6 +485,61 @@
     }
   }
 
+  async function gradeSubmissionWithLLM(studentText, msTitle = "", msText = "") {
+    if (engineState !== "ready" || !studentText || !studentText.trim()) return null;
+    const sys =
+      "You are Haroony AI, a strict Cambridge IGCSE (0625) & A-Level (9702) Physics Examiner.\n" +
+      "Evaluate ONLY the student's actual answer against Physics laws (and any Mark Scheme provided).\n" +
+      "Return ONLY valid JSON with this exact schema:\n" +
+      '{"awarded_marks": int, "max_marks": int, "examiner_feedback": "2-3 sentences", "model_answer": "concise ideal answer", "points": [{"code":"B1","marks_awarded":1,"max_marks":1,"status":"awarded","comment":"why awarded or missed"}]}';
+
+    const user =
+      (msTitle || msText ? `Mark Scheme (${msTitle}):\n${msText.slice(0, 1400)}\n\n` : "") +
+      `Student Submission (Question + Student Answer):\n${studentText.slice(0, 1800)}\n\n` +
+      "Be 100% honest: if the student's answer is wrong, incomplete, or says 'I don't know', award 0 for those marks.";
+
+    const raw = await generate([{ role: "system", content: sys }, { role: "user", content: user }], {
+      maxTokens: 480,
+      temperature: 0.1,
+    });
+    if (!raw) return null;
+    try {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (!m) return null;
+      const parsed = JSON.parse(m[0]);
+      if (typeof parsed.awarded_marks !== "number" || typeof parsed.max_marks !== "number" || parsed.max_marks < 1) {
+        return null;
+      }
+      const aw = Math.max(0, Math.min(parsed.max_marks, Math.round(parsed.awarded_marks)));
+      const mx = Math.max(1, Math.round(parsed.max_marks));
+      const pct = Math.round((1000 * aw) / mx) / 10;
+      const gradeLetter = pct >= 90 ? "A*" : pct >= 80 ? "A" : pct >= 70 ? "B" : pct >= 60 ? "C" : pct >= 50 ? "D" : pct >= 40 ? "E" : "U";
+      return {
+        ok: true,
+        mode: "neural_examiner",
+        mark_scheme_title: msTitle || "Haroony AI Physics Examiner",
+        awarded_marks: aw,
+        max_marks: mx,
+        percentage: pct,
+        grade: gradeLetter,
+        examiner_feedback: String(parsed.examiner_feedback || ""),
+        questions: [
+          {
+            question_id: "AI Examiner Check",
+            title: "Physics Reasoning & Accuracy",
+            awarded_marks: aw,
+            max_marks: mx,
+            points: Array.isArray(parsed.points) ? parsed.points : [],
+            model_answer: String(parsed.model_answer || ""),
+          },
+        ],
+        extracted_student_text: studentText,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
   function getStatus() {
     return {
       state: engineState,
@@ -499,6 +551,7 @@
 
   global.HaroonyNeuralAI = {
     isReady: () => engineState === "ready",
+    isLoading: () => engineState === "loading",
     getStatus,
     onStatusChange: (fn) => {
       listeners.add(fn);
@@ -508,6 +561,7 @@
     enableSmartAI: initSmartEngine,
     autoWarmIfCached,
     generate,
+    gradeSubmissionWithLLM,
     extractDocumentText,
   };
 })(typeof window !== "undefined" ? window : globalThis);

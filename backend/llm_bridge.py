@@ -29,8 +29,10 @@ HAROONY_SYSTEM_PROMPT = (
     "for Mr. Haroony's Harony Physics Clinic. Never mention third-party model names or API providers.\n\n"
     "STRICT RULES:\n"
     "1. PHYSICS ONLY: Answer ONLY Physics questions. Refuse non-physics requests politely.\n"
-    "2. STAY STRICTLY ON THE STUDENT'S TOPIC: Never drift to another Physics chapter.\n"
-    "3. GROUND IN HARONY NOTES & CAMBRIDGE 0625 MARK SCHEMES: Use exact definitions, formulas, and keywords.\n"
+    "2. REASON FROM FIRST PRINCIPLES FOR ANY QUESTION: Answer the student's EXACT question directly and accurately, "
+    "even if it is a novel scenario or 'why/what happens if' question not word-for-word in the context. "
+    "NEVER force an unrelated snippet into your reply.\n"
+    "3. ALIGN WITH HARONY NOTES & CAMBRIDGE 0625 MARK SCHEMES: Use exact definitions, formulas, and bold key marking phrases.\n"
     "4. 4-STEP CALCULATION FORMAT: Formula -> Substitution -> Calculation -> Final Answer with Units (2-3 sig figs).\n"
     "5. IMAGE ACCURACY: When an image is attached, read every label, graph axis, circuit symbol, and number carefully.\n"
 )
@@ -420,6 +422,99 @@ async def try_neural_vision_ocr(
         if res:
             return res.strip()
     return None
+
+
+async def has_active_server_llm() -> bool:
+    """Return True if at least one real cloud or local Ollama LLM is configured/reachable."""
+    if any(
+        os.environ.get(k, "").strip()
+        for k in ("GEMINI_API_KEY", "OPENAI_API_KEY", "GROQ_API_KEY", "HF_TOKEN", "HUGGINGFACE_API_KEY", "OPENROUTER_API_KEY")
+    ):
+        return True
+    settings = load_settings()
+    if settings.get("openai_compat_enabled") and settings.get("openai_compat_base_url") and settings.get("openai_compat_model"):
+        return True
+    ollama_enabled = bool(settings.get("ollama_enabled") or os.environ.get("OLLAMA_ENABLED", "").lower() == "true" or os.environ.get("OLLAMA_BASE_URL"))
+    if ollama_enabled:
+        base = (os.environ.get("OLLAMA_BASE_URL") or settings.get("ollama_base_url") or "http://127.0.0.1:11434").rstrip("/")
+        try:
+            async with httpx.AsyncClient(timeout=1.5) as client:
+                r = await client.get(f"{base}/api/tags")
+                return r.status_code == 200
+        except Exception:
+            return False
+    return False
+
+
+async def try_neural_grade_unmatched(
+    student_text: str,
+    ms_title: str = "",
+    ms_text: str = "",
+) -> Optional[Dict[str, Any]]:
+    """Grade any freeform/unmatched Physics question + student answer using a real server LLM."""
+    if not student_text.strip():
+        return None
+    import json
+    sys_msg = (
+        "You are Haroony AI, a strict Cambridge IGCSE (0625) & A-Level (9702) Physics Examiner.\n"
+        "Evaluate ONLY the student's actual answer against Physics laws (and any Mark Scheme provided).\n"
+        "Return ONLY valid JSON matching:\n"
+        '{"awarded_marks": int, "max_marks": int, "examiner_feedback": "2-3 sentences", "model_answer": "concise ideal answer", "points": [{"code":"B1","marks_awarded":1,"max_marks":1,"status":"awarded","comment":"reason"}]}'
+    )
+    user_msg = (
+        (f"Mark Scheme ({ms_title}):\n{ms_text[:1500]}\n\n" if (ms_title or ms_text) else "")
+        + f"Student Submission:\n{student_text[:2000]}\n\n"
+        + "Be 100% honest: if the student's answer is wrong, missing, or says 'I don't know', award 0 for those marks."
+    )
+    msgs = [{"role": "system", "content": sys_msg}, {"role": "user", "content": user_msg}]
+    settings = load_settings()
+    raw = None
+    for caller in (
+        lambda: _call_gemini(msgs, None, "image/jpeg", max_tokens=500),
+        lambda: _call_openai(msgs, None, "image/jpeg", max_tokens=500),
+        lambda: _call_groq_opensource(msgs, max_tokens=500),
+        lambda: _call_huggingface_opensource(msgs, max_tokens=500),
+        lambda: _call_openrouter_opensource(msgs, max_tokens=500),
+        lambda: _call_ollama(settings, msgs, None),
+        lambda: _call_openai_compat(settings, msgs, None, "image/jpeg", max_tokens=500),
+    ):
+        raw = await caller()
+        if raw:
+            break
+    if not raw:
+        return None
+    try:
+        m = re.search(r"\{[\s\S]*\}", raw)
+        if not m:
+            return None
+        parsed = json.loads(m.group(0))
+        mx = max(1, int(parsed.get("max_marks", 1)))
+        aw = max(0, min(mx, int(parsed.get("awarded_marks", 0))))
+        pct = round(100.0 * aw / mx, 1)
+        grade_letter = "A*" if pct >= 90 else "A" if pct >= 80 else "B" if pct >= 70 else "C" if pct >= 60 else "D" if pct >= 50 else "E" if pct >= 40 else "U"
+        return {
+            "ok": True,
+            "mode": "neural_examiner",
+            "mark_scheme_title": ms_title or "Haroony AI Physics Examiner",
+            "awarded_marks": aw,
+            "max_marks": mx,
+            "percentage": pct,
+            "grade": grade_letter,
+            "examiner_feedback": _sanitize_provider_mentions(str(parsed.get("examiner_feedback", ""))),
+            "questions": [
+                {
+                    "question_id": "AI Examiner Check",
+                    "title": "Physics Reasoning & Accuracy",
+                    "awarded_marks": aw,
+                    "max_marks": mx,
+                    "points": parsed.get("points") if isinstance(parsed.get("points"), list) else [],
+                    "model_answer": _sanitize_provider_mentions(str(parsed.get("model_answer", ""))),
+                }
+            ],
+            "extracted_student_text": student_text,
+        }
+    except Exception:
+        return None
 
 
 async def try_neural_examiner_feedback(

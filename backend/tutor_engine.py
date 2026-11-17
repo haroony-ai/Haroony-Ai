@@ -50,6 +50,24 @@ def format_note_text_cleanly(raw_text: str, topic: str) -> List[str]:
     return merged
 
 
+def rank_relevant_bullets(bullets: List[str], query: str, limit: int = 8) -> List[str]:
+    """Prioritize sentences that directly address the student's specific question terms."""
+    q_words = {w for w in re.findall(r"[a-z0-9]{3,}", query.lower()) if w not in STOPWORDS}
+    if not q_words or len(bullets) <= 3:
+        return bullets[:limit]
+    scored = []
+    for idx, b in enumerate(bullets):
+        b_low = b.lower()
+        hits = sum(1 for w in q_words if w in b_low)
+        scored.append((hits, -idx, b))
+    scored.sort(reverse=True)
+    # Keep original reading order among top matches if they tie at 0
+    if scored[0][0] == 0:
+        return bullets[:limit]
+    top = [b for _, _, b in scored[:limit]]
+    return top
+
+
 def find_related_ms_tips(query: str, kb: HaronyKnowledgeBase) -> List[Dict[str, Any]]:
     """Find matching Cambridge 0625 Mark Scheme points to show students exact examiner keywords."""
     q_words = {
@@ -321,21 +339,32 @@ class HaroonyTutorEngine:
             sections.append(c_md)
 
         if note_hits:
-            primary = note_hits[0]
+            # Pick the page whose individual sentences actually match the question best
+            q_words = {w for w in re.findall(r"[a-z0-9]{3,}", combined_query.lower()) if w not in STOPWORDS}
+            scored_pages = []
+            for idx_nh, nh in enumerate(note_hits):
+                nh_bullets = format_note_text_cleanly(nh.get("text", ""), nh.get("topic", ""))
+                best_sent_hits = max((sum(1 for w in q_words if w in b.lower()) for b in nh_bullets), default=0)
+                total_hits = sum(1 for w in q_words if w in (nh.get("text") or "").lower())
+                scored_pages.append((best_sent_hits, total_hits, -idx_nh, nh, nh_bullets))
+            scored_pages.sort(reverse=True)
+
+            primary = scored_pages[0][3]
             p_topic = primary.get("topic", "IGCSE Physics")
             p_unit = primary.get("unit", "")
             p_page = primary.get("page")
             header_cite = f"Harony Notes p.{p_page}" if p_page else primary.get("source", "Harony Notes")
 
-            bullets = format_note_text_cleanly(primary.get("text", ""), p_topic)
-            if len(note_hits) >= 2 and note_hits[1].get("topic") == p_topic and not solved:
-                extra_bullets = format_note_text_cleanly(note_hits[1].get("text", ""), p_topic)
-                for eb in extra_bullets[:5]:
-                    if eb not in bullets:
-                        bullets.append(eb)
+            bullets = list(scored_pages[0][4])
+            for _, _, _, nh2, b2 in scored_pages[1:]:
+                if nh2.get("unit") == p_unit and not solved:
+                    for eb in b2:
+                        if eb not in bullets:
+                            bullets.append(eb)
 
-            max_bullets = 4 if (solved or concept_entry) else 9
-            bullet_md = "\n".join(f"- {b}" for b in bullets[:max_bullets])
+            max_bullets = 4 if (solved or concept_entry) else 8
+            ranked_bullets = rank_relevant_bullets(bullets, combined_query, limit=max_bullets)
+            bullet_md = "\n".join(f"- {b}" for b in ranked_bullets)
 
             title_prefix = "Harony Notes Key Points" if (solved or concept_entry) else f"{p_topic}"
             sections.append(
