@@ -220,6 +220,39 @@
   });
 
   // ==================== INITIALIZE STATUS & MARK SCHEMES ====================
+  const neuralBoostBtn = document.getElementById("neuralBoostBtn");
+  if (neuralBoostBtn && window.HaroonyNeuralAI) {
+    window.HaroonyNeuralAI.onStatusChange((st) => {
+      if (!neuralBoostBtn) return;
+      if (st.state === "loading") {
+        neuralBoostBtn.textContent = st.progress ? `Loading (${st.progress}%)…` : "Loading LLM…";
+        neuralBoostBtn.disabled = true;
+      } else if (st.state === "ready") {
+        neuralBoostBtn.textContent = "✓ Deep AI Active";
+        neuralBoostBtn.disabled = false;
+        neuralBoostBtn.classList.add("grade-badge-green");
+      } else if (st.state === "failed") {
+        neuralBoostBtn.textContent = "⚡ Deep AI";
+        neuralBoostBtn.disabled = false;
+      }
+    });
+
+    neuralBoostBtn.addEventListener("click", async () => {
+      neuralBoostBtn.disabled = true;
+      neuralBoostBtn.textContent = "Starting LLM…";
+      const ok = await window.HaroonyNeuralAI.enableSmartAI((txt) => {
+        if (txt && neuralBoostBtn.disabled) neuralBoostBtn.textContent = txt.slice(0, 24);
+      });
+      if (!ok) {
+        neuralBoostBtn.textContent = "Instant AI Ready";
+        setTimeout(() => {
+          neuralBoostBtn.textContent = "⚡ Deep AI";
+          neuralBoostBtn.disabled = false;
+        }, 2500);
+      }
+    });
+  }
+
   async function loadSystemStatus() {
     let statusData = null;
     try {
@@ -245,6 +278,13 @@
           console.error("Browser engine init error:", err);
         }
       }
+      if (window.HaroonyNeuralAI && window.HaroonyNeuralAI.autoWarmIfCached) {
+        window.HaroonyNeuralAI.autoWarmIfCached();
+      }
+    } else if (neuralBoostBtn) {
+      neuralBoostBtn.textContent = "✓ Deep AI Active";
+      neuralBoostBtn.classList.add("grade-badge-green");
+      neuralBoostBtn.title = "Server-side multi-model Physics AI active";
     }
 
     if (statusData && Array.isArray(statusData.mark_schemes)) {

@@ -3,33 +3,52 @@ import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transfo
 env.allowLocalModels = false;
 
 let generatorPromise = null;
+let activeModelId = "onnx-community/Qwen2.5-0.5B-Instruct";
 
-async function getGenerator(onProgress) {
-  if (!generatorPromise) {
-    generatorPromise = pipeline(
-      "text-generation",
-      "onnx-community/Qwen2.5-0.5B-Instruct",
-      {
-        dtype: "q4",
-        progress_callback: (info) => {
-          if (onProgress && info && typeof info.progress === "number") {
-            onProgress(Math.round(info.progress));
-          }
-        },
+const WASM_MODELS = [
+  "onnx-community/Qwen2.5-0.5B-Instruct",
+  "HuggingFaceTB/SmolLM2-360M-Instruct",
+];
+
+async function getGenerator(requestedModel, onProgress) {
+  const target = requestedModel || activeModelId;
+  if (!generatorPromise || target !== activeModelId) {
+    activeModelId = target;
+    generatorPromise = (async () => {
+      const tryList = [target, ...WASM_MODELS.filter((m) => m !== target)];
+      let lastErr = null;
+      for (const modelId of tryList) {
+        try {
+          activeModelId = modelId;
+          return await pipeline("text-generation", modelId, {
+            dtype: "q4",
+            progress_callback: (info) => {
+              if (onProgress && info && typeof info.progress === "number") {
+                onProgress(Math.round(info.progress));
+              }
+            },
+          });
+        } catch (err) {
+          lastErr = err;
+        }
       }
-    );
+      throw lastErr || new Error("No open-source WASM model could be loaded.");
+    })().catch((err) => {
+      generatorPromise = null;
+      throw err;
+    });
   }
   return generatorPromise;
 }
 
 self.onmessage = async (event) => {
-  const { id, type, messages, maxTokens, temperature } = event.data || {};
+  const { id, type, messages, maxTokens, temperature, modelId } = event.data || {};
   if (type === "warmup") {
     try {
-      await getGenerator((pct) => {
-        self.postMessage({ id, type: "progress", text: `Preparing Physics AI (${pct}%)…` });
+      await getGenerator(modelId, (pct) => {
+        self.postMessage({ id, type: "progress", text: `Loading open-source AI (${pct}%)…`, progress: pct });
       });
-      self.postMessage({ id, type: "ready" });
+      self.postMessage({ id, type: "ready", modelId: activeModelId });
     } catch (err) {
       self.postMessage({ id, type: "error", error: String(err && err.message ? err.message : err) });
     }
@@ -38,8 +57,8 @@ self.onmessage = async (event) => {
 
   if (type === "generate") {
     try {
-      const gen = await getGenerator((pct) => {
-        self.postMessage({ id, type: "progress", text: `Preparing Physics AI (${pct}%)…` });
+      const gen = await getGenerator(modelId, (pct) => {
+        self.postMessage({ id, type: "progress", text: `Loading open-source AI (${pct}%)…`, progress: pct });
       });
       const out = await gen(messages, {
         max_new_tokens: maxTokens || 420,

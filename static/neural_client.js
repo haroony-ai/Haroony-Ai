@@ -1,22 +1,40 @@
-/* Haroony AI — Enhanced Multi-Pass Document/Handwriting OCR + Optional WebGPU Engine
- * 1. Adaptive Threshold + Contrast-Boosted Upscaled Canvas OCR (Tesseract.js worker + PDF.js 2.2x render).
- * 2. Automatic 90-degree orientation fallback for sideways phone photos.
- * 3. Instant-first: never freezes or blocks waiting on large downloads; optional WebGPU Qwen2.5-1.5B/0.5B.
+/* Haroony AI — Multi-Model Open-Source Browser LLM + Adaptive Document/Handwriting OCR
+ * 1. Multi-model Open-Source LLM cascade in the browser (100% free, zero rate limits, zero API keys):
+ *    - Tier A (WebGPU GPU): Qwen2.5-1.5B-Instruct / Llama-3.2-1B-Instruct / SmolLM2-1.7B-Instruct / Qwen2.5-0.5B-Instruct
+ *    - Tier B (Universal CPU/WASM via Transformers.js): Qwen2.5-0.5B-Instruct / SmolLM2-360M-Instruct
+ * 2. Adaptive Threshold + Contrast-Boosted Upscaled Canvas OCR (Tesseract.js worker + PDF.js 2.2x render).
+ * 3. Automatic 90-degree orientation fallback for sideways phone photos.
  * 4. Strictly branded as Haroony AI (no third-party provider names or keys in frontend).
  */
 (function (global) {
   "use strict";
 
   let engineState = "idle"; // idle | loading | ready | failed
+  let activeBackend = "harony_rag"; // webllm | wasm | harony_rag
+  let activeModelId = null;
   let mlcEngine = null;
+  let wasmWorker = null;
+  let wasmReqCounter = 0;
   let initPromise = null;
   let tesseractWorkerPromise = null;
   const listeners = new Set();
 
+  const WEBGPU_MODELS_DESKTOP = [
+    { id: "Qwen2.5-1.5B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1.5B (Qwen2.5)" },
+    { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1B (Llama 3.2)" },
+    { id: "SmolLM2-1.7B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1.7B (SmolLM2)" },
+    { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", label: "Haroony Neural 0.5B (Fast)" },
+  ];
+
+  const WEBGPU_MODELS_MOBILE = [
+    { id: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC", label: "Haroony Neural 0.5B" },
+    { id: "Llama-3.2-1B-Instruct-q4f16_1-MLC", label: "Haroony Neural 1B" },
+  ];
+
   function notify(stateInfo) {
     for (const fn of listeners) {
       try {
-        fn(stateInfo);
+        fn(stateInfo || getStatus());
       } catch (_) {}
     }
   }
@@ -25,50 +43,107 @@
     return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
   }
 
-  async function initWebGPU(onProgress) {
-    if (engineState === "ready" && mlcEngine) return true;
+  async function initWasmFallback(onProgress) {
+    return new Promise((resolve) => {
+      try {
+        const w = new Worker("static/wasm_llm_worker.js", { type: "module" });
+        const reqId = ++wasmReqCounter;
+        const onMsg = (ev) => {
+          const d = ev.data || {};
+          if (d.id !== reqId) return;
+          if (d.type === "progress") {
+            if (onProgress) onProgress(d.text);
+            notify({ state: "loading", progress: d.progress, text: d.text });
+          } else if (d.type === "ready") {
+            w.removeEventListener("message", onMsg);
+            wasmWorker = w;
+            activeBackend = "wasm";
+            activeModelId = d.modelId || "onnx-community/Qwen2.5-0.5B-Instruct";
+            engineState = "ready";
+            notify(getStatus());
+            resolve(true);
+          } else if (d.type === "error") {
+            w.removeEventListener("message", onMsg);
+            w.terminate();
+            resolve(false);
+          }
+        };
+        w.addEventListener("message", onMsg);
+        w.postMessage({ id: reqId, type: "warmup" });
+      } catch (_) {
+        resolve(false);
+      }
+    });
+  }
+
+  async function initSmartEngine(onProgress, preferredModelId = null) {
+    if (engineState === "ready" && (mlcEngine || wasmWorker)) return true;
     if (initPromise) return initPromise;
 
     engineState = "loading";
-    notify({ state: "loading", text: "Preparing browser acceleration…" });
+    notify({ state: "loading", text: "Loading open-source Physics LLM…" });
 
     initPromise = (async () => {
-      try {
-        if (!navigator.gpu) throw new Error("WebGPU is not supported in this browser.");
-        const adapter = await navigator.gpu.requestAdapter();
-        if (!adapter) throw new Error("No WebGPU GPU adapter found.");
+      // 1. Try WebGPU Open-Source Model Pool first (fastest GPU inference)
+      if (typeof navigator !== "undefined" && navigator.gpu) {
+        try {
+          const adapter = await navigator.gpu.requestAdapter();
+          if (adapter) {
+            const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.88");
+            const worker = new Worker("static/llm_worker.js", { type: "module" });
+            const pool = isMobileDevice() ? WEBGPU_MODELS_MOBILE : WEBGPU_MODELS_DESKTOP;
+            const candidates = preferredModelId
+              ? [{ id: preferredModelId }, ...pool.filter((m) => m.id !== preferredModelId)]
+              : pool;
 
-        const modelId = isMobileDevice()
-          ? "Qwen2.5-0.5B-Instruct-q4f16_1-MLC"
-          : "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
-
-        const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.88");
-        const worker = new Worker("static/llm_worker.js", { type: "module" });
-
-        mlcEngine = await webllm.CreateWebWorkerMLCEngine(worker, modelId, {
-          initProgressCallback: (report) => {
-            if (!report) return;
-            const pct = typeof report.progress === "number" ? Math.round(report.progress * 100) : null;
-            const txt =
-              pct !== null && pct > 0 && pct < 100
-                ? `Loading Haroony Neural AI (${pct}%)…`
-                : report.text || "Loading Haroony Neural AI…";
-            if (onProgress) onProgress(txt);
-            notify({ state: "loading", progress: pct, text: txt });
-          },
-        });
-        engineState = "ready";
-        notify(getStatus());
-        return true;
-      } catch (err) {
-        engineState = "failed";
-        initPromise = null;
-        notify({ state: "failed", text: err && err.message ? err.message : "WebGPU unavailable" });
-        return false;
+            for (const m of candidates) {
+              try {
+                mlcEngine = await webllm.CreateWebWorkerMLCEngine(worker, m.id, {
+                  initProgressCallback: (report) => {
+                    if (!report) return;
+                    const pct = typeof report.progress === "number" ? Math.round(report.progress * 100) : null;
+                    const txt =
+                      pct !== null && pct > 0 && pct < 100
+                        ? `Loading Haroony Neural LLM (${pct}%)…`
+                        : report.text || "Loading Haroony Neural LLM…";
+                    if (onProgress) onProgress(txt);
+                    notify({ state: "loading", progress: pct, text: txt });
+                  },
+                });
+                activeBackend = "webllm";
+                activeModelId = m.id;
+                engineState = "ready";
+                notify(getStatus());
+                return true;
+              } catch (_) {}
+            }
+          }
+        } catch (_) {}
       }
+
+      // 2. Universal CPU/WASM Open-Source Fallback (works on Safari, Firefox, mobile, no GPU needed!)
+      const wasmOk = await initWasmFallback(onProgress);
+      if (wasmOk) return true;
+
+      engineState = "failed";
+      initPromise = null;
+      notify({ state: "failed", text: "Using instant built-in Harony engine" });
+      return false;
     })();
 
     return initPromise;
+  }
+
+  async function autoWarmIfCached() {
+    try {
+      if (typeof caches === "undefined") return false;
+      const keys = await caches.keys();
+      const hasCachedLlm = keys.some((k) => /webllm|transformers|onnx|mlc/i.test(k));
+      if (hasCachedLlm) {
+        return await initSmartEngine();
+      }
+    } catch (_) {}
+    return false;
   }
 
   // ==================== ENHANCED MULTI-PASS CANVAS OCR ====================
@@ -96,7 +171,7 @@
           errorHandler: () => {},
         });
         await worker.setParameters({
-          tessedit_pageseg_mode: "6", // Assume uniform block of text/math lines
+          tessedit_pageseg_mode: "6",
           preserve_interword_spaces: "1",
         });
         return worker;
@@ -180,7 +255,6 @@
     const imgData = ctx.getImageData(0, 0, w, h);
     const d = imgData.data;
 
-    // Percentile-like min/max stretch for crisp gray contrast
     let minL = 255;
     let maxL = 0;
     const lums = new Uint8Array(w * h);
@@ -201,7 +275,6 @@
   }
 
   function makeAdaptiveBinaryCanvas(baseCanvas) {
-    // Bradley-Roth integral-image adaptive threshold: eliminates uneven shadows & lined paper tint
     const w = baseCanvas.width;
     const h = baseCanvas.height;
     const out = document.createElement("canvas");
@@ -226,7 +299,7 @@
     }
 
     const radius = Math.max(12, Math.round(Math.min(w, h) / 28));
-    const tFactor = 0.88; // pixel < 88% of local mean => dark ink
+    const tFactor = 0.88;
     for (let y = 0; y < h; y++) {
       const y1 = Math.max(0, y - radius);
       const y2 = Math.min(h - 1, y + radius);
@@ -264,7 +337,6 @@
     const contrastCanvas = makeContrastGrayCanvas(base);
     let best = await runWorkerOcr(worker, contrastCanvas);
 
-    // If initial pass looks short or noisy (shadowed phone photo / faint handwriting), try adaptive binarization!
     if (best.text.length < 55 || best.confidence < 72) {
       if (onProgress) onProgress("Running adaptive lighting cleanup pass…");
       const binCanvas = makeAdaptiveBinaryCanvas(base);
@@ -276,7 +348,6 @@
       }
     }
 
-    // Sideways photo fallback (90° / 270°)
     if (best.text.length < 25 || best.confidence < 58) {
       for (const deg of [90, 270]) {
         const rotCanvas = makeContrastGrayCanvas(buildScaledCanvas(imgSource, deg));
@@ -348,10 +419,39 @@
     }
   }
 
+  async function generateViaWasm(messages, opts = {}) {
+    if (!wasmWorker) return null;
+    const { maxTokens = 480, temperature = 0.25, onProgress = null, timeoutMs = 22000 } = opts;
+    if (onProgress) onProgress("Thinking with Haroony Neural LLM…");
+    return new Promise((resolve) => {
+      const reqId = ++wasmReqCounter;
+      const timer = setTimeout(() => resolve(null), timeoutMs);
+      const onMsg = (ev) => {
+        const d = ev.data || {};
+        if (d.id !== reqId) return;
+        if (d.type === "done") {
+          clearTimeout(timer);
+          wasmWorker.removeEventListener("message", onMsg);
+          resolve(d.text || null);
+        } else if (d.type === "error") {
+          clearTimeout(timer);
+          wasmWorker.removeEventListener("message", onMsg);
+          resolve(null);
+        }
+      };
+      wasmWorker.addEventListener("message", onMsg);
+      wasmWorker.postMessage({ id: reqId, type: "generate", messages, maxTokens, temperature });
+    });
+  }
+
   async function generate(messages, opts = {}) {
-    if (engineState !== "ready" || !mlcEngine) {
-      return null;
+    if (engineState !== "ready") return null;
+
+    if (activeBackend === "wasm" && wasmWorker) {
+      return await generateViaWasm(messages, opts);
     }
+
+    if (!mlcEngine) return null;
 
     const { maxTokens = 560, temperature = 0.2, onProgress = null, onToken = null, timeoutMs = 15000 } = opts;
     if (onProgress) onProgress("Generating explanation…");
@@ -391,7 +491,8 @@
   function getStatus() {
     return {
       state: engineState,
-      backend: engineState === "ready" ? "webllm" : "harony_rag",
+      backend: activeBackend,
+      modelId: activeModelId,
       hasWebGPU: typeof navigator !== "undefined" && Boolean(navigator.gpu),
     };
   }
@@ -403,7 +504,9 @@
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
-    enableWebGPU: initWebGPU,
+    enableWebGPU: initSmartEngine,
+    enableSmartAI: initSmartEngine,
+    autoWarmIfCached,
     generate,
     extractDocumentText,
   };

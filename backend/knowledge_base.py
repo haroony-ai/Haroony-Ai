@@ -18,6 +18,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from backend.config import DATA_DIR, MODELS_DIR
 
 RETRIEVER_MODEL_PATH = MODELS_DIR / "harony_retriever.joblib"
+TOPIC_MODEL_PATH = MODELS_DIR / "topic_classifier.joblib"
+INTENT_MODEL_PATH = MODELS_DIR / "qa_intent_classifier.joblib"
+CONCEPT_ATLAS_PATH = DATA_DIR / "harony_concept_atlas.json"
 NOTES_CHUNKS_PATH = DATA_DIR / "harony_notes_chunks.json"
 CUSTOM_MATERIALS_PATH = DATA_DIR / "custom_materials.json"
 MARK_SCHEMES_PATH = DATA_DIR / "mark_schemes.json"
@@ -56,10 +59,13 @@ class HaronyKnowledgeBase:
         self.chunks: List[Dict[str, Any]] = []
         self.mark_schemes: List[Dict[str, Any]] = []
         self.videos: List[Dict[str, Any]] = []
+        self.concept_atlas: List[Dict[str, Any]] = []
         self.tfidf = None
         self.svd = None
         self.tfidf_matrix = None
         self.svd_matrix = None
+        self.topic_clf = None
+        self.intent_clf = None
         self.reload()
 
     def reload(self) -> None:
@@ -90,6 +96,24 @@ class HaronyKnowledgeBase:
                 self.videos = json.loads(VIDEO_SOLUTIONS_PATH.read_text(encoding="utf-8"))
             except Exception:
                 self.videos = []
+
+        if CONCEPT_ATLAS_PATH.exists():
+            try:
+                self.concept_atlas = json.loads(CONCEPT_ATLAS_PATH.read_text(encoding="utf-8"))
+            except Exception:
+                self.concept_atlas = []
+
+        if TOPIC_MODEL_PATH.exists():
+            try:
+                self.topic_clf = joblib.load(TOPIC_MODEL_PATH)
+            except Exception:
+                self.topic_clf = None
+
+        if INTENT_MODEL_PATH.exists():
+            try:
+                self.intent_clf = joblib.load(INTENT_MODEL_PATH)
+            except Exception:
+                self.intent_clf = None
 
         if RETRIEVER_MODEL_PATH.exists():
             try:
@@ -310,6 +334,49 @@ class HaronyKnowledgeBase:
                 if len(out) >= top_k:
                     break
         return out
+
+    def predict_unit(self, query: str) -> Optional[str]:
+        """Predict the primary Physics Unit (Unit 1..7) using the trained multi-class classifier."""
+        if not self.topic_clf or not query.strip():
+            return None
+        try:
+            probs = self.topic_clf.predict_proba([query])[0]
+            classes = self.topic_clf.classes_
+            best_idx = int(np.argmax(probs))
+            if float(probs[best_idx]) >= 0.42:
+                return str(classes[best_idx])
+        except Exception:
+            pass
+        return None
+
+    def predict_intent(self, query: str) -> str:
+        if not self.intent_clf or not query.strip():
+            return "concept_explain"
+        try:
+            return str(self.intent_clf.predict([query])[0])
+        except Exception:
+            return "concept_explain"
+
+    def match_concept_atlas(self, query: str, preferred_unit: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        if not self.concept_atlas or not query.strip():
+            return None
+        low = query.lower()
+        q_words = set(re.findall(r"[a-z0-9]{3,}", low))
+        best_entry = None
+        best_score = 0.0
+        for entry in self.concept_atlas:
+            if preferred_unit and entry.get("unit") != preferred_unit:
+                continue
+            sc = 0.0
+            for kw in entry.get("keywords", []):
+                if kw in low:
+                    sc += 3.0 if " " in kw else 2.0
+            topic_words = set(re.findall(r"[a-z0-9]{3,}", entry.get("topic", "").lower()))
+            sc += 1.2 * len(q_words & topic_words)
+            if sc > best_score:
+                best_score = sc
+                best_entry = entry
+        return best_entry if best_score >= 2.0 else None
 
     def get_mark_scheme(self, ms_id: str) -> Optional[Dict[str, Any]]:
         for ms in self.mark_schemes:
