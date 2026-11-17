@@ -897,16 +897,96 @@
     return msgs;
   }
 
+  function tryReasonPhysicsVariation(query) {
+    const low = String(query || "").toLowerCase();
+    if (/\b(?:difference|compare|distinguish|contrast|vs\.?|versus)\b/.test(low)) {
+      if (low.includes("evaporat") && low.includes("boil")) {
+        return (
+          "### ⚡ Evaporation vs Boiling *(Unit 3 — Thermal Physics)*\n\n" +
+          "- **Temperature:** Evaporation occurs at **any temperature** below the boiling point; boiling occurs only at a **fixed boiling point**.\n" +
+          "- **Location:** Evaporation happens **only at the surface**; boiling happens **throughout the entire liquid** (bubbles form inside).\n" +
+          "- **Cooling Effect:** Faster, more energetic molecules escape from the surface during evaporation, lowering the average kinetic energy of remaining molecules."
+        );
+      }
+      if (low.includes("mass") && low.includes("weight")) {
+        return (
+          "### ⚡ Mass vs Weight *(Unit 1 — Mechanics)*\n\n" +
+          "- **Mass (`m`):** Measure of quantity of matter (inertia); **scalar**, measured in **kg**; **constant everywhere**.\n" +
+          "- **Weight (`W = m × g`):** **Gravitational force** on a mass; **vector**, measured in **N**; changes with gravitational field strength `g`."
+        );
+      }
+      if (low.includes("scalar") && low.includes("vector")) {
+        return (
+          "### ⚡ Scalar vs Vector Quantities *(Unit 1 — Mechanics)*\n\n" +
+          "- **Scalar:** Magnitude only (e.g. distance, speed, mass, time, energy).\n" +
+          "- **Vector:** Both magnitude **and direction** (e.g. displacement, velocity, acceleration, force, weight, momentum)."
+        );
+      }
+      if (low.includes("series") && low.includes("parallel")) {
+        return (
+          "### ⚡ Series vs Parallel Circuits *(Unit 5 — Electricity)*\n\n" +
+          "- **Series:** **Same current** everywhere (`I₁ = I₂`); total p.d. **shared** (`V = V₁ + V₂`); `R = R₁ + R₂`.\n" +
+          "- **Parallel:** **Same p.d.** across every branch (`V₁ = V₂`); current **splits** (`I = I₁ + I₂`); `1/R = 1/R₁ + 1/R₂`."
+        );
+      }
+      if ((low.includes("a.c") || low.includes("alternating")) && (low.includes("d.c") || low.includes("direct"))) {
+        return (
+          "### ⚡ d.c. vs a.c. *(Unit 5/6)*\n\n" +
+          "- **d.c.:** Flows in **one direction only** (e.g. battery).\n" +
+          "- **a.c.:** Continuously **reverses direction** periodically (needed for **transformers**)."
+        );
+      }
+      if (low.includes("fission") && low.includes("fusion")) {
+        return (
+          "### ⚡ Nuclear Fission vs Fusion *(Unit 7 — Nuclear Physics)*\n\n" +
+          "- **Fission:** A **heavy unstable nucleus** (e.g. U-235) **splits** into smaller nuclei + neutrons + energy.\n" +
+          "- **Fusion:** Two **light nuclei** (hydrogen isotopes) **join** at extreme temperature & pressure to form helium + energy."
+        );
+      }
+    }
+
+    if (/\b(what\s+happens|how\s+does|effect\s+on|change\s+in|doubles?|triples?|halves?|halved|doubled|tripled|increased?|decreased?)\b/.test(low)) {
+      let k = null, kTxt = "";
+      if (/\b(doubled?|twice|2\s*times|x\s*2)\b/.test(low)) { k = 2; kTxt = "doubled (×2)"; }
+      else if (/\b(tripled?|three\s+times|3\s*times|x\s*3)\b/.test(low)) { k = 3; kTxt = "tripled (×3)"; }
+      else if (/\b(halved?|half)\b/.test(low)) { k = 0.5; kTxt = "halved (×½)"; }
+      if (k !== null) {
+        if (low.includes("kinetic energy") && (low.includes("speed") || low.includes("velocity"))) {
+          return `### ⚡ Effect on Kinetic Energy (\`KE = ½ m v²\`)\n\n- Kinetic energy is proportional to **speed²** (\`KE ∝ v²\`).\n- If speed is **${kTxt}**, kinetic energy changes by **\`${k * k}×\`**.`;
+        }
+        if (low.includes("resistance") && (low.includes("length") || low.includes("longer") || low.includes("shorter"))) {
+          return `### ⚡ Effect on Resistance (\`R = ρ L / A\`)\n\n- Resistance is **directly proportional to length** (\`R ∝ L\`).\n- If length is **${kTxt}**, resistance changes by **\`${k}×\`**.`;
+        }
+        if (low.includes("resistance") && (low.includes("diameter") || low.includes("radius"))) {
+          return `### ⚡ Effect on Resistance (\`R = ρ L / A\`)\n\n- Resistance is **inversely proportional to diameter²** (\`R ∝ 1 / d²\`).\n- If diameter is **${kTxt}**, area changes by \`${k * k}×\`, so resistance becomes **\`${1 / (k * k)}×\`**.`;
+        }
+        if (low.includes("pressure") && low.includes("volume")) {
+          return `### ⚡ Boyle's Law (\`p₁V₁ = p₂V₂\`)\n\n- At constant temperature, pressure is **inversely proportional to volume** (\`p ∝ 1 / V\`).\n- If volume is **${kTxt}**, pressure becomes **\`${1 / k}×\`**.`;
+        }
+        if (low.includes("pressure") && low.includes("area")) {
+          return `### ⚡ Solid Pressure (\`p = F / A\`)\n\n- For a constant force, pressure is **inversely proportional to area** (\`p ∝ 1 / A\`).\n- If area is **${kTxt}**, pressure becomes **\`${1 / k}×\`**.`;
+        }
+        if (low.includes("wavelength") && low.includes("frequency")) {
+          return `### ⚡ Wave Equation (\`v = f × λ\`)\n\n- At constant wave speed, frequency and wavelength are **inversely proportional**.\n- If frequency is **${kTxt}**, wavelength becomes **\`${1 / k}×\`**.`;
+        }
+      }
+    }
+    return null;
+  }
+
   function buildSynthesizedFallbackReply(query, solved, scoredChunks, msTips, ocrText, conceptEntry) {
     const sections = [];
     if (ocrText) {
       const prev = ocrText.slice(0, 320) + (ocrText.length > 320 ? "…" : "");
       sections.push(`**📷 Read from your uploaded photo/PDF:**\n> ${prev.replace(/\n/g, "\n> ")}`);
     }
+    const reasoned = solved ? null : tryReasonPhysicsVariation(query);
     if (solved) {
       sections.push(solved.markdown);
+    } else if (reasoned) {
+      sections.push(reasoned);
     }
-    if (conceptEntry && !solved) {
+    if (conceptEntry && !solved && !reasoned) {
       const fams = (conceptEntry.formulas || []).map((f) => `- \`${f}\``).join("\n");
       const pts = (conceptEntry.points || []).map((p) => `- ${p}`).join("\n");
       let blk = `### ⚡ ${conceptEntry.topic} *(${conceptEntry.unit})*\n\n${conceptEntry.summary}\n\n**Key Exam Points:**\n${pts}`;
@@ -922,21 +1002,54 @@
           break;
         }
       }
-      if (matchedCore && !solved) {
+      if (matchedCore && !solved && !reasoned) {
         const fams = matchedCore.formulas.map((f) => `- \`${f}\``).join("\n");
         const pts = matchedCore.points.map((p) => `- ${p}`).join("\n");
         sections.push(`### 📘 ${matchedCore.title}\n\n${matchedCore.summary}\n\n**Key Equations:**\n${fams}\n\n**Key Exam Points:**\n${pts}`);
-      } else if (scoredChunks.length && (!solved || scoredChunks[0].s >= 5.5)) {
-        const top = scoredChunks[0].ch;
-        const bullets = cleanNoteBullets(top.text, top.topic)
-          .slice(0, solved ? 4 : 7)
-          .map((b) => `- ${b}`)
+      } else if (scoredChunks.length && (!(solved || reasoned) || scoredChunks[0].s >= 5.5)) {
+        const qWords = new Set(tokenize(query).filter((w) => w.length >= 3 && !STOPWORDS.has(w)));
+        let bestTop = scoredChunks[0].ch;
+        let bestBullets = cleanNoteBullets(bestTop.text, bestTop.topic);
+        let bestMaxHit = -1;
+        for (const item of scoredChunks) {
+          const bList = cleanNoteBullets(item.ch.text, item.ch.topic);
+          const maxH = bList.reduce((mx, b) => {
+            const bl = b.toLowerCase();
+            let c = 0;
+            for (const w of qWords) if (bl.includes(w)) c++;
+            return Math.max(mx, c);
+          }, 0);
+          if (maxH > bestMaxHit) {
+            bestMaxHit = maxH;
+            bestTop = item.ch;
+            bestBullets = bList;
+          }
+        }
+        if (!solved) {
+          for (const item of scoredChunks) {
+            if (item.ch !== bestTop && item.ch.unit === bestTop.unit) {
+              for (const b of cleanNoteBullets(item.ch.text, item.ch.topic)) {
+                if (!bestBullets.includes(b)) bestBullets.push(b);
+              }
+            }
+          }
+        }
+        const ranked = bestBullets
+          .map((b, idx) => {
+            const bl = b.toLowerCase();
+            let h = 0;
+            for (const w of qWords) if (bl.includes(w)) h++;
+            return { h, idx, b };
+          })
+          .sort((a, b) => b.h - a.h || a.idx - b.idx)
+          .slice(0, (solved || reasoned) ? 4 : 7)
+          .map((x) => `- ${x.b}`)
           .join("\n");
-        const cite = top.page ? `${top.source} p.${top.page}` : top.source;
-        sections.push(`### 📘 ${top.topic} *(${top.unit} — ${cite})*\n\n${bullets}`);
+        const cite = bestTop.page ? `${bestTop.source} p.${bestTop.page}` : bestTop.source;
+        sections.push(`### 📘 ${bestTop.topic} *(${bestTop.unit} — ${cite})*\n\n${ranked}`);
       }
     }
-    if (msTips.length && !solved) {
+    if (msTips.length && !solved && !reasoned) {
       const tip = msTips[0];
       const pts = (tip.q.points || [])
         .slice(0, 3)
@@ -1467,9 +1580,11 @@
         };
       }
 
-      // Expand short follow-up queries using last user turn for retrieval
+      // Only inherit previous turn for genuine anaphoric follow-ups (never trap new topics!)
+      const PURE_FOLLOWUP_RE =
+        /^\s*(?:why\??|how\??|explain\s+more|tell\s+me\s+more|simpler|simplify|give\s+(?:me\s+)?(?:an?\s+)?example|another\s+example|show\s+(?:the\s+)?(?:formula|equation|working|steps?)|what(?:'s|\s+is)\s+(?:the|its)\s+unit\??|(?:youtube\s+)?videos?\s+for\s+(?:this|that|it)\??)\s*[?!.]*\s*$/i;
       let searchQuery = combined;
-      if (tokenize(combined).length <= 6 && hasPrior) {
+      if (hasPrior && PURE_FOLLOWUP_RE.test(combined)) {
         const prevUsers = history.filter((h) => h && h.role === "user" && h.content);
         if (prevUsers.length) {
           searchQuery = prevUsers[prevUsers.length - 1].content + " " + combined;

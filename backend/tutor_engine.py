@@ -19,6 +19,7 @@ from backend.knowledge_base import HaronyKnowledgeBase
 from backend.llm_bridge import try_neural_generation, try_neural_vision_ocr
 from backend.ms_grader import STOPWORDS
 from backend.ocr_engine import extract_from_file_bytes
+from backend.physics_reasoner import try_reason_physics_variation
 from backend.physics_solver import try_solve_physics_problem
 
 
@@ -83,13 +84,16 @@ def find_related_ms_tips(query: str, kb: HaronyKnowledgeBase) -> List[Dict[str, 
     scored: List[tuple[int, Dict[str, Any]]] = []
     for ms in kb.mark_schemes:
         for q in ms.get("questions", []):
-            # Focus on conceptual B-mark questions for keyword tips
-            b_pts = [p for p in q.get("points", []) if p.get("mark_type") == "B" and len(p.get("answer", "")) >= 8]
-            if not b_pts:
+            pts = [p for p in q.get("points", []) if len(p.get("answer", "")) >= 6]
+            if not pts:
                 continue
-            combined_txt = " ".join(p["answer"] + " " + p.get("guidance", "") for p in b_pts).lower()
+            combined_txt = (
+                str(q.get("title", "")) + " "
+                + str(q.get("chapter", "")) + " "
+                + " ".join(p["answer"] + " " + p.get("guidance", "") for p in pts)
+            ).lower()
             hits = sum(1 for w in q_words if w in combined_txt)
-            if hits >= 2 or (len(q_words) == 1 and hits == 1):
+            if hits >= 2 or (len(q_words) == 1 and hits == 1 and q_words.issubset(set(re.findall(r"[a-z]{4,}", str(q.get("title", "")).lower())))):
                 scored.append((hits, {"ms_title": ms["title"], "question": q}))
 
     scored.sort(key=lambda x: x[0], reverse=True)
@@ -173,9 +177,15 @@ class HaroonyTutorEngine:
         else:
             combined_query = user_msg
 
-        # Incorporate last user turn if short follow-up like "give me an example" or "show the formula"
+        # Only inherit previous turn if the message is a genuine anaphoric follow-up (never on a new topic!)
+        PURE_FOLLOWUP_RE = re.compile(
+            r"^\s*(?:why\??|how\??|explain\s+more|tell\s+me\s+more|simpler|simplify|"
+            r"give\s+(?:me\s+)?(?:an?\s+)?example|another\s+example|show\s+(?:the\s+)?(?:formula|equation|working|steps?)|"
+            r"what(?:'s|\s+is)\s+(?:the|its)\s+unit\??|(?:youtube\s+)?videos?\s+for\s+(?:this|that|it)\??)\s*[?!.]*\s*$",
+            re.I,
+        )
         search_query = combined_query
-        if len(combined_query.split()) <= 6 and history:
+        if history and PURE_FOLLOWUP_RE.match(combined_query):
             prev_users = [m.get("content", "") for m in history if m.get("role") == "user"]
             if prev_users:
                 search_query = prev_users[-1] + " " + combined_query
@@ -239,8 +249,9 @@ class HaroonyTutorEngine:
         if re.search(r"\b(?:quiz\s+me|test\s+me|practice\s+question|give\s+me\s+a\s+question)\b", combined_query, re.I):
             return self._generate_practice_question(search_query)
 
-        # 4. Run Symbolic Physics Calculation Solver + Trained Unit/Intent Classifiers + Harony RAG
+        # 4. Run Symbolic Physics Calculation Solver + First-Principles Reasoner + Trained Classifiers + Harony RAG
         solved = try_solve_physics_problem(combined_query)
+        reasoned_md = None if solved else try_reason_physics_variation(combined_query)
         predicted_unit = self.kb.predict_unit(search_query)
         predicted_intent = self.kb.predict_intent(search_query)
         raw_note_hits = self.kb.search(search_query, top_k=5)
@@ -328,8 +339,10 @@ class HaroonyTutorEngine:
 
         if solved:
             sections.append(solved.to_markdown())
+        elif reasoned_md:
+            sections.append(reasoned_md)
 
-        if concept_entry and not solved:
+        if concept_entry and not solved and not reasoned_md:
             c_pts = "\n".join(f"- {p}" for p in concept_entry.get("points", []))
             c_md = f"### ⚡ {concept_entry['topic']} *({concept_entry['unit']})*\n\n{concept_entry['summary']}\n\n{c_pts}"
             if concept_entry.get("formulas"):
@@ -362,11 +375,11 @@ class HaroonyTutorEngine:
                         if eb not in bullets:
                             bullets.append(eb)
 
-            max_bullets = 4 if (solved or concept_entry) else 8
+            max_bullets = 4 if (solved or reasoned_md or concept_entry) else 8
             ranked_bullets = rank_relevant_bullets(bullets, combined_query, limit=max_bullets)
             bullet_md = "\n".join(f"- {b}" for b in ranked_bullets)
 
-            title_prefix = "Harony Notes Key Points" if (solved or concept_entry) else f"{p_topic}"
+            title_prefix = "Harony Notes Key Points" if (solved or reasoned_md or concept_entry) else f"{p_topic}"
             sections.append(
                 f"### 📘 {title_prefix} *({p_unit} — {header_cite})*\n\n{bullet_md}"
             )
@@ -474,7 +487,7 @@ class HaroonyTutorEngine:
         reply = (
             f"### 📝 IGCSE Physics Practice Question — {picked_title}\n\n"
             f"{picked_q}\n\n"
-            f"*Reply with your working & answer (or write it on paper and upload a photo in **Correct My Answer**) and I will mark it strictly using Cambridge 0625 rules!*"
+            f"*Reply here with your working and answer and I will walk you through the Cambridge 0625 marking points!*"
         )
         return {
             "ok": True,

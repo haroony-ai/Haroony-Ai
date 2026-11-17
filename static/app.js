@@ -1,4 +1,4 @@
-/* Haroony AI — Clean Dual-Mode Frontend (Ask AI + Mark My Answer, Server + Standalone GitHub Pages) */
+/* Haroony AI — Instant, Fast Physics Chat Frontend (Server + Standalone GitHub Pages) */
 (function () {
   "use strict";
 
@@ -7,14 +7,6 @@
   let serverAvailable = null;
   let chatHistory = [];
   let chatAttachedFile = null;
-  let activeTab = "tutor";
-
-  // Grader state
-  let studentFiles = [];
-  let msFile = null;
-  let activeMsMode = "ai"; // ai | saved | upload | paste
-  let loadedMarkSchemes = [];
-  let currentQuestionOptions = [];
 
   function escapeHtml(str) {
     return String(str || "")
@@ -111,21 +103,6 @@
     return html.join("");
   }
 
-  // ==================== NAVIGATION TABS ====================
-  const navTabs = document.querySelectorAll(".nav-tab");
-  const tabPanels = document.querySelectorAll(".tab-panel");
-
-  function switchTab(tabName) {
-    activeTab = tabName;
-    navTabs.forEach((b) => b.classList.toggle("active", b.getAttribute("data-tab") === tabName));
-    tabPanels.forEach((p) => p.classList.toggle("active", p.id === `tab-${tabName}`));
-  }
-
-  navTabs.forEach((btn) => {
-    btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
-  });
-  document.getElementById("brandHome").addEventListener("click", () => switchTab("tutor"));
-
   // ==================== LIGHTBOX & VIDEO PLAYER MODAL ====================
   const lightboxModal = document.getElementById("lightboxModal");
   const lightboxImg = document.getElementById("lightboxImg");
@@ -219,42 +196,8 @@
     }
   });
 
-  // ==================== INITIALIZE STATUS & MARK SCHEMES ====================
-  const neuralBoostBtn = document.getElementById("neuralBoostBtn");
-  if (neuralBoostBtn && window.HaroonyNeuralAI) {
-    window.HaroonyNeuralAI.onStatusChange((st) => {
-      if (!neuralBoostBtn) return;
-      if (st.state === "loading") {
-        neuralBoostBtn.textContent = st.progress ? `Loading (${st.progress}%)…` : "Loading LLM…";
-        neuralBoostBtn.disabled = true;
-      } else if (st.state === "ready") {
-        neuralBoostBtn.textContent = "✓ Deep AI Active";
-        neuralBoostBtn.disabled = false;
-        neuralBoostBtn.classList.add("grade-badge-green");
-      } else if (st.state === "failed") {
-        neuralBoostBtn.textContent = "⚡ Deep AI";
-        neuralBoostBtn.disabled = false;
-      }
-    });
-
-    neuralBoostBtn.addEventListener("click", async () => {
-      neuralBoostBtn.disabled = true;
-      neuralBoostBtn.textContent = "Starting LLM…";
-      const ok = await window.HaroonyNeuralAI.enableSmartAI((txt) => {
-        if (txt && neuralBoostBtn.disabled) neuralBoostBtn.textContent = txt.slice(0, 24);
-      });
-      if (!ok) {
-        neuralBoostBtn.textContent = "Instant AI Ready";
-        setTimeout(() => {
-          neuralBoostBtn.textContent = "⚡ Deep AI";
-          neuralBoostBtn.disabled = false;
-        }, 2500);
-      }
-    });
-  }
-
+  // ==================== INITIALIZE STATUS ====================
   async function loadSystemStatus() {
-    let statusData = null;
     try {
       const resp = await fetch("api/status", { headers: { Accept: "application/json" } });
       if (resp.ok) {
@@ -263,40 +206,19 @@
           const data = await resp.json();
           if (data && data.ok) {
             serverAvailable = true;
-            statusData = data;
+            return;
           }
         }
       }
     } catch (_) {}
 
-    if (!statusData) {
-      serverAvailable = false;
-      if (window.HaroonyBrowserEngine) {
-        try {
-          statusData = await window.HaroonyBrowserEngine.getStatus();
-        } catch (err) {
-          console.error("Browser engine init error:", err);
-        }
+    serverAvailable = false;
+    if (window.HaroonyBrowserEngine) {
+      try {
+        await window.HaroonyBrowserEngine.getStatus();
+      } catch (err) {
+        console.error("Browser engine init error:", err);
       }
-      if (window.HaroonyNeuralAI && window.HaroonyNeuralAI.enableSmartAI) {
-        setTimeout(() => window.HaroonyNeuralAI.enableSmartAI(), 900);
-      }
-    } else if (statusData.server_llm_active) {
-      if (neuralBoostBtn) {
-        neuralBoostBtn.textContent = "✓ Deep AI Active";
-        neuralBoostBtn.classList.add("grade-badge-green");
-        neuralBoostBtn.title = "Server-side multi-model Physics AI active";
-      }
-    } else {
-      // Server running without cloud/Ollama keys: auto-boot real in-browser Open-Source LLM!
-      if (window.HaroonyNeuralAI && window.HaroonyNeuralAI.enableSmartAI) {
-        setTimeout(() => window.HaroonyNeuralAI.enableSmartAI(), 900);
-      }
-    }
-
-    if (statusData && Array.isArray(statusData.mark_schemes)) {
-      loadedMarkSchemes = statusData.mark_schemes;
-      populateSavedMarkSchemes(loadedMarkSchemes);
     }
   }
 
@@ -351,7 +273,6 @@
 
   document.getElementById("removeChatAttachment").addEventListener("click", clearAttachedChatFile);
 
-  // Allow Ctrl+V / Cmd+V pasting screenshots directly into active tab (Ask AI OR Mark My Answer)
   function extractClipboardImageOrPdf(e) {
     const cd = e.clipboardData || (window.clipboardData && window.clipboardData);
     if (!cd) return null;
@@ -375,18 +296,6 @@
     return null;
   }
 
-  function handleGlobalPaste(e) {
-    const file = extractClipboardImageOrPdf(e);
-    if (!file) return;
-    e.preventDefault();
-    if (activeTab === "grader") {
-      addStudentFiles([file]);
-    } else {
-      attachFileToChat(file);
-      chatInput.focus();
-    }
-  }
-
   chatInput.addEventListener("paste", function (e) {
     const file = extractClipboardImageOrPdf(e);
     if (file) {
@@ -396,7 +305,13 @@
   });
   document.addEventListener("paste", function (e) {
     if (e.target === chatInput) return;
-    handleGlobalPaste(e);
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    const file = extractClipboardImageOrPdf(e);
+    if (file) {
+      e.preventDefault();
+      attachFileToChat(file);
+      chatInput.focus();
+    }
   });
 
   if (chatCard) {
@@ -566,43 +481,6 @@
     };
   }
 
-  async function enhanceServerReplyWithNeural(userText, data, liveBubble) {
-    if (!window.HaroonyNeuralAI || !window.HaroonyNeuralAI.isReady || !window.HaroonyNeuralAI.isReady()) return data;
-    if (data.refused || data.category !== "physics" || data.neural_generated) return data;
-    try {
-      const sysPrompt =
-        "You are Haroony AI, Mr. Haroony's expert IGCSE & A-Level Physics tutor from Harony Physics Clinic.\n" +
-        "Answer ONLY Physics questions. Reason from Physics first principles to answer the student's EXACT question directly and accurately — NEVER parrot unrelated notes or memorize fixed lines. " +
-        "For calculations, show Formula -> Substitution -> Calculation -> Final Answer with units (2-3 sig figs). Bold key Cambridge 0625 marking phrases.";
-
-      const msgs = [{ role: "system", content: sysPrompt }];
-      for (const h of chatHistory.slice(-4)) {
-        msgs.push({ role: h.role, content: String(h.content).slice(0, 700) });
-      }
-      let usr = userText || "Please solve/explain this uploaded Physics problem.";
-      if (data.ocr_text) usr += `\n\nExtracted text from uploaded file:\n${data.ocr_text.slice(0, 1400)}`;
-      if (data.solved_markdown) usr += `\n\nVerified Symbolic Calculation:\n${data.solved_markdown.slice(0, 1200)}`;
-      if (data.rag_context) usr += `\n\n---\nHarony Physics Reference Context (use only what directly applies to the question):\n${data.rag_context.slice(0, 1800)}`;
-      msgs.push({ role: "user", content: usr });
-
-      const genText = await window.HaroonyNeuralAI.generate(msgs, {
-        maxTokens: 650,
-        temperature: 0.2,
-        onProgress: (st) => liveBubble.setStatus(st),
-        onToken: (full) => liveBubble.streamPreview(full),
-      });
-      if (genText) {
-        let finalMd = genText;
-        if (data.ocr_text && !finalMd.includes("Read from")) {
-          const prev = data.ocr_text.slice(0, 240) + (data.ocr_text.length > 240 ? "…" : "");
-          finalMd = `**📷 Read from your uploaded file:**\n> ${prev.replace(/\n/g, "\n> ")}\n\n${finalMd}`;
-        }
-        data.reply = finalMd;
-      }
-    } catch (_) {}
-    return data;
-  }
-
   chatForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     const text = chatInput.value.trim();
@@ -631,7 +509,7 @@
         const raw = await resp.json();
         data = !resp.ok
           ? { refused: true, reply: raw.detail || "Something went wrong. Please try again.", notes_cards: [] }
-          : await enhanceServerReplyWithNeural(text, raw, liveBubble);
+          : raw;
       } else {
         data = await window.HaroonyBrowserEngine.chat(
           text,
@@ -663,448 +541,6 @@
       chatSendBtn.disabled = false;
     }
   });
-
-  // ==================== TAB 2: MARK MY ANSWER ====================
-  const studentDropzone = document.getElementById("studentDropzone");
-  const studentFileInput = document.getElementById("studentFileInput");
-  const studentFilePills = document.getElementById("studentFilePills");
-  const studentTextInput = document.getElementById("studentTextInput");
-  const clearGraderBtn = document.getElementById("clearGraderBtn");
-
-  const msModeBtns = document.querySelectorAll(".ms-mode-btn");
-  const savedMsSelect = document.getElementById("savedMsSelect");
-  const questionSearchInput = document.getElementById("questionSearchInput");
-  const questionSelect = document.getElementById("questionSelect");
-  const msDropzone = document.getElementById("msDropzone");
-  const msFileInput = document.getElementById("msFileInput");
-  const msFilePill = document.getElementById("msFilePill");
-  const msTextInput = document.getElementById("msTextInput");
-  const gradeSubmitBtn = document.getElementById("gradeSubmitBtn");
-  const gradeResultArea = document.getElementById("gradeResultArea");
-
-  function addStudentFiles(fileList) {
-    for (const f of fileList) {
-      if (f && studentFiles.length < 6) {
-        studentFiles.push(f);
-      }
-    }
-    renderStudentFilePills();
-  }
-
-  function renderStudentFilePills() {
-    if (!studentFilePills) return;
-    studentFilePills.innerHTML = studentFiles
-      .map((f, idx) => {
-        if (f.type && f.type.startsWith("image/")) {
-          const url = URL.createObjectURL(f);
-          return `<span class="file-thumb-pill">
-              <img src="${url}" alt="${escapeHtml(f.name)}" data-lightbox="${url}" data-caption="${escapeHtml(f.name)}" />
-              <span>${escapeHtml(f.name)}</span>
-              <button type="button" class="btn-icon" data-rm-stu="${idx}" aria-label="Remove">&times;</button>
-            </span>`;
-        }
-        return `<span class="file-pill">📄 ${escapeHtml(f.name)} <button type="button" class="btn-icon" data-rm-stu="${idx}" aria-label="Remove">&times;</button></span>`;
-      })
-      .join("");
-  }
-
-  if (studentFilePills) {
-    studentFilePills.addEventListener("click", function (e) {
-      const rm = e.target.closest("[data-rm-stu]");
-      if (rm) {
-        const idx = Number(rm.getAttribute("data-rm-stu"));
-        studentFiles.splice(idx, 1);
-        renderStudentFilePills();
-      }
-    });
-  }
-
-  if (studentFileInput) {
-    studentFileInput.addEventListener("change", function () {
-      if (studentFileInput.files && studentFileInput.files.length) {
-        addStudentFiles(studentFileInput.files);
-        studentFileInput.value = "";
-      }
-    });
-  }
-
-  if (studentDropzone) {
-    ["dragenter", "dragover"].forEach((ev) =>
-      studentDropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        studentDropzone.classList.add("dragover");
-      })
-    );
-    ["dragleave", "drop"].forEach((ev) =>
-      studentDropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        studentDropzone.classList.remove("dragover");
-      })
-    );
-    studentDropzone.addEventListener("drop", function (e) {
-      if (e.dataTransfer && e.dataTransfer.files) {
-        addStudentFiles(e.dataTransfer.files);
-      }
-    });
-  }
-
-  if (clearGraderBtn) {
-    clearGraderBtn.addEventListener("click", function () {
-      studentFiles = [];
-      renderStudentFilePills();
-      if (studentTextInput) studentTextInput.value = "";
-      if (gradeResultArea) {
-        gradeResultArea.innerHTML = "";
-        gradeResultArea.classList.add("hidden");
-      }
-    });
-  }
-
-  msModeBtns.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      activeMsMode = btn.getAttribute("data-ms-mode") || "ai";
-      msModeBtns.forEach((b) => b.classList.toggle("active", b === btn));
-      ["ai", "saved", "upload", "paste"].forEach((m) => {
-        const pane = document.getElementById(`ms-pane-${m}`);
-        if (pane) pane.classList.toggle("hidden", m !== activeMsMode);
-      });
-    });
-  });
-
-  function populateSavedMarkSchemes(list) {
-    if (!savedMsSelect) return;
-    if (!list || !list.length) {
-      savedMsSelect.innerHTML = '<option value="">No mark schemes loaded</option>';
-      return;
-    }
-    savedMsSelect.innerHTML = list
-      .map((m) => {
-        const count = m.question_count || (m.question_ids ? m.question_ids.length : 0);
-        return `<option value="${escapeHtml(m.id)}">${escapeHtml(m.title)} (${count} parts)</option>`;
-      })
-      .join("");
-    loadQuestionsForBook(savedMsSelect.value);
-  }
-
-  function renderQuestionDropdown(filterTerm) {
-    if (!questionSelect) return;
-    const term = (filterTerm || "").trim().toLowerCase();
-    const filtered = term
-      ? currentQuestionOptions.filter((q) => q.label.toLowerCase().includes(term))
-      : currentQuestionOptions;
-
-    const opts = ['<option value="">Auto-detect best matching question</option>'];
-    for (const q of filtered.slice(0, 250)) {
-      opts.push(`<option value="${escapeHtml(q.id)}">${escapeHtml(q.label)}</option>`);
-    }
-    questionSelect.innerHTML = opts.join("");
-  }
-
-  async function loadQuestionsForBook(msId) {
-    if (!msId || !questionSelect) return;
-    currentQuestionOptions = [];
-    questionSelect.innerHTML = '<option value="">Loading questions…</option>';
-
-    try {
-      let msObj = null;
-      if (serverAvailable) {
-        const r = await fetch(`api/mark-schemes/${encodeURIComponent(msId)}`);
-        if (r.ok) {
-          const d = await r.json();
-          msObj = d.mark_scheme;
-        }
-      } else if (window.HaroonyBrowserEngine && window.HaroonyBrowserEngine.getMarkSchemeById) {
-        msObj = await window.HaroonyBrowserEngine.getMarkSchemeById(msId);
-      }
-
-      if (msObj && Array.isArray(msObj.questions)) {
-        currentQuestionOptions = msObj.questions.map((q) => {
-          const qid = q.question_id || "";
-          const topic = q.topic || q.chapter || "";
-          const marks = q.total_marks || 0;
-          const preview = (q.summary_answer || "").slice(0, 48);
-          return {
-            id: qid,
-            label: `${qid}${topic ? " — " + topic : ""} [${marks}m]${preview ? ": " + preview : ""}`,
-          };
-        });
-      }
-    } catch (_) {}
-
-    renderQuestionDropdown(questionSearchInput ? questionSearchInput.value : "");
-  }
-
-  if (savedMsSelect) {
-    savedMsSelect.addEventListener("change", () => loadQuestionsForBook(savedMsSelect.value));
-  }
-  if (questionSearchInput) {
-    questionSearchInput.addEventListener("input", () => renderQuestionDropdown(questionSearchInput.value));
-  }
-
-  function renderMsFilePill() {
-    if (!msFilePill) return;
-    msFilePill.innerHTML = msFile
-      ? `<span class="file-pill">📄 ${escapeHtml(msFile.name)} <button type="button" class="btn-icon" id="rmMsFileBtn" aria-label="Remove">&times;</button></span>`
-      : "";
-    const rmBtn = document.getElementById("rmMsFileBtn");
-    if (rmBtn) {
-      rmBtn.addEventListener("click", () => {
-        msFile = null;
-        if (msFileInput) msFileInput.value = "";
-        renderMsFilePill();
-      });
-    }
-  }
-
-  if (msFileInput) {
-    msFileInput.addEventListener("change", function () {
-      if (msFileInput.files && msFileInput.files[0]) {
-        msFile = msFileInput.files[0];
-        renderMsFilePill();
-      }
-    });
-  }
-  if (msDropzone) {
-    ["dragenter", "dragover"].forEach((ev) =>
-      msDropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        msDropzone.classList.add("dragover");
-      })
-    );
-    ["dragleave", "drop"].forEach((ev) =>
-      msDropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        msDropzone.classList.remove("dragover");
-      })
-    );
-    msDropzone.addEventListener("drop", function (e) {
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-        msFile = e.dataTransfer.files[0];
-        renderMsFilePill();
-      }
-    });
-  }
-
-  function gradeBadgeClass(pct) {
-    if (pct >= 80) return "grade-badge-green";
-    if (pct >= 60) return "grade-badge-blue";
-    if (pct >= 40) return "grade-badge-amber";
-    return "grade-badge-red";
-  }
-
-  function renderGradeResult(res) {
-    if (!gradeResultArea) return;
-    gradeResultArea.classList.remove("hidden");
-
-    if (!res || !res.ok || res.refused) {
-      const msg = (res && (res.error || res.detail)) || "Could not grade this submission yet.";
-      gradeResultArea.innerHTML = `
-        <div class="q-breakdown-card" style="border-color:#fecaca;background:#fff8f8;">
-          <h3 style="margin-top:0;color:#b91c1c;">Could Not Complete Marking</h3>
-          <div>${renderMarkdown(msg)}</div>
-          ${
-            res && res.extracted_student_text
-              ? `<details class="ocr-details"><summary>Text read from your submission</summary><pre style="white-space:pre-wrap;margin:8px 0 0;">${escapeHtml(res.extracted_student_text)}</pre></details>`
-              : ""
-          }
-        </div>`;
-      gradeResultArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      return;
-    }
-
-    const pct = Number(res.percentage || 0);
-    const badgeCls = gradeBadgeClass(pct);
-    const qs = res.questions || [];
-
-    const qsHtml = qs
-      .map((q) => {
-        const ptsHtml = (q.points || [])
-          .map((pt) => {
-            const st = pt.status || (pt.marks_awarded > 0 ? "awarded" : "missed");
-            return `<div class="mark-row ${escapeHtml(st)}">
-              <strong>[${escapeHtml(pt.code || "B1")}] (${pt.marks_awarded || 0}/${pt.max_marks || 1})</strong> — ${renderMarkdown(pt.comment || pt.expected || "")}
-            </div>`;
-          })
-          .join("");
-
-        const vidBtn = q.video_url
-          ? `<a href="${escapeHtml(toWatchUrl(q.video_url))}" target="_blank" rel="noopener noreferrer" class="video-pill-link" data-video-url="${escapeHtml(toWatchUrl(q.video_url))}" data-video-title="${escapeHtml(q.question_id || "Video Solution")}">🎥 Watch Video Solution</a>`
-          : "";
-
-        return `<div class="q-breakdown-card">
-          <div class="q-breakdown-header">
-            <div>
-              <strong>${escapeHtml(q.question_id || "Question")}</strong>
-              ${q.title ? `<span class="muted-tag"> &bull; ${escapeHtml(q.title)}</span>` : ""}
-            </div>
-            <span class="q-score-pill">${q.awarded_marks || 0} / ${q.max_marks || 0} marks</span>
-          </div>
-          ${ptsHtml}
-          ${q.model_answer ? `<div style="margin-top:10px;font-size:0.86rem;"><strong>Model Answer:</strong> ${renderMarkdown(q.model_answer)}</div>` : ""}
-          ${vidBtn ? `<div class="video-pills">${vidBtn}</div>` : ""}
-        </div>`;
-      })
-      .join("");
-
-    const extraVids = (res.related_videos || []).slice(0, 3);
-    const extraVidsHtml =
-      extraVids.length && !qs.some((q) => q.video_url)
-        ? `<div class="q-breakdown-card">
-            <strong>Related Harony Video Walkthroughs</strong>
-            <div class="video-pills">${extraVids
-              .map((v) => {
-                const w = toWatchUrl(v.video_url);
-                const lbl = (v.label || v.chapter || "Video Solution").slice(0, 56);
-                return `<a href="${escapeHtml(w)}" target="_blank" rel="noopener noreferrer" class="video-pill-link" data-video-url="${escapeHtml(w)}" data-video-title="${escapeHtml(lbl)}">🎥 ${escapeHtml(lbl)}</a>`;
-              })
-              .join("")}</div>
-          </div>`
-        : "";
-
-    const notesRefs = (res.notes_references || []).filter((n) => n.image_url);
-    const notesHtml = notesRefs.length
-      ? `<div class="q-breakdown-card revision-notes-card">
-          <div class="q-breakdown-header"><strong>Recommended Harony Notes Revision</strong></div>
-          <div class="revision-list">
-            ${notesRefs
-              .slice(0, 2)
-              .map((n) => {
-                const imgUrl = normalizeAssetUrl(n.image_url);
-                const bullets = Array.isArray(n.bullets) && n.bullets.length
-                  ? `<ul class="revision-bullets">${n.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
-                  : `<p class="revision-snippet">${escapeHtml(n.snippet || "")}</p>`;
-                return `<div class="revision-item">
-                  <div class="revision-item-text">
-                    <span class="revision-badge">Page ${n.page || ""} &bull; ${escapeHtml(n.unit || "Harony Notes")}</span>
-                    <h4>${escapeHtml(n.topic || "")}</h4>
-                    ${bullets}
-                  </div>
-                  <div class="mini-note-card" data-lightbox="${escapeHtml(imgUrl)}" data-caption="Page ${n.page || ""} — ${escapeHtml(n.topic || "")}">
-                    <img src="${escapeHtml(imgUrl)}" alt="Page ${n.page || ""}" loading="lazy" />
-                    <div class="mini-note-card-body"><strong>Page ${n.page || ""}</strong><span>Click to zoom</span></div>
-                  </div>
-                </div>`;
-              })
-              .join("")}
-          </div>
-        </div>`
-      : "";
-
-    const ocrDetailsHtml = res.extracted_student_text
-      ? `<details class="ocr-details"><summary>View text read from your submission</summary><pre style="white-space:pre-wrap;margin:8px 0 0;">${escapeHtml(res.extracted_student_text)}</pre></details>`
-      : "";
-
-    gradeResultArea.innerHTML = `
-      <div class="score-summary-card">
-        <div class="score-pill-big">
-          <span class="score-numbers">${res.awarded_marks || 0} / ${res.max_marks || 0} Marks</span>
-          <span class="score-grade-badge ${badgeCls}">${pct}% &bull; Grade ${escapeHtml(res.grade || "-")}</span>
-        </div>
-        <div class="muted-tag" style="font-size:0.86rem;">${escapeHtml(res.mark_scheme_title || "Cambridge 0625 Check")}</div>
-      </div>
-      ${res.examiner_feedback ? `<div class="examiner-feedback-card">${renderMarkdown(res.examiner_feedback)}</div>` : ""}
-      ${qsHtml}
-      ${extraVidsHtml}
-      ${notesHtml}
-      ${ocrDetailsHtml}`;
-
-    gradeResultArea.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  if (gradeSubmitBtn) {
-    gradeSubmitBtn.addEventListener("click", async function () {
-      const stuTxt = studentTextInput ? studentTextInput.value.trim() : "";
-      if (!stuTxt && studentFiles.length === 0) {
-        renderGradeResult({
-          ok: false,
-          error: "Please upload a photo/PDF of your Physics answer or type your answer in Step 1 first.",
-        });
-        return;
-      }
-
-      if (serverAvailable === null) await loadSystemStatus();
-
-      gradeSubmitBtn.disabled = true;
-      gradeResultArea.classList.remove("hidden");
-      gradeResultArea.innerHTML = `
-        <div class="grading-loader-card">
-          <strong id="gradingLoaderMsg">Reading your Physics submission &amp; checking Mark Scheme…</strong>
-          <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
-        </div>`;
-
-      const setLoaderMsg = (m) => {
-        const el = document.getElementById("gradingLoaderMsg");
-        if (el && m) el.textContent = m;
-      };
-
-      try {
-        let result;
-        const chosenMsId = activeMsMode === "saved" && savedMsSelect ? savedMsSelect.value : "";
-        const chosenQid = activeMsMode === "saved" && questionSelect ? questionSelect.value : "";
-        const pastedMs = activeMsMode === "paste" && msTextInput ? msTextInput.value.trim() : "";
-        const uploadedMs = activeMsMode === "upload" ? msFile : null;
-
-        if (serverAvailable) {
-          const fd = new FormData();
-          fd.append("student_text", stuTxt);
-          fd.append("ms_id", chosenMsId);
-          fd.append("question_id", chosenQid);
-          fd.append("ms_text", pastedMs);
-          for (const sf of studentFiles) {
-            fd.append("student_files", sf);
-          }
-          if (uploadedMs) fd.append("ms_file", uploadedMs);
-
-          const resp = await fetch("api/grade", { method: "POST", body: fd });
-          const raw = await resp.json();
-          if (!resp.ok) {
-            result = { ok: false, error: raw.detail || "Could not grade submission." };
-          } else {
-            result = raw;
-          }
-        } else {
-          result = await window.HaroonyBrowserEngine.grade(
-            {
-              studentText: stuTxt,
-              studentFiles: studentFiles,
-              msMode: activeMsMode,
-              msId: chosenMsId,
-              questionId: chosenQid,
-              msText: pastedMs,
-              msFile: uploadedMs,
-            },
-            setLoaderMsg
-          );
-        }
-
-        if (
-          (!result || !result.ok) &&
-          !chosenMsId &&
-          !pastedMs &&
-          !uploadedMs &&
-          window.HaroonyNeuralAI &&
-          window.HaroonyNeuralAI.isReady &&
-          window.HaroonyNeuralAI.isReady()
-        ) {
-          const fallbackText = (result && result.extracted_student_text) || stuTxt;
-          if (fallbackText) {
-            setLoaderMsg("Evaluating your Physics reasoning with Haroony Neural AI…");
-            const llmGraded = await window.HaroonyNeuralAI.gradeSubmissionWithLLM(fallbackText);
-            if (llmGraded && llmGraded.ok) result = llmGraded;
-          }
-        }
-
-        renderGradeResult(result);
-      } catch (err) {
-        renderGradeResult({
-          ok: false,
-          error: "Something went wrong while marking your answer. Please try again.",
-        });
-      } finally {
-        gradeSubmitBtn.disabled = false;
-      }
-    });
-  }
 
   loadSystemStatus();
 })();

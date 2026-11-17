@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.config import MODELS_DIR, ROOT_DIR, STATIC_DIR, load_settings, save_settings
 from backend.guardrail import PhysicsGuardrail
 from backend.knowledge_base import HaronyKnowledgeBase
-from backend.llm_bridge import has_active_server_llm, try_neural_examiner_feedback, try_neural_grade_unmatched, try_neural_vision_ocr
+from backend.llm_bridge import has_active_server_llm, try_neural_vision_ocr
 from backend.ms_grader import grade_submission
 from backend.ms_parser import parse_cambridge_ms_pdf, parse_freeform_ms_text
 from backend.ocr_engine import extract_from_file_bytes
@@ -267,28 +267,6 @@ async def api_grade(
         ms_obj=ms_obj,
         target_question_id=question_id.strip() or None,
     )
-    if not result.get("ok") and not ms_obj:
-        neural_graded = await try_neural_grade_unmatched(
-            student_text=combined_student,
-            ms_title="",
-            ms_text="",
-        )
-        if neural_graded:
-            result = neural_graded
-    if result.get("ok") and result.get("questions"):
-        q_summary = "\n".join(
-            f"- {q.get('question_id')}: {q.get('model_answer', '')}"
-            for q in result["questions"][:3]
-        )
-        neural_fb = await try_neural_examiner_feedback(
-            student_text=combined_student,
-            ms_title=result.get("mark_scheme_title", "Physics Mark Scheme"),
-            ms_summary=q_summary,
-            awarded=int(result.get("awarded_marks", 0)),
-            max_marks=int(result.get("max_marks", 1)),
-        )
-        if neural_fb:
-            result["examiner_feedback"] = neural_fb
     result["ocr_files"] = ocr_meta
     return result
 
